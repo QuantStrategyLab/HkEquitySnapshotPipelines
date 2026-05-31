@@ -1,0 +1,7 @@
+symbol,sector,market_cap_hkd,lot_size,eligible
+02800,ETF,140000000000,500,True
+00700,Technology,3200000000000,100,True
+03690,Technology,750000000000,100,True
+00941,Telecom,1500000000000,500,True
+02318,Financials,900000000000,500,True
+00005,Financials,650000000000,400,True
