@@ -4,6 +4,8 @@
 
 `hk_blue_chip_leader_rotation`
 
+> Current status: architecture scaffold. These contracts are stable enough for platform wiring tests, but not yet a production trading feed.
+
 ## Files
 
 | Artifact | Filename |
