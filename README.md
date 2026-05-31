@@ -1,5 +1,7 @@
 # HkEquitySnapshotPipelines
 
+> ⚠️ 投资有风险，不构成投资建议，仅供学习交流用途。
+
 Feature-snapshot pipeline scaffold repository for `HkEquityStrategies`.
 
 ## Scope
