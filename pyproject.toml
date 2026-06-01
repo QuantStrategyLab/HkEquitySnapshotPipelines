@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "hk-equity-snapshot-pipelines"
 version = "0.1.1"
-description = "Feature-snapshot pipelines for Hong Kong equity strategies"
+description = "Feature-snapshot pipelines and scaffold helpers for Hong Kong equity strategies"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

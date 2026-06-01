@@ -7,7 +7,7 @@ from typing import Any
 
 import pandas as pd
 
-from hk_equity_strategies.strategies.blue_chip_leader_rotation import (
+from .blue_chip_strategy import (
     REQUIRED_FEATURE_COLUMNS,
     compute_signals,
     normalize_symbol,

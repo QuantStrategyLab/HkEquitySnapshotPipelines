@@ -15,6 +15,10 @@
 
 > Current status: architecture scaffold. These contracts are stable enough for platform wiring tests, but not yet a production trading feed.
 
+The snapshot strategy helper and feature-column contract live in this repository. The non-snapshot
+`HkEquityStrategies` runtime catalog should not expose this profile until the snapshot data source
+and publication flow are promoted.
+
 ## Files
 
 | Artifact | Filename |
