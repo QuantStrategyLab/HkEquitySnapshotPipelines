@@ -129,6 +129,7 @@ Generate and validate live-enable evidence:
 hkeq-validate-live-enable-evidence \
   --print-template \
   --profile hk_low_vol_dividend_quality \
+  --platform longbridge \
   --json > snapshot-live-enable-evidence.json
 
 hkeq-validate-live-enable-evidence \
@@ -137,6 +138,16 @@ hkeq-validate-live-enable-evidence \
 ```
 
 The validators require stable evidence URIs, no secret-like query parameters, point-in-time data proof, out-of-sample backtests, HK cost/slippage/lot-size/capacity checks, dry-run order-preview provenance, bilingual notification evidence, rollout controls, and operator approval references.
+
+Audit the final live-enable gates after production artifact and platform evidence are available:
+
+```bash
+hkeq-audit-low-vol-dividend-live-enable \
+  --artifact-dir data/output/low_vol_dividend_quality \
+  --longbridge-evidence-file evidence/longbridge_live_enablement_evidence.json \
+  --ibkr-evidence-file evidence/ibkr_live_enablement_evidence.json \
+  --json
+```
 
 For the active and deferred quality/yield snapshot candidates, use the shared evidence draft commands. Deferred profiles should stay out of the default live-enable queue until real point-in-time walk-forward evidence passes the 30% drawdown gate:
 
@@ -216,6 +227,7 @@ python -m pytest -q
 - [`docs/first_snapshot_evidence_tools.md`](./docs/first_snapshot_evidence_tools.md): shared evidence package, bundle, source-audit, and backtest draft tools for active/deferred quality-yield candidates.
 - [`docs/low_vol_dividend_live_enablement_package.md`](./docs/low_vol_dividend_live_enablement_package.md): first-candidate evidence package for `hk_low_vol_dividend_quality`.
 - [`docs/low_vol_dividend_evidence_bundle.md`](./docs/low_vol_dividend_evidence_bundle.md): production source and walk-forward evidence templates for `hk_low_vol_dividend_quality`.
+- [`docs/low_vol_dividend_live_enablement_audit.md`](./docs/low_vol_dividend_live_enablement_audit.md): final artifact + platform evidence audit for `hk_low_vol_dividend_quality`.
 - [`docs/low_vol_dividend_production_source_audit.md`](./docs/low_vol_dividend_production_source_audit.md): production source audit draft tool for `hk_low_vol_dividend_quality`.
 - [`docs/low_vol_dividend_backtest_evidence.md`](./docs/low_vol_dividend_backtest_evidence.md): walk-forward backtest evidence draft tool for `hk_low_vol_dividend_quality`.
 - [`docs/research/hk_snapshot_strategy_candidates.md`](./docs/research/hk_snapshot_strategy_candidates.md): snapshot strategy research queue, curated candidates, and gating rationale.
