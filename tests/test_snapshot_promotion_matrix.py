@@ -640,7 +640,7 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert "new_snapshot_profile_name_and_contract_version" in (
         backlog["future_research_live_enablement_policy"]["required_pre_scaffold_gates"]
     )
-    assert backlog["candidate_count"] == 23
+    assert backlog["candidate_count"] == 24
     assert backlog["candidates"][0]["profile_hint"] == "hk_earnings_revision_quality_overlay"
     assert backlog["candidates"][0]["scaffold_status"] == "research_only_not_scaffolded"
     assert any("earnings-revision-overlay" in url for url in backlog["candidates"][0]["source_reference_urls"])
@@ -774,6 +774,13 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert any("searchsdw" in url for url in backlog["candidates"][22]["source_reference_urls"])
     assert any("sfc_high_shareholding" in item for item in backlog["candidates"][22]["required_new_data"])
     assert any("ccass_participant_concentration" in item for item in backlog["candidates"][22]["required_new_data"])
+    assert backlog["candidates"][23]["profile_hint"] == "hk_amihud_liquidity_risk_capacity_overlay"
+    assert backlog["candidates"][23]["suggested_contract_type"] == "liquidity_risk_snapshot_overlay"
+    assert any("jbfina/v35y2011i9p2217-2230" in url for url in backlog["candidates"][23]["source_reference_urls"])
+    assert any("S0378426612002014" in url for url in backlog["candidates"][23]["source_reference_urls"])
+    assert any("Securities-Market" in url for url in backlog["candidates"][23]["source_reference_urls"])
+    assert any("amihud_illiquidity" in item for item in backlog["candidates"][23]["required_new_data"])
+    assert any("liquidity_beta" in item for item in backlog["candidates"][23]["required_new_data"])
 
 
 def test_future_research_live_enablement_policy_blocks_backlog_until_new_contract_and_evidence():
@@ -807,6 +814,7 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
         "hk_accrual_quality_earnings_persistence_overlay",
         "hk_fscore_gross_profitability_quality_overlay",
         "hk_shareholding_concentration_free_float_risk_overlay",
+        "hk_amihud_liquidity_risk_capacity_overlay",
     ]
     assert "same_universe_ablation_vs_existing_quality_yield_momentum_and_special_situation_profiles" in (
         policy["required_pre_scaffold_gates"]
@@ -961,6 +969,12 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert "shareholding_concentration_ramp_dump_red_flag_price_volume_and_halt_history" in (
         policy["required_data_provenance"]
     )
+    assert "point_in_time_amihud_illiquidity_turnover_spread_depth_and_zero_volume_history" in (
+        policy["required_data_provenance"]
+    )
+    assert "market_wide_liquidity_shock_liquidity_beta_and_liquidity_regime_history" in (
+        policy["required_data_provenance"]
+    )
     assert "sector_rate_beta_inflation_beta_property_financial_and_dividend_yield_sensitivity_history" in (
         policy["required_data_provenance"]
     )
@@ -1018,6 +1032,9 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert any("refNo=21EC26" in url for url in policy["source_reference_urls"])
     assert any("searchsdw" in url for url in policy["source_reference_urls"])
     assert any("10722/33347" in url for url in policy["source_reference_urls"])
+    assert any("jbfina/v35y2011i9p2217-2230" in url for url in policy["source_reference_urls"])
+    assert any("S0378426612002014" in url for url in policy["source_reference_urls"])
+    assert any("Securities-Market" in url for url in policy["source_reference_urls"])
 
 
 
