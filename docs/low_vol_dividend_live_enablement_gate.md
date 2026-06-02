@@ -44,6 +44,33 @@ ibkr_strategy_policy_evidence.draft.json
 
 ## Usage
 
+Preview evidence intake from one or more directories before copying anything:
+
+```bash
+hkeq-intake-low-vol-dividend-live-enable-evidence \
+  --source-dir /path/to/operator-evidence \
+  --evidence-dir evidence/low_vol_dividend_quality \
+  --platform longbridge \
+  --platform ibkr \
+  --json
+```
+
+Apply the intake only when the files are real operator/broker/backtest evidence and are named according to the convention above:
+
+```bash
+hkeq-intake-low-vol-dividend-live-enable-evidence \
+  --source-dir /path/to/operator-evidence \
+  --evidence-dir evidence/low_vol_dividend_quality \
+  --platform longbridge \
+  --platform ibkr \
+  --apply \
+  --json
+```
+
+The intake command only copies convention-named files and then runs the same gate summary. It does not create missing evidence, approve risk, or mark pending sections as passed.
+
+Run the gate:
+
 ```bash
 hkeq-run-low-vol-dividend-live-enable-gate \
   --evidence-dir evidence/low_vol_dividend_quality \

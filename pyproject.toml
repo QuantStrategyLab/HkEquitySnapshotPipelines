@@ -39,6 +39,7 @@ hkeq-draft-low-vol-dividend-platform-evidence = "hk_equity_snapshot_pipelines.lo
 hkeq-collect-low-vol-dividend-dry-run-support-artifacts = "hk_equity_snapshot_pipelines.low_vol_dividend_dry_run_support_artifacts:main"
 hkeq-draft-low-vol-dividend-artifact-evidence = "hk_equity_snapshot_pipelines.low_vol_dividend_artifact_evidence:main"
 hkeq-assemble-low-vol-dividend-live-enable-evidence = "hk_equity_snapshot_pipelines.low_vol_dividend_evidence_assembler:main"
+hkeq-intake-low-vol-dividend-live-enable-evidence = "hk_equity_snapshot_pipelines.low_vol_dividend_evidence_intake:main"
 hkeq-draft-low-vol-dividend-operator-evidence = "hk_equity_snapshot_pipelines.low_vol_dividend_operator_evidence:main"
 hkeq-run-low-vol-dividend-live-enable-gate = "hk_equity_snapshot_pipelines.low_vol_dividend_live_enablement_gate:main"
 hkeq-draft-low-vol-dividend-production-source-audit = "hk_equity_snapshot_pipelines.low_vol_dividend_production_source_audit:main"

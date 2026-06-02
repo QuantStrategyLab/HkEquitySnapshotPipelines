@@ -44,6 +44,33 @@ ibkr_strategy_policy_evidence.draft.json
 
 ## 使用方式
 
+先从一个或多个目录预览 evidence intake，不复制任何文件：
+
+```bash
+hkeq-intake-low-vol-dividend-live-enable-evidence \
+  --source-dir /path/to/operator-evidence \
+  --evidence-dir evidence/low_vol_dividend_quality \
+  --platform longbridge \
+  --platform ibkr \
+  --json
+```
+
+只有当这些文件是真实的 operator / broker / backtest evidence，且文件名符合上面的约定时，再执行复制：
+
+```bash
+hkeq-intake-low-vol-dividend-live-enable-evidence \
+  --source-dir /path/to/operator-evidence \
+  --evidence-dir evidence/low_vol_dividend_quality \
+  --platform longbridge \
+  --platform ibkr \
+  --apply \
+  --json
+```
+
+intake 命令只会复制符合约定命名的文件，并随后运行同一个 gate summary。它不会创建缺失证据、不会批准风险，也不会把 pending section 标记成 passed。
+
+运行 gate：
+
 ```bash
 hkeq-run-low-vol-dividend-live-enable-gate \
   --evidence-dir evidence/low_vol_dividend_quality \
