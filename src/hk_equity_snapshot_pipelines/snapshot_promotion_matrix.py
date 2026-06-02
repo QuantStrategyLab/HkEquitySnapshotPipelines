@@ -66,6 +66,7 @@ from .future_research_live_enablement_policy import (
     HK_MARGIN_FINANCING_COLLATERAL_FORCED_SELLING_RISK_OVERLAY_PROFILE_HINT,
     HK_LIQUID_LARGECAP_WEEKLY_REVERSAL_COST_AWARE_OVERLAY_PROFILE_HINT,
     HK_US_ADR_HK_SECONDARY_LISTING_LEAD_LAG_OVERLAY_PROFILE_HINT,
+    HK_SMART_BETA_FACTOR_REGIME_ROTATION_OVERLAY_PROFILE_HINT,
     HK_CONNECTED_TRANSACTION_GOVERNANCE_RISK_OVERLAY_PROFILE_HINT,
     HK_DIRECTOR_DEALING_DISCLOSURE_QUALITY_OVERLAY_PROFILE_HINT,
     HK_DISTRIBUTION_EX_DATE_ENTITLEMENT_OVERLAY_PROFILE_HINT,
@@ -132,8 +133,13 @@ from .future_research_live_enablement_policy import (
     HKUST_DISTRESSED_STOCKS_LIQUIDITY_SHOCK_URL,
     HKEXNEWS_ADVANCED_SEARCH_URL,
     HSI_LOW_SIZE_INDEX_METHODOLOGY_URL,
+    HSI_FACTOR_INDEXES_SOLUTIONS_URL,
     HSI_SMART_BETA_PRESS_RELEASE_URL,
     HSI_SMART_BETA_RESEARCH_PAPER_URL,
+    HSI_SMART_BETA_BROCHURE_URL,
+    SP_HK_SMART_BETA_STRATEGIES_RESEARCH_URL,
+    SSRN_HK_SMART_BETA_STRATEGIES_URL,
+    SCIENCEDIRECT_SMART_BETA_REGIME_SWITCHING_URL,
     HKU_STOCK_DISTRIBUTIONS_EX_DAY_ANCHORING_URL,
     HKUST_GOING_CONCERN_BANKRUPTCY_REACTION_URL,
     HKU_COINTEGRATION_PAIRS_TRADING_POWER_STATISTIC_URL,
@@ -1873,6 +1879,45 @@ FUTURE_RESEARCH_BACKLOG: tuple[dict[str, object], ...] = (
             DOAJ_CHINA_HK_NY_DUAL_LISTING_LAW_ONE_PRICE_URL,
             SCIENCEDIRECT_HK_DUALLY_TRADED_CONTRARIAN_URL,
             SCIENCEDIRECT_HK_ADR_EX_DIVIDEND_ADJUSTMENT_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_SMART_BETA_FACTOR_REGIME_ROTATION_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "smart_beta_factor_regime_rotation_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "factor_regime_rotation_snapshot_overlay",
+        "research_thesis": (
+            "Test whether HK factor sleeves can be dynamically tilted across value, dividend/yield, low "
+            "volatility, quality, momentum, and size exposures using market-cycle, volatility, investor "
+            "sentiment, and macro regime evidence, while keeping the overlay low-turnover, long-only, "
+            "cost-aware, and bounded by the existing <=30% drawdown live-enable policy."
+        ),
+        "required_new_data": (
+            "point_in_time_hk_smart_beta_factor_index_constituent_score_and_return_history",
+            "factor_regime_market_cycle_investor_sentiment_volatility_and_macro_state_history",
+            "hsi_hsci_factor_index_methodology_weight_cap_buffer_and_rebalance_history",
+            "same_universe_factor_regime_rotation_factor_mix_quality_yield_momentum_and_etf_ablation_history",
+            "factor_crowding_correlation_breakdown_turnover_cost_capacity_and_sector_concentration_history",
+            "walk_forward_regime_classifier_stability_oos_fold_drawdown_and_holdout_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new factor-regime rotation snapshot overlay contract before adding regime-state, factor-timing, or dynamic factor-weight fields to any existing artifact.",
+            "Use point-in-time factor index methodology versions, constituents, factor scores, rebalance buffers, weight caps, volatility / sentiment / macro-state labels, and benchmark returns only; do not train regime labels from full-sample future factor returns.",
+            "Use as a low-turnover factor tilt or de-risking overlay first; do not promote a black-box market-timing, high-turnover factor-chasing, leveraged, short, derivative, or intraday strategy.",
+            "Classify market cycle, volatility sentiment, macro/liquidity regime, factor sleeve, factor index source, constituent eligibility, sector concentration, rebalance buffer, turnover, capacity, and broker order-preview status before ranking factor allocations.",
+            "Ablate regime-tilted factor weights versus static factor mix, QVLM risk parity, quality-yield, quality-growth low-volatility, residual/liquid momentum, value-quality, ETF rotation, and cash/02800 defensive baselines on the same survivorship-safe universe.",
+            "Stress regime misclassification, whipsaw factor rotation, momentum crash, value trap, dividend trap, low-volatility crowding, factor correlation breakdown, sector concentration, Southbound eligibility changes, HK cost/slippage, VCM/CAS, suspension, and capacity.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            HSI_FACTOR_INDEXES_SOLUTIONS_URL,
+            HSI_SMART_BETA_BROCHURE_URL,
+            HSI_SMART_BETA_PRESS_RELEASE_URL,
+            HSI_SMART_BETA_RESEARCH_PAPER_URL,
+            SP_HK_SMART_BETA_STRATEGIES_RESEARCH_URL,
+            SSRN_HK_SMART_BETA_STRATEGIES_URL,
+            SCIENCEDIRECT_SMART_BETA_REGIME_SWITCHING_URL,
+            HSI_LOW_SIZE_INDEX_METHODOLOGY_URL,
         ),
     },
 )

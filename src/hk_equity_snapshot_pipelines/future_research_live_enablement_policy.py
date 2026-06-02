@@ -79,6 +79,9 @@ HK_LIQUID_LARGECAP_WEEKLY_REVERSAL_COST_AWARE_OVERLAY_PROFILE_HINT = (
 HK_US_ADR_HK_SECONDARY_LISTING_LEAD_LAG_OVERLAY_PROFILE_HINT = (
     "hk_us_adr_hk_secondary_listing_lead_lag_overlay"
 )
+HK_SMART_BETA_FACTOR_REGIME_ROTATION_OVERLAY_PROFILE_HINT = (
+    "hk_smart_beta_factor_regime_rotation_overlay"
+)
 
 SP_EARNINGS_REVISION_OVERLAY_ASIA_URL = (
     "https://www.spglobal.com/spdji/en/research/article/"
@@ -97,6 +100,18 @@ HSI_SMART_BETA_PRESS_RELEASE_URL = (
 )
 HSI_SMART_BETA_RESEARCH_PAPER_URL = (
     "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/research_paper/20220408T000000.pdf"
+)
+HSI_FACTOR_INDEXES_SOLUTIONS_URL = "https://www.hsi.com.hk/solutions/factor-indexes/"
+HSI_SMART_BETA_BROCHURE_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/brochures/HSIL_Smart_Beta_Brochure.pdf"
+)
+SP_HK_SMART_BETA_STRATEGIES_RESEARCH_URL = (
+    "https://www.spglobal.com/spdji/en/documents/research/"
+    "research-how-smart-beta-strategies-work-in-the-hong-kong-market.pdf"
+)
+SSRN_HK_SMART_BETA_STRATEGIES_URL = "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3054594"
+SCIENCEDIRECT_SMART_BETA_REGIME_SWITCHING_URL = (
+    "https://www.sciencedirect.com/science/article/pii/S0957417420305443"
 )
 HKEX_STOCK_CONNECT_ELIGIBLE_SECURITIES_URL = (
     "https://www.hkex.com.hk/Mutual-Market/Stock-Connect/Eligible-Stocks/"
@@ -596,6 +611,7 @@ FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_MARGIN_FINANCING_COLLATERAL_FORCED_SELLING_RISK_OVERLAY_PROFILE_HINT,
     HK_LIQUID_LARGECAP_WEEKLY_REVERSAL_COST_AWARE_OVERLAY_PROFILE_HINT,
     HK_US_ADR_HK_SECONDARY_LISTING_LEAD_LAG_OVERLAY_PROFILE_HINT,
+    HK_SMART_BETA_FACTOR_REGIME_ROTATION_OVERLAY_PROFILE_HINT,
 )
 
 FUTURE_RESEARCH_REQUIRED_PRE_SCAFFOLD_GATES: tuple[str, ...] = (
@@ -729,10 +745,13 @@ FUTURE_RESEARCH_REQUIRED_DATA_PROVENANCE: tuple[str, ...] = (
     "point_in_time_us_adr_hk_secondary_listing_mapping_adr_ratio_fx_close_and_corporate_action_history",
     "adr_overnight_us_day_hk_open_lead_lag_premarket_afterhours_and_timezone_alignment_history",
     "same_universe_secondary_listing_momentum_reversal_ah_premium_etf_and_execution_ablation_history",
+    "point_in_time_hk_smart_beta_factor_index_constituent_score_and_return_history",
+    "factor_regime_market_cycle_investor_sentiment_volatility_and_macro_state_history",
+    "same_universe_factor_regime_rotation_factor_mix_quality_yield_momentum_and_etf_ablation_history",
 )
 
 FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
-    "https://www.hsi.com.hk/solutions/factor-indexes/",
+    HSI_FACTOR_INDEXES_SOLUTIONS_URL,
     "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/methodologies/IM_hsscsqe.pdf",
     SP_EARNINGS_REVISION_OVERLAY_ASIA_URL,
     SP_DO_EARNINGS_REVISIONS_MATTER_ASIA_URL,
@@ -740,6 +759,10 @@ FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
     HSI_LOW_SIZE_INDEX_METHODOLOGY_URL,
     HSI_SMART_BETA_PRESS_RELEASE_URL,
     HSI_SMART_BETA_RESEARCH_PAPER_URL,
+    HSI_SMART_BETA_BROCHURE_URL,
+    SP_HK_SMART_BETA_STRATEGIES_RESEARCH_URL,
+    SSRN_HK_SMART_BETA_STRATEGIES_URL,
+    SCIENCEDIRECT_SMART_BETA_REGIME_SWITCHING_URL,
     HKEX_STOCK_CONNECT_ELIGIBLE_SECURITIES_URL,
     HKEX_STOCK_CONNECT_EXPANSION_2023_URL,
     HKEX_STOCK_CONNECT_FAQ_URL,
@@ -994,6 +1017,7 @@ __all__ = [
     "HK_MARGIN_FINANCING_COLLATERAL_FORCED_SELLING_RISK_OVERLAY_PROFILE_HINT",
     "HK_LIQUID_LARGECAP_WEEKLY_REVERSAL_COST_AWARE_OVERLAY_PROFILE_HINT",
     "HK_US_ADR_HK_SECONDARY_LISTING_LEAD_LAG_OVERLAY_PROFILE_HINT",
+    "HK_SMART_BETA_FACTOR_REGIME_ROTATION_OVERLAY_PROFILE_HINT",
     "HK_TAKEOVER_PRIVATIZATION_EVENT_SPREAD_OVERLAY_PROFILE_HINT",
     "HK_LOTTERY_STOCK_RISK_EXCLUSION_OVERLAY_PROFILE_HINT",
     "HK_LOW_SIZE_QUALITY_LIQUIDITY_PREMIUM_PROFILE_HINT",
@@ -1049,8 +1073,11 @@ __all__ = [
     "HKMA_INTERBANK_LIQUIDITY_API_DOC_URL",
     "HKMA_ETF_RISK_EDUCATION_URL",
     "HSI_LOW_SIZE_INDEX_METHODOLOGY_URL",
+    "HSI_FACTOR_INDEXES_SOLUTIONS_URL",
     "HSI_SMART_BETA_PRESS_RELEASE_URL",
     "HSI_SMART_BETA_RESEARCH_PAPER_URL",
+    "HSI_SMART_BETA_BROCHURE_URL",
+    "SP_HK_SMART_BETA_STRATEGIES_RESEARCH_URL",
     "SP_DO_EARNINGS_REVISIONS_MATTER_ASIA_URL",
     "SP_EARNINGS_REVISION_OVERLAY_ASIA_URL",
     "SPRINGER_HK_PROFIT_WARNING_MARKET_REACTION_URL",
@@ -1088,11 +1115,13 @@ __all__ = [
     "SCIENCEDIRECT_COINTEGRATED_BASKET_TRADING_URL",
     "SCIENCEDIRECT_HK_SHORT_SALE_BAN_PEAD_URL",
     "SCIENCEDIRECT_HK_VOLATILITY_EFFECT_URL",
+    "SCIENCEDIRECT_SMART_BETA_REGIME_SWITCHING_URL",
     "SCIENCEDIRECT_PACIFIC_BASIN_FSCORE_URL",
     "SCIENCEDIRECT_SHORT_SALES_PRICE_ADJUSTMENT_HK_URL",
     "TANDF_HK_SHORT_TERM_OVERREACTION_URL",
     "DOAJ_HK_SHORT_TERM_MOMENTUM_EFFECT_URL",
     "SSRN_ASYNCHRONOUS_ADR_OVERNIGHT_INTRADAY_URL",
+    "SSRN_HK_SMART_BETA_STRATEGIES_URL",
     "DOAJ_CHINA_HK_NY_DUAL_LISTING_LAW_ONE_PRICE_URL",
     "TANDF_HK_HOLIDAY_EFFECT_URL",
     "HKU_STOCK_DISTRIBUTIONS_EX_DAY_ANCHORING_URL",
