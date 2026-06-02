@@ -107,6 +107,8 @@ hkeq-build-free-cash-flow-quality-snapshot \
 python scripts/print_first_snapshot_promotion_plan.py --json
 python scripts/print_snapshot_promotion_matrix.py --json
 python scripts/print_snapshot_readiness.py --profile hk_low_vol_dividend_quality --json
+PYTHONPATH=src python scripts/build_first_snapshot_live_enablement_packages.py --json
+PYTHONPATH=src python scripts/build_first_snapshot_evidence_bundles.py --json
 ```
 
 校验 snapshot artifact pack：
@@ -132,6 +134,23 @@ hkeq-validate-live-enable-evidence \
 ```
 
 Validator 要求稳定 evidence URI、不能带 token/password/signature 等 secret-like query 参数、point-in-time 数据证明、样本外回测、港股成本/滑点/lot-size/容量检查、dry-run order-preview provenance、双语通知证据、上线控制和人工审批引用。
+
+首批 3 个 snapshot 候选使用共用 evidence 草稿命令：
+
+```bash
+PYTHONPATH=src python scripts/draft_first_snapshot_production_source_audit.py \
+  --profile hk_shareholder_yield_quality \
+  --factor-snapshot examples/shareholder_yield_quality/factor_snapshot.sample.csv \
+  --source-name operator-prod-source \
+  --json
+
+PYTHONPATH=src python scripts/draft_first_snapshot_backtest_evidence.py \
+  --profile hk_shareholder_yield_quality \
+  --summary walk_forward_summary.json \
+  --json
+```
+
+这些 draft 命令会保持所有 evidence `status: pending`，不会批准实盘交易。
 
 ## 月度 AI 审计
 
@@ -178,6 +197,7 @@ python -m pytest -q
 
 - [`docs/artifact_contract.md`](./docs/artifact_contract.md)：snapshot artifact schema 和 manifest contract。
 - [`docs/first_snapshot_promotion_runbook.md`](./docs/first_snapshot_promotion_runbook.md)：首批 3 个港股 snapshot 候选的 promotion runbook。
+- [`docs/first_snapshot_evidence_tools.zh-CN.md`](./docs/first_snapshot_evidence_tools.zh-CN.md)：首批 3 个港股 snapshot 候选共用的 evidence package、bundle、source-audit 和 backtest draft 工具。
 - [`docs/low_vol_dividend_live_enablement_package.zh-CN.md`](./docs/low_vol_dividend_live_enablement_package.zh-CN.md)：`hk_low_vol_dividend_quality` 首个候选 evidence package。
 - [`docs/low_vol_dividend_evidence_bundle.zh-CN.md`](./docs/low_vol_dividend_evidence_bundle.zh-CN.md)：`hk_low_vol_dividend_quality` 的生产数据源和 walk-forward 回测证据模板。
 - [`docs/low_vol_dividend_production_source_audit.zh-CN.md`](./docs/low_vol_dividend_production_source_audit.zh-CN.md)：`hk_low_vol_dividend_quality` 的生产数据源审计草稿工具。

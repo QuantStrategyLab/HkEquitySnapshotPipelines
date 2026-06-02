@@ -108,6 +108,8 @@ Use these read-only tools to inspect promotion state before touching platform co
 python scripts/print_first_snapshot_promotion_plan.py --json
 python scripts/print_snapshot_promotion_matrix.py --json
 python scripts/print_snapshot_readiness.py --profile hk_low_vol_dividend_quality --json
+PYTHONPATH=src python scripts/build_first_snapshot_live_enablement_packages.py --json
+PYTHONPATH=src python scripts/build_first_snapshot_evidence_bundles.py --json
 ```
 
 Validate a snapshot artifact pack:
@@ -133,6 +135,23 @@ hkeq-validate-live-enable-evidence \
 ```
 
 The validators require stable evidence URIs, no secret-like query parameters, point-in-time data proof, out-of-sample backtests, HK cost/slippage/lot-size/capacity checks, dry-run order-preview provenance, bilingual notification evidence, rollout controls, and operator approval references.
+
+For the first three snapshot candidates, use the shared evidence draft commands:
+
+```bash
+PYTHONPATH=src python scripts/draft_first_snapshot_production_source_audit.py \
+  --profile hk_shareholder_yield_quality \
+  --factor-snapshot examples/shareholder_yield_quality/factor_snapshot.sample.csv \
+  --source-name operator-prod-source \
+  --json
+
+PYTHONPATH=src python scripts/draft_first_snapshot_backtest_evidence.py \
+  --profile hk_shareholder_yield_quality \
+  --summary walk_forward_summary.json \
+  --json
+```
+
+These draft commands keep all evidence `status: pending` and do not approve live trading.
 
 ## Monthly AI audit
 
@@ -179,6 +198,7 @@ python -m pytest -q
 
 - [`docs/artifact_contract.md`](./docs/artifact_contract.md): snapshot artifact schema and manifest contract.
 - [`docs/first_snapshot_promotion_runbook.md`](./docs/first_snapshot_promotion_runbook.md): promotion runbook for the first three HK snapshot candidates.
+- [`docs/first_snapshot_evidence_tools.md`](./docs/first_snapshot_evidence_tools.md): shared evidence package, bundle, source-audit, and backtest draft tools for the first three HK snapshot candidates.
 - [`docs/low_vol_dividend_live_enablement_package.md`](./docs/low_vol_dividend_live_enablement_package.md): first-candidate evidence package for `hk_low_vol_dividend_quality`.
 - [`docs/low_vol_dividend_evidence_bundle.md`](./docs/low_vol_dividend_evidence_bundle.md): production source and walk-forward evidence templates for `hk_low_vol_dividend_quality`.
 - [`docs/low_vol_dividend_production_source_audit.md`](./docs/low_vol_dividend_production_source_audit.md): production source audit draft tool for `hk_low_vol_dividend_quality`.
