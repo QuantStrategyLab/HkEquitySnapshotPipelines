@@ -12,6 +12,7 @@ from .snapshot_artifact_validation import validate_snapshot_artifact_pack
 
 DEFAULT_PLATFORMS = ("longbridge", "ibkr")
 AUDIT_VERSION = "hk_low_vol_dividend_quality.live_enablement_audit.v1"
+MIN_PRODUCTION_SNAPSHOT_ROW_COUNT = 20
 
 
 def _path_status(path: str | Path | None) -> tuple[str | None, bool]:
@@ -55,12 +56,19 @@ def _artifact_audit(artifact_dir: str | Path | None) -> dict[str, Any]:
     validation = validate_snapshot_artifact_pack(HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE, path)
     errors = list(validation.get("errors") or [])
     warnings = list(validation.get("warnings") or [])
-    blockers = [] if validation.get("valid") is True else ["artifact_pack_validation_failed"]
+    snapshot_row_count = int(validation.get("snapshot_row_count") or 0)
+    if validation.get("valid") is True and snapshot_row_count < MIN_PRODUCTION_SNAPSHOT_ROW_COUNT:
+        errors.append(
+            "snapshot_row_count below production threshold: "
+            f"got {snapshot_row_count}, min={MIN_PRODUCTION_SNAPSHOT_ROW_COUNT}"
+        )
+    blockers = [] if validation.get("valid") is True and not errors else ["artifact_pack_validation_failed"]
     return {
-        "status": "passed" if validation.get("valid") is True else "failed",
+        "status": "passed" if validation.get("valid") is True and not errors else "failed",
         "artifact_dir": path,
-        "valid": bool(validation.get("valid")),
+        "valid": bool(validation.get("valid") and not errors),
         "validation_status": validation.get("validation_status"),
+        "min_production_snapshot_row_count": MIN_PRODUCTION_SNAPSHOT_ROW_COUNT,
         "snapshot_row_count": validation.get("snapshot_row_count"),
         "ranking_row_count": validation.get("ranking_row_count"),
         "snapshot_sha256": validation.get("snapshot_sha256"),
@@ -214,6 +222,7 @@ def main(argv: list[str] | None = None) -> int:
 __all__ = [
     "AUDIT_VERSION",
     "DEFAULT_PLATFORMS",
+    "MIN_PRODUCTION_SNAPSHOT_ROW_COUNT",
     "build_low_vol_dividend_live_enablement_audit",
     "main",
 ]

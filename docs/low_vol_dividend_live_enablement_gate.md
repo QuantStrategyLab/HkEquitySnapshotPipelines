@@ -80,7 +80,7 @@ hkeq-run-low-vol-dividend-live-enable-gate \
 
 The gate passes only when:
 
-- the local artifact directory passes `hkeq-validate-snapshot-artifact-pack`;
+- the local artifact directory passes `hkeq-validate-snapshot-artifact-pack` and has at least 20 snapshot rows;
 - LongBridge assembled evidence returns `live_enablement_allowed=true`;
 - IBKR assembled evidence returns `live_enablement_allowed=true`;
 - the final audit returns `live_enablement_allowed=true`.

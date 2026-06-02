@@ -38,6 +38,7 @@ hkeq-audit-low-vol-dividend-live-enable \
 只有同时满足以下条件才会通过：
 
 - artifact pack 通过 `hkeq-validate-snapshot-artifact-pack`；
+- artifact snapshot 至少包含 20 行，sample/smoke 小样本不能作为 production-sized release；
 - 两个平台 evidence 文件都通过 `hkeq-validate-live-enable-evidence`；
 - evidence 新鲜、稳定、无 secret-like URI，并且字段完整；
 - 两个平台 dry-run order preview、中英文通知日志、券商权限、rollout 控制和 operator approval 都已补齐。

@@ -64,8 +64,11 @@ def test_live_enablement_audit_accepts_valid_artifact_but_blocks_pending_platfor
         validation_as_of="2026-06-03",
     )
 
-    assert payload["artifact_pack_validation"]["status"] == "passed"
+    assert payload["artifact_pack_validation"]["status"] == "failed"
+    assert payload["artifact_pack_validation"]["valid"] is False
+    assert payload["artifact_pack_validation"]["min_production_snapshot_row_count"] == 20
     assert payload["artifact_pack_validation"]["snapshot_row_count"] == 6
+    assert any("snapshot_row_count below production threshold" in error for error in payload["artifact_pack_validation"]["errors"])
     assert payload["gates"]["longbridge_live_enablement_evidence"] == "failed"
     assert payload["gates"]["ibkr_live_enablement_evidence"] == "failed"
     assert payload["live_enablement_allowed"] is False
@@ -94,6 +97,6 @@ def test_live_enablement_audit_cli_json_blocks_missing_evidence(tmp_path):
     payload = json.loads(completed.stdout)
 
     assert completed.returncode == 1
-    assert payload["artifact_pack_validation"]["status"] == "passed"
+    assert payload["artifact_pack_validation"]["status"] == "failed"
     assert payload["gates"]["longbridge_live_enablement_evidence"] == "missing"
     assert payload["live_enablement_allowed"] is False

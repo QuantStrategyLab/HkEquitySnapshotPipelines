@@ -38,6 +38,7 @@ hkeq-audit-low-vol-dividend-live-enable \
 The audit only passes when:
 
 - the artifact pack passes `hkeq-validate-snapshot-artifact-pack`;
+- the artifact snapshot has at least 20 rows, so sample/smoke artifacts are not accepted as production-sized releases;
 - both platform evidence files pass `hkeq-validate-live-enable-evidence`;
 - all evidence is fresh, stable, secret-safe, and complete;
 - both platform dry-run previews, bilingual notification logs, broker permissions, rollout controls, and operator approval are present.

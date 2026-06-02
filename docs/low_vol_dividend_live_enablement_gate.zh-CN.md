@@ -80,7 +80,7 @@ hkeq-run-low-vol-dividend-live-enable-gate \
 
 只有同时满足以下条件，gate 才会通过：
 
-- 本地 artifact directory 通过 `hkeq-validate-snapshot-artifact-pack`；
+- 本地 artifact directory 通过 `hkeq-validate-snapshot-artifact-pack`，且 snapshot 至少包含 20 行；
 - LongBridge assembled evidence 返回 `live_enablement_allowed=true`；
 - IBKR assembled evidence 返回 `live_enablement_allowed=true`；
 - 最终 audit 返回 `live_enablement_allowed=true`。
