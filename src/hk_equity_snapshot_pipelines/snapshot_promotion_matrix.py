@@ -57,6 +57,7 @@ from .future_research_live_enablement_policy import (
     HK_AMIHUD_LIQUIDITY_RISK_CAPACITY_OVERLAY_PROFILE_HINT,
     HK_ANALYST_DISPERSION_COVERAGE_RISK_OVERLAY_PROFILE_HINT,
     HK_FINANCIAL_DISTRESS_DELEVERAGING_RISK_OVERLAY_PROFILE_HINT,
+    HK_DOWNSIDE_BETA_TAIL_RISK_VOLATILITY_OVERLAY_PROFILE_HINT,
     HK_CONNECTED_TRANSACTION_GOVERNANCE_RISK_OVERLAY_PROFILE_HINT,
     HK_DIRECTOR_DEALING_DISCLOSURE_QUALITY_OVERLAY_PROFILE_HINT,
     HK_DISTRIBUTION_EX_DATE_ENTITLEMENT_OVERLAY_PROFILE_HINT,
@@ -162,6 +163,7 @@ from .future_research_live_enablement_policy import (
     SCIENCEDIRECT_QUALIFIED_AUDIT_OPINIONS_STOCK_PRICES_URL,
     SCIENCEDIRECT_HK_SHORT_SALE_BAN_PEAD_URL,
     SCIENCEDIRECT_HK_VOLATILITY_EFFECT_URL,
+    SCIENCEDIRECT_HK_LOW_FREQUENCY_VOLATILITY_URL,
     SCIENCEDIRECT_COINTEGRATED_BASKET_TRADING_URL,
     SCIENCEDIRECT_HK_LIQUIDITY_ASSET_PRICING_URL,
     SCIENCEDIRECT_GLOBAL_LIQUIDITY_RISK_URL,
@@ -195,6 +197,8 @@ from .future_research_live_enablement_policy import (
     IMF_HK_CORPORATE_SECTOR_VULNERABILITIES_URL,
     MDPI_HK_GEM_FINANCIAL_DISTRESS_PREDICTION_URL,
     SAGE_HK_ZSCORE_POORLY_PERFORMING_FIRMS_URL,
+    LINGNAN_EXTREME_DOWNSIDE_RISK_URL,
+    HKMU_RISK_RETURN_RELATIONSHIPS_HK_URL,
     TANDF_HK_SHORT_TERM_OVERREACTION_URL,
     TANDF_HK_HOLIDAY_EFFECT_URL,
     AQR_GLOBAL_ASSET_GROWTH_ANOMALY_URL,
@@ -1449,6 +1453,43 @@ FUTURE_RESEARCH_BACKLOG: tuple[dict[str, object], ...] = (
             SAGE_HK_ZSCORE_POORLY_PERFORMING_FIRMS_URL,
             HKEX_LONG_SUSPENSION_GUIDANCE_GL95_URL,
             HKEX_PROLONGED_SUSPENSION_STATUS_REPORT_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_DOWNSIDE_BETA_TAIL_RISK_VOLATILITY_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "downside_beta_tail_risk_volatility_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "downside_risk_volatility_snapshot_overlay",
+        "research_thesis": (
+            "Test downside beta, semivariance, realized-volatility regime, tail-loss contribution, VaR/CVaR, "
+            "and stress-beta signals as a HK drawdown-control or downweight overlay for quality, value, yield, "
+            "momentum, event, ETF, liquidity, and distress sleeves; it must reduce tail risk rather than become "
+            "a standalone volatility-timing strategy."
+        ),
+        "required_new_data": (
+            "point_in_time_downside_beta_semivariance_realized_volatility_and_stress_beta_history",
+            "var_cvar_tail_loss_contribution_drawdown_and_time_underwater_history",
+            "market_regime_realized_volatility_volatility_breakout_and_liquidity_shock_history",
+            "benchmark_relative_beta_upside_downside_beta_and_sector_neutral_volatility_history",
+            "same_universe_quality_value_yield_momentum_liquidity_lottery_distress_and_event_ablation_history",
+            "capacity_spread_vcm_cas_suspension_stale_quote_cost_and_turnover_stress_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new downside-risk volatility snapshot overlay contract before adding risk, volatility, beta, or tail-loss fields to any existing artifact.",
+            "Use point-in-time return, quote, liquidity, suspension, and corporate-action-adjusted price inputs only; never compute labels from full-sample drawdowns or future crash windows.",
+            "Use as an exposure-control, exclusion, or downweight overlay first; do not promote a standalone volatility timing, short-volatility, vol-arbitrage, leveraged de-risk/re-risk, or market-neutral short strategy.",
+            "Classify downside beta, realized volatility, semivariance, VaR/CVaR, drawdown/time-underwater, tail-loss contribution, stress beta, sector-neutral volatility, stale quote, suspension, VCM/CAS, and liquidity-shock regimes before ranking signals.",
+            "Ablate downside-risk signals versus low-vol dividend, quality growth low-volatility, lottery-stock exclusion, Amihud liquidity risk, financial distress, quality/value/yield, momentum, event, and ETF overlays on the same survivorship-safe universe.",
+            "Stress 2008/2015/2020/2022-style crash windows, volatility clustering, whipsaw de-risk/re-risk cycles, suspensions and stale prices, China policy/property shocks, forced deleveraging, HIBOR/base-rate shocks, costs, and capacity.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            LINGNAN_EXTREME_DOWNSIDE_RISK_URL,
+            SCIENCEDIRECT_HK_LOW_FREQUENCY_VOLATILITY_URL,
+            SCIENCEDIRECT_HK_VOLATILITY_EFFECT_URL,
+            HKMU_RISK_RETURN_RELATIONSHIPS_HK_URL,
+            HKEX_SECURITIES_MARKET_STATISTICS_URL,
+            HKEX_REVERSAL_EXECUTION_TRADING_MECHANISM_URL,
         ),
     },
 )

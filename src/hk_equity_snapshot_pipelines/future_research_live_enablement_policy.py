@@ -52,6 +52,9 @@ HK_ANALYST_DISPERSION_COVERAGE_RISK_OVERLAY_PROFILE_HINT = (
 HK_FINANCIAL_DISTRESS_DELEVERAGING_RISK_OVERLAY_PROFILE_HINT = (
     "hk_financial_distress_deleveraging_risk_overlay"
 )
+HK_DOWNSIDE_BETA_TAIL_RISK_VOLATILITY_OVERLAY_PROFILE_HINT = (
+    "hk_downside_beta_tail_risk_volatility_overlay"
+)
 
 SP_EARNINGS_REVISION_OVERLAY_ASIA_URL = (
     "https://www.spglobal.com/spdji/en/research/article/"
@@ -382,6 +385,15 @@ HKUST_DISTRESSED_STOCKS_LIQUIDITY_SHOCK_URL = (
 SAGE_HK_ZSCORE_POORLY_PERFORMING_FIRMS_URL = (
     "https://journals.sagepub.com/doi/full/10.1177/18479790231165603"
 )
+LINGNAN_EXTREME_DOWNSIDE_RISK_URL = (
+    "https://scholars.ln.edu.hk/en/publications/extreme-downside-risk-and-expected-stock-returns"
+)
+SCIENCEDIRECT_HK_LOW_FREQUENCY_VOLATILITY_URL = (
+    "https://www.sciencedirect.com/science/article/abs/pii/S154461231730346X"
+)
+HKMU_RISK_RETURN_RELATIONSHIPS_HK_URL = (
+    "https://scholars.hkmu.edu.hk/en/publications/risk-return-relationships-in-the-hong-kong-stock-market"
+)
 
 FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_EARNINGS_REVISION_QUALITY_OVERLAY_PROFILE_HINT,
@@ -410,6 +422,7 @@ FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_AMIHUD_LIQUIDITY_RISK_CAPACITY_OVERLAY_PROFILE_HINT,
     HK_ANALYST_DISPERSION_COVERAGE_RISK_OVERLAY_PROFILE_HINT,
     HK_FINANCIAL_DISTRESS_DELEVERAGING_RISK_OVERLAY_PROFILE_HINT,
+    HK_DOWNSIDE_BETA_TAIL_RISK_VOLATILITY_OVERLAY_PROFILE_HINT,
 )
 
 FUTURE_RESEARCH_REQUIRED_PRE_SCAFFOLD_GATES: tuple[str, ...] = (
@@ -516,6 +529,9 @@ FUTURE_RESEARCH_REQUIRED_DATA_PROVENANCE: tuple[str, ...] = (
     "point_in_time_financial_distress_zscore_distance_to_default_interest_coverage_and_debt_maturity_history",
     "profitability_liquidity_leverage_cash_flow_debt_service_and_property_exposure_history",
     "same_universe_quality_value_yield_momentum_liquidity_audit_opinion_and_suspension_ablation_history",
+    "point_in_time_downside_beta_semivariance_realized_volatility_and_tail_risk_history",
+    "var_cvar_drawdown_contribution_volatility_regime_and_stress_beta_history",
+    "same_universe_quality_value_yield_momentum_liquidity_lottery_and_distress_ablation_history",
 )
 
 FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
@@ -658,6 +674,9 @@ FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
     MDPI_HK_GEM_FINANCIAL_DISTRESS_PREDICTION_URL,
     HKUST_DISTRESSED_STOCKS_LIQUIDITY_SHOCK_URL,
     SAGE_HK_ZSCORE_POORLY_PERFORMING_FIRMS_URL,
+    LINGNAN_EXTREME_DOWNSIDE_RISK_URL,
+    SCIENCEDIRECT_HK_LOW_FREQUENCY_VOLATILITY_URL,
+    HKMU_RISK_RETURN_RELATIONSHIPS_HK_URL,
 )
 
 
@@ -712,6 +731,7 @@ __all__ = [
     "HK_AMIHUD_LIQUIDITY_RISK_CAPACITY_OVERLAY_PROFILE_HINT",
     "HK_ANALYST_DISPERSION_COVERAGE_RISK_OVERLAY_PROFILE_HINT",
     "HK_FINANCIAL_DISTRESS_DELEVERAGING_RISK_OVERLAY_PROFILE_HINT",
+    "HK_DOWNSIDE_BETA_TAIL_RISK_VOLATILITY_OVERLAY_PROFILE_HINT",
     "HK_TAKEOVER_PRIVATIZATION_EVENT_SPREAD_OVERLAY_PROFILE_HINT",
     "HK_LOTTERY_STOCK_RISK_EXCLUSION_OVERLAY_PROFILE_HINT",
     "HK_LOW_SIZE_QUALITY_LIQUIDITY_PREMIUM_PROFILE_HINT",
@@ -852,5 +872,8 @@ __all__ = [
     "MDPI_HK_GEM_FINANCIAL_DISTRESS_PREDICTION_URL",
     "HKUST_DISTRESSED_STOCKS_LIQUIDITY_SHOCK_URL",
     "SAGE_HK_ZSCORE_POORLY_PERFORMING_FIRMS_URL",
+    "LINGNAN_EXTREME_DOWNSIDE_RISK_URL",
+    "SCIENCEDIRECT_HK_LOW_FREQUENCY_VOLATILITY_URL",
+    "HKMU_RISK_RETURN_RELATIONSHIPS_HK_URL",
     "build_future_research_live_enablement_policy",
 ]
