@@ -60,6 +60,7 @@ from .future_research_live_enablement_policy import (
     HK_DOWNSIDE_BETA_TAIL_RISK_VOLATILITY_OVERLAY_PROFILE_HINT,
     HK_STRUCTURED_PRODUCT_WARRANT_CBBC_FLOW_RISK_OVERLAY_PROFILE_HINT,
     HK_INDEX_DERIVATIVES_FUTURES_OPTIONS_SENTIMENT_BASIS_OVERLAY_PROFILE_HINT,
+    HK_VCM_CAS_MICROSTRUCTURE_SHOCK_RISK_OVERLAY_PROFILE_HINT,
     HK_CONNECTED_TRANSACTION_GOVERNANCE_RISK_OVERLAY_PROFILE_HINT,
     HK_DIRECTOR_DEALING_DISCLOSURE_QUALITY_OVERLAY_PROFILE_HINT,
     HK_DISTRIBUTION_EX_DATE_ENTITLEMENT_OVERLAY_PROFILE_HINT,
@@ -218,6 +219,12 @@ from .future_research_live_enablement_policy import (
     HKMU_HSI_FUTURES_OPTIONS_MISPRICING_URL,
     IDEAS_HSI_INDEX_FUTURES_PRICE_DISCOVERY_URL,
     HKUST_HSI_FUTURES_OPTIONS_VOLATILITY_URL,
+    HKEX_VCM_ENHANCEMENTS_INITIATIVE_URL,
+    HKEX_VCM_CAS_CONSULTATION_CONCLUSIONS_URL,
+    HKEX_VCM_SECURITIES_MARKET_ROLLOUT_URL,
+    SSRN_HKIMR_VCM_EVIDENCE_HK_URL,
+    HKU_MARKET_STRUCTURE_RETURN_VOLATILITY_HK_URL,
+    SAGE_HSI_FUTURES_SPOT_RESILIENCY_HK_URL,
     TANDF_HK_SHORT_TERM_OVERREACTION_URL,
     TANDF_HK_HOLIDAY_EFFECT_URL,
     AQR_GLOBAL_ASSET_GROWTH_ANOMALY_URL,
@@ -1588,6 +1595,45 @@ FUTURE_RESEARCH_BACKLOG: tuple[dict[str, object], ...] = (
             SCIENCEDIRECT_HSI_SPOT_FUTURES_OPTIONS_LEAD_LAG_URL,
             IDEAS_HSI_INDEX_FUTURES_PRICE_DISCOVERY_URL,
             HKUST_HSI_FUTURES_OPTIONS_VOLATILITY_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_VCM_CAS_MICROSTRUCTURE_SHOCK_RISK_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "vcm_cas_microstructure_shock_risk_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "microstructure_shock_risk_snapshot_overlay",
+        "research_thesis": (
+            "Test HKEX securities/derivatives VCM triggers, cooling-off price bands, POS/CAS auction price "
+            "limits, closing-auction reference prices, and order-imbalance / volatility-interruption context "
+            "as a HK market-microstructure shock and execution-risk overlay for momentum, event, ETF, "
+            "liquidity, downside-risk, structured-product, and index-derivatives sleeves."
+        ),
+        "required_new_data": (
+            "point_in_time_vcm_security_eligibility_trigger_cooling_off_price_band_and_cas_price_limit_history",
+            "auction_session_pos_cas_reference_price_order_imbalance_close_auction_and_volatility_interruption_history",
+            "vcm_trigger_direction_magnitude_reversion_continuation_liquidity_spread_and_depth_history",
+            "derivatives_vcm_futures_contract_cooling_off_night_session_and_cash_market_alignment_history",
+            "same_universe_liquidity_volatility_derivatives_structured_product_momentum_event_and_execution_ablation_history",
+            "broker_order_preview_session_routing_vcm_cas_rejection_price_band_and_stale_quote_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new microstructure shock risk snapshot overlay contract before adding VCM, CAS, auction, cooling-off, price-band, or order-imbalance fields to any existing artifact.",
+            "Use point-in-time HKEX VCM securities list, trigger timestamp, reference price, cooling-off band, POS/CAS reference price, auction-session status, derivatives VCM contract coverage, and official trading-mechanism rules only; do not label reversals or continuations using future intraday outcomes.",
+            "Use as an execution-risk, microstructure-shock, or position-sizing overlay first; do not promote a high-frequency VCM trigger, auction-sniping, market-making, latency, or order-book trading strategy.",
+            "Classify VCM eligibility, large/mid/small-cap threshold, trigger direction and magnitude, cooling-off window, price band, POS/CAS phase, reference price, auction imbalance where available, derivatives VCM contract, night-session gap, VCM/CAS order rejection, and stale quote status before ranking signals.",
+            "Ablate VCM/CAS shock signals versus Amihud liquidity, downside-risk volatility, index derivatives, structured-product flow, momentum, event, ETF product-quality, and execution-capacity overlays on the same survivorship-safe universe.",
+            "Stress flash-crash-like moves, fat-finger/order-error windows, derivatives-cash interconnected shocks, closing-auction concentration, severe-weather and holiday mismatch, Southbound concentration, VCM/CAS price-band order rejections, stale quotes, spread widening, costs, and capacity.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            HKEX_VCM_FAQ_URL,
+            HKEX_VCM_ENHANCEMENTS_INITIATIVE_URL,
+            HKEX_VCM_CAS_CONSULTATION_CONCLUSIONS_URL,
+            HKEX_VCM_SECURITIES_MARKET_ROLLOUT_URL,
+            HKEX_REVERSAL_EXECUTION_TRADING_MECHANISM_URL,
+            SSRN_HKIMR_VCM_EVIDENCE_HK_URL,
+            HKU_MARKET_STRUCTURE_RETURN_VOLATILITY_HK_URL,
+            SAGE_HSI_FUTURES_SPOT_RESILIENCY_HK_URL,
         ),
     },
 )

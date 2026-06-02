@@ -61,6 +61,9 @@ HK_STRUCTURED_PRODUCT_WARRANT_CBBC_FLOW_RISK_OVERLAY_PROFILE_HINT = (
 HK_INDEX_DERIVATIVES_FUTURES_OPTIONS_SENTIMENT_BASIS_OVERLAY_PROFILE_HINT = (
     "hk_index_derivatives_futures_options_sentiment_basis_overlay"
 )
+HK_VCM_CAS_MICROSTRUCTURE_SHOCK_RISK_OVERLAY_PROFILE_HINT = (
+    "hk_vcm_cas_microstructure_shock_risk_overlay"
+)
 
 SP_EARNINGS_REVISION_OVERLAY_ASIA_URL = (
     "https://www.spglobal.com/spdji/en/research/article/"
@@ -443,6 +446,15 @@ HKUST_HSI_FUTURES_OPTIONS_VOLATILITY_URL = (
     "https://researchportal.hkust.edu.hk/en/publications/"
     "the-impact-of-futures-and-options-tradings-on-the-hang-seng-index"
 )
+HKEX_VCM_ENHANCEMENTS_INITIATIVE_URL = (
+    "https://www.hkex.com.hk/Services/Trading/Securities/Overview/Trading-Mechanism/"
+    "VCM-Enhancements-Initiative?sc_lang=en"
+)
+HKEX_VCM_CAS_CONSULTATION_CONCLUSIONS_URL = "https://www.hkex.com.hk/News/Market-Communications/2015/150703news?sc_lang=en"
+HKEX_VCM_SECURITIES_MARKET_ROLLOUT_URL = "https://www.hkex.com.hk/News/Market-Communications/2016/160818news"
+SSRN_HKIMR_VCM_EVIDENCE_HK_URL = "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4209595"
+HKU_MARKET_STRUCTURE_RETURN_VOLATILITY_HK_URL = "https://hub.hku.hk/handle/10722/85627"
+SAGE_HSI_FUTURES_SPOT_RESILIENCY_HK_URL = "https://journals.sagepub.com/doi/10.1177/097265270400300303"
 
 FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_EARNINGS_REVISION_QUALITY_OVERLAY_PROFILE_HINT,
@@ -474,6 +486,7 @@ FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_DOWNSIDE_BETA_TAIL_RISK_VOLATILITY_OVERLAY_PROFILE_HINT,
     HK_STRUCTURED_PRODUCT_WARRANT_CBBC_FLOW_RISK_OVERLAY_PROFILE_HINT,
     HK_INDEX_DERIVATIVES_FUTURES_OPTIONS_SENTIMENT_BASIS_OVERLAY_PROFILE_HINT,
+    HK_VCM_CAS_MICROSTRUCTURE_SHOCK_RISK_OVERLAY_PROFILE_HINT,
 )
 
 FUTURE_RESEARCH_REQUIRED_PRE_SCAFFOLD_GATES: tuple[str, ...] = (
@@ -589,6 +602,9 @@ FUTURE_RESEARCH_REQUIRED_DATA_PROVENANCE: tuple[str, ...] = (
     "point_in_time_hsi_hstech_hscei_futures_options_price_volume_open_interest_basis_and_put_call_history",
     "options_implied_volatility_skew_term_structure_futures_basis_calendar_spread_and_expiry_roll_history",
     "same_universe_index_etf_largecap_momentum_volatility_structured_product_and_macro_ablation_history",
+    "point_in_time_vcm_security_eligibility_trigger_cooling_off_price_band_and_cas_price_limit_history",
+    "auction_session_pos_cas_reference_price_order_imbalance_close_auction_and_volatility_interruption_history",
+    "same_universe_liquidity_volatility_derivatives_structured_product_momentum_event_and_execution_ablation_history",
 )
 
 FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
@@ -751,6 +767,12 @@ FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
     SCIENCEDIRECT_HSI_SPOT_FUTURES_OPTIONS_LEAD_LAG_URL,
     IDEAS_HSI_INDEX_FUTURES_PRICE_DISCOVERY_URL,
     HKUST_HSI_FUTURES_OPTIONS_VOLATILITY_URL,
+    HKEX_VCM_ENHANCEMENTS_INITIATIVE_URL,
+    HKEX_VCM_CAS_CONSULTATION_CONCLUSIONS_URL,
+    HKEX_VCM_SECURITIES_MARKET_ROLLOUT_URL,
+    SSRN_HKIMR_VCM_EVIDENCE_HK_URL,
+    HKU_MARKET_STRUCTURE_RETURN_VOLATILITY_HK_URL,
+    SAGE_HSI_FUTURES_SPOT_RESILIENCY_HK_URL,
 )
 
 
@@ -808,6 +830,7 @@ __all__ = [
     "HK_DOWNSIDE_BETA_TAIL_RISK_VOLATILITY_OVERLAY_PROFILE_HINT",
     "HK_STRUCTURED_PRODUCT_WARRANT_CBBC_FLOW_RISK_OVERLAY_PROFILE_HINT",
     "HK_INDEX_DERIVATIVES_FUTURES_OPTIONS_SENTIMENT_BASIS_OVERLAY_PROFILE_HINT",
+    "HK_VCM_CAS_MICROSTRUCTURE_SHOCK_RISK_OVERLAY_PROFILE_HINT",
     "HK_TAKEOVER_PRIVATIZATION_EVENT_SPREAD_OVERLAY_PROFILE_HINT",
     "HK_LOTTERY_STOCK_RISK_EXCLUSION_OVERLAY_PROFILE_HINT",
     "HK_LOW_SIZE_QUALITY_LIQUIDITY_PREMIUM_PROFILE_HINT",
@@ -968,5 +991,11 @@ __all__ = [
     "SCIENCEDIRECT_HSI_SPOT_FUTURES_OPTIONS_LEAD_LAG_URL",
     "IDEAS_HSI_INDEX_FUTURES_PRICE_DISCOVERY_URL",
     "HKUST_HSI_FUTURES_OPTIONS_VOLATILITY_URL",
+    "HKEX_VCM_ENHANCEMENTS_INITIATIVE_URL",
+    "HKEX_VCM_CAS_CONSULTATION_CONCLUSIONS_URL",
+    "HKEX_VCM_SECURITIES_MARKET_ROLLOUT_URL",
+    "SSRN_HKIMR_VCM_EVIDENCE_HK_URL",
+    "HKU_MARKET_STRUCTURE_RETURN_VOLATILITY_HK_URL",
+    "SAGE_HSI_FUTURES_SPOT_RESILIENCY_HK_URL",
     "build_future_research_live_enablement_policy",
 ]
