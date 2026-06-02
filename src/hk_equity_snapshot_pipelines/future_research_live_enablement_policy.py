@@ -46,6 +46,9 @@ HK_SHAREHOLDING_CONCENTRATION_FREE_FLOAT_RISK_OVERLAY_PROFILE_HINT = (
 HK_AMIHUD_LIQUIDITY_RISK_CAPACITY_OVERLAY_PROFILE_HINT = (
     "hk_amihud_liquidity_risk_capacity_overlay"
 )
+HK_ANALYST_DISPERSION_COVERAGE_RISK_OVERLAY_PROFILE_HINT = (
+    "hk_analyst_dispersion_coverage_risk_overlay"
+)
 
 SP_EARNINGS_REVISION_OVERLAY_ASIA_URL = (
     "https://www.spglobal.com/spdji/en/research/article/"
@@ -353,6 +356,17 @@ POLYU_FREE_FLOAT_MARKET_LIQUIDITY_URL = (
 SCIENCEDIRECT_HK_OWNERSHIP_CONCENTRATION_DIVIDEND_URL = (
     "https://www.sciencedirect.com/science/article/pii/S0927538X05000120"
 )
+SCIENCEDIRECT_HK_ANALYST_EPU_BEHAVIOR_URL = (
+    "https://www.sciencedirect.com/science/article/abs/pii/S1544612322007462"
+)
+HKU_ANALYST_FORECAST_DISPERSION_HK_URL = "https://hub.hku.hk/handle/10722/238965"
+HKBU_ANALYST_DISPERSION_INSTITUTIONAL_OWNERSHIP_URL = (
+    "https://scholars.hkbu.edu.hk/en/publications/"
+    "what-explains-the-dispersion-effect-evidence-from-institutional-o"
+)
+SSRN_DISAGREEMENT_RETURN_PREDICTABILITY_URL = (
+    "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1949417"
+)
 
 FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_EARNINGS_REVISION_QUALITY_OVERLAY_PROFILE_HINT,
@@ -379,6 +393,7 @@ FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_FSCORE_GROSS_PROFITABILITY_QUALITY_OVERLAY_PROFILE_HINT,
     HK_SHAREHOLDING_CONCENTRATION_FREE_FLOAT_RISK_OVERLAY_PROFILE_HINT,
     HK_AMIHUD_LIQUIDITY_RISK_CAPACITY_OVERLAY_PROFILE_HINT,
+    HK_ANALYST_DISPERSION_COVERAGE_RISK_OVERLAY_PROFILE_HINT,
 )
 
 FUTURE_RESEARCH_REQUIRED_PRE_SCAFFOLD_GATES: tuple[str, ...] = (
@@ -479,6 +494,9 @@ FUTURE_RESEARCH_REQUIRED_DATA_PROVENANCE: tuple[str, ...] = (
     "point_in_time_amihud_illiquidity_turnover_spread_depth_and_zero_volume_history",
     "market_wide_liquidity_shock_liquidity_beta_and_liquidity_regime_history",
     "capacity_adv_board_lot_odd_lot_vcm_cas_suspension_and_slippage_stress_history",
+    "point_in_time_analyst_forecast_dispersion_coverage_recommendation_and_target_price_history",
+    "analyst_forecast_accuracy_bias_revision_staleness_policy_uncertainty_and_coverage_drop_history",
+    "same_universe_earnings_revision_momentum_quality_value_liquidity_and_short_interest_ablation_history",
 )
 
 FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
@@ -613,6 +631,10 @@ FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
     HKU_OWNERSHIP_CONCENTRATION_PERFORMANCE_HK_URL,
     POLYU_FREE_FLOAT_MARKET_LIQUIDITY_URL,
     SCIENCEDIRECT_HK_OWNERSHIP_CONCENTRATION_DIVIDEND_URL,
+    SCIENCEDIRECT_HK_ANALYST_EPU_BEHAVIOR_URL,
+    HKU_ANALYST_FORECAST_DISPERSION_HK_URL,
+    HKBU_ANALYST_DISPERSION_INSTITUTIONAL_OWNERSHIP_URL,
+    SSRN_DISAGREEMENT_RETURN_PREDICTABILITY_URL,
 )
 
 
@@ -665,6 +687,7 @@ __all__ = [
     "HK_FSCORE_GROSS_PROFITABILITY_QUALITY_OVERLAY_PROFILE_HINT",
     "HK_SHAREHOLDING_CONCENTRATION_FREE_FLOAT_RISK_OVERLAY_PROFILE_HINT",
     "HK_AMIHUD_LIQUIDITY_RISK_CAPACITY_OVERLAY_PROFILE_HINT",
+    "HK_ANALYST_DISPERSION_COVERAGE_RISK_OVERLAY_PROFILE_HINT",
     "HK_TAKEOVER_PRIVATIZATION_EVENT_SPREAD_OVERLAY_PROFILE_HINT",
     "HK_LOTTERY_STOCK_RISK_EXCLUSION_OVERLAY_PROFILE_HINT",
     "HK_LOW_SIZE_QUALITY_LIQUIDITY_PREMIUM_PROFILE_HINT",
@@ -797,5 +820,9 @@ __all__ = [
     "MSCI_HK_QUALITY_INDEX_URL",
     "MSCI_QUALITY_INDEXES_METHODOLOGY_URL",
     "SPRINGER_PIOTROSKI_FSCORE_INTERNATIONAL_URL",
+    "SCIENCEDIRECT_HK_ANALYST_EPU_BEHAVIOR_URL",
+    "HKU_ANALYST_FORECAST_DISPERSION_HK_URL",
+    "HKBU_ANALYST_DISPERSION_INSTITUTIONAL_OWNERSHIP_URL",
+    "SSRN_DISAGREEMENT_RETURN_PREDICTABILITY_URL",
     "build_future_research_live_enablement_policy",
 ]
