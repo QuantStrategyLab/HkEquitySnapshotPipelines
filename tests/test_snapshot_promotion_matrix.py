@@ -640,7 +640,7 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert "new_snapshot_profile_name_and_contract_version" in (
         backlog["future_research_live_enablement_policy"]["required_pre_scaffold_gates"]
     )
-    assert backlog["candidate_count"] == 17
+    assert backlog["candidate_count"] == 18
     assert backlog["candidates"][0]["profile_hint"] == "hk_earnings_revision_quality_overlay"
     assert backlog["candidates"][0]["scaffold_status"] == "research_only_not_scaffolded"
     assert any("earnings-revision-overlay" in url for url in backlog["candidates"][0]["source_reference_urls"])
@@ -737,6 +737,12 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert any("base_rate_hibor" in item for item in backlog["candidates"][16]["required_new_data"])
     assert any("release_timestamp_lag" in item for item in backlog["candidates"][16]["required_new_data"])
     assert any("sector_industry_rate_beta" in item for item in backlog["candidates"][16]["required_new_data"])
+    assert backlog["candidates"][17]["profile_hint"] == "hk_turn_of_month_lunar_new_year_calendar_overlay"
+    assert backlog["candidates"][17]["suggested_contract_type"] == "calendar_snapshot_overlay"
+    assert any("apfiec" in url for url in backlog["candidates"][17]["source_reference_urls"])
+    assert any("Trading-hours-and-Severe-Weather" in url for url in backlog["candidates"][17]["source_reference_urls"])
+    assert any("lunar_new_year" in item for item in backlog["candidates"][17]["required_new_data"])
+    assert any("short_selling_turnover" in item for item in backlog["candidates"][17]["required_new_data"])
 
 
 def test_future_research_live_enablement_policy_blocks_backlog_until_new_contract_and_evidence():
@@ -764,6 +770,7 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
         "hk_share_repurchase_execution_signal_overlay",
         "hk_liquid_pairs_cointegration_stat_arb_overlay",
         "hk_macro_liquidity_inflation_rate_sensitivity_overlay",
+        "hk_turn_of_month_lunar_new_year_calendar_overlay",
     ]
     assert "same_universe_ablation_vs_existing_quality_yield_momentum_and_special_situation_profiles" in (
         policy["required_pre_scaffold_gates"]
@@ -879,6 +886,12 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert "macro_release_timestamp_lag_revision_currency_peg_and_rate_regime_history" in (
         policy["required_data_provenance"]
     )
+    assert "point_in_time_hkex_trading_calendar_turn_of_month_and_lunar_new_year_window_history" in (
+        policy["required_data_provenance"]
+    )
+    assert "calendar_overlay_short_selling_turnover_liquidity_spread_and_capacity_history" in (
+        policy["required_data_provenance"]
+    )
     assert "sector_rate_beta_inflation_beta_property_financial_and_dividend_yield_sensitivity_history" in (
         policy["required_data_provenance"]
     )
@@ -916,6 +929,9 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert any("daily-figures-interbank-liquidity" in url for url in policy["source_reference_urls"])
     assert any("rates/hibor" in url for url in policy["source_reference_urls"])
     assert any("scode270" in url for url in policy["source_reference_urls"])
+    assert any("apfiec" in url for url in policy["source_reference_urls"])
+    assert any("S1057521903000073" in url for url in policy["source_reference_urls"])
+    assert any("Trading-hours-and-Severe-Weather" in url for url in policy["source_reference_urls"])
 
 
 

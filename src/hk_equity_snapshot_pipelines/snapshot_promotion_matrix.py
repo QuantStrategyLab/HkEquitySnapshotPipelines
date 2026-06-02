@@ -48,6 +48,7 @@ from .future_research_live_enablement_policy import (
     HK_LIQUID_PAIRS_COINTEGRATION_STAT_ARB_OVERLAY_PROFILE_HINT,
     HK_MACRO_LIQUIDITY_INFLATION_RATE_SENSITIVITY_OVERLAY_PROFILE_HINT,
     HK_SHARE_REPURCHASE_EXECUTION_SIGNAL_OVERLAY_PROFILE_HINT,
+    HK_TURN_OF_MONTH_LUNAR_NEW_YEAR_CALENDAR_OVERLAY_PROFILE_HINT,
     HK_CONNECTED_TRANSACTION_GOVERNANCE_RISK_OVERLAY_PROFILE_HINT,
     HK_DIRECTOR_DEALING_DISCLOSURE_QUALITY_OVERLAY_PROFILE_HINT,
     HK_DISTRIBUTION_EX_DATE_ENTITLEMENT_OVERLAY_PROFILE_HINT,
@@ -86,6 +87,8 @@ from .future_research_live_enablement_policy import (
     HKEX_LISTING_NEWSLETTER_BUYBACKS_2025_URL,
     HKEX_SHARE_REPURCHASE_REPORTS_URL,
     HKEX_TREASURY_SHARES_RULE_CHANGE_2024_URL,
+    HKEX_TRADING_HOURS_SEVERE_WEATHER_URL,
+    HKEX_SEVERE_WEATHER_OVERVIEW_URL,
     HKEX_PROFIT_WARNING_ALERT_FAQ_URL,
     HKEX_REGULATED_SHORT_SELLING_URL,
     HKEX_REVERSAL_EXECUTION_TRADING_MECHANISM_URL,
@@ -107,6 +110,7 @@ from .future_research_live_enablement_policy import (
     IDEAS_HK_STOCK_RETURN_REVERSAL_CONTINUANCE_URL,
     IDEAS_HK_PAIRS_TRADING_PROFITABILITY_URL,
     IDEAS_HK_EX_DAY_ELECTRONIC_SETTLEMENT_URL,
+    IDEAS_HK_TOM_CLNY_CHINESE_MARKETS_URL,
     POLYU_HK_EARNINGS_ANNOUNCEMENT_DRIFT_THESIS_URL,
     POLYU_HK_ACQUISITION_MERGER_WEALTH_THESIS_URL,
     POLYU_HK_GAMBLING_STOCK_MARKET_PDF_URL,
@@ -120,6 +124,7 @@ from .future_research_live_enablement_policy import (
     SCIENCEDIRECT_HK_ADR_EX_DIVIDEND_ADJUSTMENT_URL,
     SCIENCEDIRECT_HK_INDEPENDENT_DIRECTORS_RPT_URL,
     SCIENCEDIRECT_HK_EX_DIVIDEND_PRICE_ADJUSTMENT_URL,
+    SCIENCEDIRECT_TURN_OF_MONTH_INTERNATIONAL_URL,
     SCIENCEDIRECT_HK_GOING_PRIVATE_TUNNELING_URL,
     SCIENCEDIRECT_HK_IPO_OFFERING_METHOD_UNDERPRICING_URL,
     SCIENCEDIRECT_HK_IPO_PRICE_BLOCK_TRADING_URL,
@@ -146,6 +151,7 @@ from .future_research_live_enablement_policy import (
     SSRN_HK_CORNERSTONE_INVESTORS_IPO_SURVIVAL_URL,
     SSRN_HK_CONNECTED_TRANSACTIONS_TUNNELING_URL,
     TANDF_HK_SHORT_TERM_OVERREACTION_URL,
+    TANDF_HK_HOLIDAY_EFFECT_URL,
     UNIBIRMINGHAM_IPO_LOCKUPS_LONG_RUN_PERFORMANCE_URL,
     build_future_research_live_enablement_policy,
 )
@@ -1067,6 +1073,41 @@ FUTURE_RESEARCH_BACKLOG: tuple[dict[str, object], ...] = (
             HKMA_INTERBANK_LIQUIDITY_API_DOC_URL,
             HKAB_HKD_INTEREST_SETTLEMENT_RATES_URL,
             CENSTATD_CONSUMER_PRICES_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_TURN_OF_MONTH_LUNAR_NEW_YEAR_CALENDAR_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "turn_of_month_lunar_new_year_calendar_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "calendar_snapshot_overlay",
+        "research_thesis": (
+            "Test HK turn-of-the-month and Chinese Lunar New Year calendar effects as a low-frequency "
+            "risk / timing overlay for existing ETF, quality/yield, value, and momentum sleeves, while "
+            "keeping it non-standalone because calendar anomalies are vulnerable to data mining and crowding."
+        ),
+        "required_new_data": (
+            "point_in_time_hkex_trading_calendar_month_end_month_start_and_clny_window_history",
+            "lunar_new_year_holiday_pre_three_post_one_trading_day_window_history",
+            "hkex_severe_weather_trading_calendar_settlement_and_stock_connect_holiday_history",
+            "calendar_window_short_selling_turnover_liquidity_spread_fee_slippage_and_capacity_history",
+            "same_universe_etf_rotation_quality_yield_momentum_value_and_special_event_ablation_history",
+            "post_calendar_window_return_decay_crowding_quarter_end_and_year_end_robustness_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new calendar snapshot overlay contract before adding calendar-window fields to any existing artifact.",
+            "Use as a risk / timing overlay first; do not expose a live standalone calendar-anomaly strategy.",
+            "Distinguish turn-of-month, quarter-end, year-end, pre-holiday, post-CLNY, and severe-weather trading days before ranking calendar exposure.",
+            "Ablate calendar overlay versus HK-listed ETF rotation, low-vol dividend, shareholder-yield, FCF, residual momentum, Southbound flow, and index-event profiles on the same universe.",
+            "Stress data-snooping risk, crowding, quarter-end null effects, short-sale turnover shifts, settlement/holiday gaps, Stock Connect holiday mismatch, severe-weather trading, low liquidity, and spread/slippage shocks.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive benchmark excess return, HK cost/capacity controls, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            IDEAS_HK_TOM_CLNY_CHINESE_MARKETS_URL,
+            SCIENCEDIRECT_TURN_OF_MONTH_INTERNATIONAL_URL,
+            TANDF_HK_HOLIDAY_EFFECT_URL,
+            HKEX_TRADING_HOURS_SEVERE_WEATHER_URL,
+            HKEX_SEVERE_WEATHER_OVERVIEW_URL,
+            HKEX_SHORT_SELLING_TURNOVER_TODAY_URL,
         ),
     },
 )
