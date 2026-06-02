@@ -17,13 +17,15 @@ First collect support artifacts from a real platform dry-run runtime report:
 python scripts/collect_low_vol_dividend_dry_run_support_artifacts.py \
   --platform longbridge \
   --runtime-report runtime-report.json \
+  --quote-snapshot-file broker-quotes.json \
+  --fee-breakdown-file broker-fees.json \
   --evidence-generated-at 2026-06-03 \
   --output-dir evidence/low_vol_dividend_quality/support \
   --json
 ```
 
 The collector writes `raw_order_preview`, `quote_snapshot`, and `fee_breakdown` support files.
-It does not fabricate missing evidence: generated quote or fee files are marked `missing` unless the runtime report already contains a complete payload.
+It does not fabricate missing evidence: generated quote or fee files are marked `missing` unless the runtime report already contains a complete payload or an explicit external broker/runtime JSON file is supplied.
 Files marked `missing` keep the platform evidence section `pending`, even if confirmation flags are supplied later.
 
 Then draft the platform evidence:

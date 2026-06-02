@@ -120,6 +120,15 @@ def _find_payload(runtime_report: Mapping[str, Any], fields: tuple[str, ...]) ->
     return None, ""
 
 
+def _load_external_payload(path: str | Path | None) -> tuple[Any, str, str]:
+    if path is None:
+        return None, "", ""
+    resolved = Path(path)
+    if not resolved.exists():
+        raise FileNotFoundError(f"Support artifact source file does not exist: {resolved}")
+    return _read_json(resolved), str(resolved), sha256_file(resolved)
+
+
 def _build_quote_snapshot_artifact(
     *,
     platform: str,
@@ -128,8 +137,14 @@ def _build_quote_snapshot_artifact(
     runtime_report: Mapping[str, Any],
     runtime_report_sha256: str,
     order_symbols: set[str],
+    external_quote_snapshot: Any = None,
+    external_quote_snapshot_path: str = "",
+    external_quote_snapshot_sha256: str = "",
 ) -> dict[str, Any]:
-    payload, source_field = _find_payload(runtime_report, QUOTE_SNAPSHOT_FIELDS)
+    if external_quote_snapshot is not None:
+        payload, source_field = external_quote_snapshot, "external_file"
+    else:
+        payload, source_field = _find_payload(runtime_report, QUOTE_SNAPSHOT_FIELDS)
     quote_symbols = _collect_symbols(payload) if payload is not None else set()
     missing_symbols = sorted(order_symbols - quote_symbols) if quote_symbols else sorted(order_symbols)
     status = "passed" if payload is not None and not missing_symbols else "missing"
@@ -142,6 +157,8 @@ def _build_quote_snapshot_artifact(
         "evidence_generated_at": evidence_generated_at,
         "source_runtime_report_sha256": runtime_report_sha256,
         "source_field": source_field,
+        "source_file": external_quote_snapshot_path,
+        "source_file_sha256": external_quote_snapshot_sha256,
         "order_symbols": sorted(order_symbols),
         "quote_symbols": sorted(quote_symbols),
         "missing_symbols": missing_symbols,
@@ -162,8 +179,14 @@ def _build_fee_breakdown_artifact(
     runtime_report: Mapping[str, Any],
     runtime_report_sha256: str,
     order_count: int,
+    external_fee_breakdown: Any = None,
+    external_fee_breakdown_path: str = "",
+    external_fee_breakdown_sha256: str = "",
 ) -> dict[str, Any]:
-    payload, source_field = _find_payload(runtime_report, FEE_BREAKDOWN_FIELDS)
+    if external_fee_breakdown is not None:
+        payload, source_field = external_fee_breakdown, "external_file"
+    else:
+        payload, source_field = _find_payload(runtime_report, FEE_BREAKDOWN_FIELDS)
     status = "passed" if payload is not None else "missing"
     return {
         "artifact_type": f"{SUPPORT_ARTIFACT_TYPE_PREFIX}.fee_breakdown.v1",
@@ -174,6 +197,8 @@ def _build_fee_breakdown_artifact(
         "evidence_generated_at": evidence_generated_at,
         "source_runtime_report_sha256": runtime_report_sha256,
         "source_field": source_field,
+        "source_file": external_fee_breakdown_path,
+        "source_file_sha256": external_fee_breakdown_sha256,
         "orders_previewed": int(order_count),
         "fee_breakdown": payload if payload is not None else {},
         "notes": []
@@ -189,6 +214,8 @@ def build_low_vol_dividend_dry_run_support_artifacts(
     platform: str,
     runtime_report_path: str | Path,
     evidence_generated_at: str,
+    quote_snapshot_file: str | Path | None = None,
+    fee_breakdown_file: str | Path | None = None,
 ) -> dict[str, Any]:
     normalized_platform = _normalize_platform(platform)
     contract = get_profile_contract(HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE)
@@ -202,6 +229,12 @@ def build_low_vol_dividend_dry_run_support_artifacts(
     )
     orders = [_redact_order(order) for order in _infer_orders(runtime_report, {})]
     order_symbols = _collect_symbols(orders)
+    external_quote_snapshot, external_quote_snapshot_path, external_quote_snapshot_sha256 = _load_external_payload(
+        quote_snapshot_file,
+    )
+    external_fee_breakdown, external_fee_breakdown_path, external_fee_breakdown_sha256 = _load_external_payload(
+        fee_breakdown_file,
+    )
     raw_order_status = "passed" if report_ok and orders else "missing"
     raw_order_preview = {
         "artifact_type": f"{SUPPORT_ARTIFACT_TYPE_PREFIX}.raw_order_preview.v1",
@@ -230,6 +263,9 @@ def build_low_vol_dividend_dry_run_support_artifacts(
         runtime_report=runtime_report,
         runtime_report_sha256=runtime_report_sha256,
         order_symbols=order_symbols,
+        external_quote_snapshot=external_quote_snapshot,
+        external_quote_snapshot_path=external_quote_snapshot_path,
+        external_quote_snapshot_sha256=external_quote_snapshot_sha256,
     )
     fee_breakdown = _build_fee_breakdown_artifact(
         platform=normalized_platform,
@@ -238,6 +274,9 @@ def build_low_vol_dividend_dry_run_support_artifacts(
         runtime_report=runtime_report,
         runtime_report_sha256=runtime_report_sha256,
         order_count=len(orders),
+        external_fee_breakdown=external_fee_breakdown,
+        external_fee_breakdown_path=external_fee_breakdown_path,
+        external_fee_breakdown_sha256=external_fee_breakdown_sha256,
     )
     support_statuses = {
         "raw_order_preview": raw_order_preview["status"],
@@ -252,6 +291,8 @@ def build_low_vol_dividend_dry_run_support_artifacts(
         "runtime_report_sha256": runtime_report_sha256,
         "runtime_report_checks_passed": report_ok,
         "runtime_report_errors": report_errors,
+        "external_quote_snapshot_file": external_quote_snapshot_path,
+        "external_fee_breakdown_file": external_fee_breakdown_path,
         "support_statuses": support_statuses,
         "ready_for_platform_evidence_draft": all(status == "passed" for status in support_statuses.values()),
         "raw_order_preview": raw_order_preview,
@@ -317,6 +358,8 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Collect support artifacts from an HK low-vol platform dry-run report.")
     parser.add_argument("--platform", required=True, choices=("ibkr", "longbridge"))
     parser.add_argument("--runtime-report", required=True)
+    parser.add_argument("--quote-snapshot-file", help="Optional external broker/runtime quote snapshot JSON.")
+    parser.add_argument("--fee-breakdown-file", help="Optional external broker fee breakdown JSON.")
     parser.add_argument("--evidence-generated-at", required=True)
     parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT_DIR))
     parser.add_argument("--json", action="store_true")
@@ -326,6 +369,8 @@ def main(argv: list[str] | None = None) -> int:
         output_dir=args.output_dir,
         platform=args.platform,
         runtime_report_path=args.runtime_report,
+        quote_snapshot_file=args.quote_snapshot_file,
+        fee_breakdown_file=args.fee_breakdown_file,
         evidence_generated_at=args.evidence_generated_at,
     )
     if args.json:

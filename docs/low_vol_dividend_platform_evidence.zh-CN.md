@@ -17,13 +17,15 @@ IBKR 在 CLI 中使用 `--platform ibkr`，同时兼容 runtime report 顶层 `p
 python scripts/collect_low_vol_dividend_dry_run_support_artifacts.py \
   --platform longbridge \
   --runtime-report runtime-report.json \
+  --quote-snapshot-file broker-quotes.json \
+  --fee-breakdown-file broker-fees.json \
   --evidence-generated-at 2026-06-03 \
   --output-dir evidence/low_vol_dividend_quality/support \
   --json
 ```
 
 collector 会写出 `raw_order_preview`、`quote_snapshot` 和 `fee_breakdown` support files。
-它不会伪造缺失证据：只有 runtime report 已包含完整 payload 时，生成的 quote 或 fee 文件才会标记为 `passed`；否则标记为 `missing`。
+它不会伪造缺失证据：只有 runtime report 已包含完整 payload，或显式提供外部 broker/runtime JSON 文件时，生成的 quote 或 fee 文件才会标记为 `passed`；否则标记为 `missing`。
 后续即使传入确认 flags，`missing` support artifact 也会让平台 evidence section 保持 `pending`。
 
 然后再生成平台 evidence：

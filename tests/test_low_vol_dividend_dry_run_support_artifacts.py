@@ -94,6 +94,57 @@ def test_build_dry_run_support_artifacts_does_not_fabricate_missing_quote_or_fee
     assert payload["fee_breakdown"]["fee_breakdown"] == {}
 
 
+def test_build_dry_run_support_artifacts_accepts_external_quote_and_fee_files(tmp_path):
+    quote_file = tmp_path / "external-quotes.json"
+    quote_file.write_text(
+        json.dumps(
+            {
+                "quotes": [
+                    {"symbol": "02800.HK", "last_price": 30.0},
+                    {"symbol": "03033.HK", "last_price": 20.0},
+                ],
+            },
+            ensure_ascii=False,
+            indent=2,
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
+    fee_file = tmp_path / "external-fees.json"
+    fee_file.write_text(
+        json.dumps(
+            {
+                "source": "broker-preview",
+                "currency": "HKD",
+                "orders": [
+                    {"symbol": "02800.HK", "estimated_fee_hkd": 10.0},
+                    {"symbol": "03033.HK", "estimated_fee_hkd": 12.0},
+                ],
+            },
+            ensure_ascii=False,
+            indent=2,
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
+
+    payload = build_low_vol_dividend_dry_run_support_artifacts(
+        platform="longbridge",
+        runtime_report_path=_runtime_report(tmp_path, include_quote=False, include_fee=False),
+        quote_snapshot_file=quote_file,
+        fee_breakdown_file=fee_file,
+        evidence_generated_at="2026-06-03",
+    )
+
+    assert payload["ready_for_platform_evidence_draft"] is True
+    assert payload["external_quote_snapshot_file"] == str(quote_file)
+    assert payload["external_fee_breakdown_file"] == str(fee_file)
+    assert payload["quote_snapshot"]["source_field"] == "external_file"
+    assert payload["quote_snapshot"]["source_file_sha256"]
+    assert payload["fee_breakdown"]["source_field"] == "external_file"
+    assert payload["fee_breakdown"]["source_file_sha256"]
+
+
 def test_write_dry_run_support_artifacts_outputs_files_and_command(tmp_path):
     payload = write_low_vol_dividend_dry_run_support_artifacts(
         output_dir=tmp_path / "out",
@@ -110,6 +161,8 @@ def test_write_dry_run_support_artifacts_outputs_files_and_command(tmp_path):
 
 
 def test_dry_run_support_artifacts_cli_json(tmp_path):
+    fee_file = tmp_path / "external-fees.json"
+    fee_file.write_text(json.dumps({"currency": "HKD", "orders": []}), encoding="utf-8")
     completed = subprocess.run(
         [
             sys.executable,
@@ -118,6 +171,8 @@ def test_dry_run_support_artifacts_cli_json(tmp_path):
             "longbridge",
             "--runtime-report",
             str(_runtime_report(tmp_path)),
+            "--fee-breakdown-file",
+            str(fee_file),
             "--evidence-generated-at",
             "2026-06-03",
             "--output-dir",
