@@ -16,6 +16,10 @@ def test_snapshot_readiness_blocks_scaffold_live_enablement():
     assert plan["profile"] == "hk_liquid_momentum_quality"
     assert plan["runtime_enabled"] is False
     assert plan["status"] == "architecture_scaffold_not_live_enabled"
+    assert plan["promotion_scope"] == "research_only_scaffold"
+    assert plan["live_enablement_work_queue"] is False
+    assert plan["requires_full_backtest_now"] is False
+    assert plan["evidence_tooling_scope"] == "research_only_no_live_enablement_package"
     assert plan["manifest_required_by_runtime"] is True
     assert plan["platform_env_template"]["LONGBRIDGE_FEATURE_SNAPSHOT_PATH"] == (
         "hk_liquid_momentum_quality_feature_snapshot_latest.csv"
@@ -69,6 +73,7 @@ def test_snapshot_readiness_blocks_scaffold_live_enablement():
     assert any("IM_hssbisme.pdf" in url for url in plan["production_source_audit_policy"]["source_reference_urls"])
     assert any("711028" in url for url in plan["production_source_audit_policy"]["source_reference_urls"])
     assert any("Sample artifacts" in reason for reason in plan["blocking_reasons"])
+    assert any("research-only scaffold" in reason for reason in plan["blocking_reasons"])
     assert any("runtime_enabled" in requirement for requirement in plan["live_enablement_requirements"])
     assert any("one-month-skip" in requirement for requirement in plan["profile_live_enablement_requirements"])
     assert any("walk-forward" in requirement for requirement in plan["profile_live_enablement_requirements"])
@@ -101,6 +106,10 @@ def test_snapshot_readiness_ibkr_env_uses_contract_artifacts():
     plan = build_snapshot_readiness("hk_dividend_quality", platform_id="ibkr")
 
     assert plan["profile"] == "hk_low_vol_dividend_quality"
+    assert plan["promotion_scope"] == "first_snapshot_live_enablement_candidate"
+    assert plan["live_enablement_work_queue"] is True
+    assert plan["requires_full_backtest_now"] is True
+    assert plan["evidence_tooling_scope"] == "first_snapshot_shared_evidence_tools"
     assert plan["platform_env_template"]["IBKR_MARKET"] == "HK"
     assert plan["platform_env_template"]["IBKR_FEATURE_SNAPSHOT_PATH"] == (
         "hk_low_vol_dividend_quality_factor_snapshot_latest.csv"

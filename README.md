@@ -42,23 +42,25 @@ These are work-priority candidates, not live switches.
 
 ## Snapshot profile index
 
-| Profile | Snapshot type | Builder command | Status |
-| --- | --- | --- | --- |
-| `hk_low_vol_dividend_quality` | `factor_snapshot` | `hkeq-build-low-vol-dividend-quality-snapshot` | `architecture_scaffold` |
-| `hk_shareholder_yield_quality` | `factor_snapshot` | `hkeq-build-shareholder-yield-quality-snapshot` | `architecture_scaffold` |
-| `hk_free_cash_flow_quality` | `factor_snapshot` | `hkeq-build-free-cash-flow-quality-snapshot` | `architecture_scaffold` |
-| `hk_quality_growth_low_volatility` | `factor_snapshot` | `hkeq-build-quality-growth-low-volatility-snapshot` | `architecture_scaffold` |
-| `hk_factor_mix_qvlm_risk_parity` | `factor_snapshot` | `hkeq-build-factor-mix-qvlm-risk-parity-snapshot` | `architecture_scaffold` |
-| `hk_central_soe_value_quality_select` | `factor_snapshot` | `hkeq-build-central-soe-value-quality-select-snapshot` | `architecture_scaffold` |
-| `hk_residual_momentum_quality` | `factor_snapshot` | `hkeq-build-residual-momentum-quality-snapshot` | `architecture_scaffold` |
-| `hk_liquid_momentum_quality` | `feature_snapshot` | `hkeq-build-liquid-momentum-quality-snapshot` | `architecture_scaffold` |
-| `hk_composite_factor_quality_value_momentum` | `factor_snapshot` | `hkeq-build-composite-factor-qvm-snapshot` | `architecture_scaffold` |
-| `hk_southbound_flow_momentum` | `flow_snapshot` | `hkeq-build-southbound-flow-momentum-snapshot` | `architecture_scaffold` |
-| `hk_ah_premium_relative_value` | `valuation_snapshot` | `hkeq-build-ah-premium-relative-value-snapshot` | `architecture_scaffold` |
-| `hk_blue_chip_leader_rotation` | `feature_snapshot` | `hkeq-build-blue-chip-leader-snapshot` | `architecture_scaffold` |
-| `hk_index_rebalance_event` | `event_calendar_snapshot` | `hkeq-build-index-rebalance-event-snapshot` | `architecture_scaffold` |
+Only the first three profiles are in the active live-enable work queue. The remaining scaffolded profiles are retained as research-only assets: keep their sample builders and basic tests, but do not require full walk-forward backtests or live-enable evidence packages unless they are explicitly reopened.
 
-The recommended promotion order is exposed by the promotion matrix command instead of hard-coded in platform repositories.
+| Profile | Snapshot type | Builder command | Work scope | Status |
+| --- | --- | --- | --- | --- |
+| `hk_low_vol_dividend_quality` | `factor_snapshot` | `hkeq-build-low-vol-dividend-quality-snapshot` | first snapshot candidate | `architecture_scaffold` |
+| `hk_shareholder_yield_quality` | `factor_snapshot` | `hkeq-build-shareholder-yield-quality-snapshot` | first snapshot candidate | `architecture_scaffold` |
+| `hk_free_cash_flow_quality` | `factor_snapshot` | `hkeq-build-free-cash-flow-quality-snapshot` | first snapshot candidate | `architecture_scaffold` |
+| `hk_quality_growth_low_volatility` | `factor_snapshot` | `hkeq-build-quality-growth-low-volatility-snapshot` | research-only scaffold | `architecture_scaffold` |
+| `hk_factor_mix_qvlm_risk_parity` | `factor_snapshot` | `hkeq-build-factor-mix-qvlm-risk-parity-snapshot` | research-only scaffold | `architecture_scaffold` |
+| `hk_central_soe_value_quality_select` | `factor_snapshot` | `hkeq-build-central-soe-value-quality-select-snapshot` | research-only scaffold | `architecture_scaffold` |
+| `hk_residual_momentum_quality` | `factor_snapshot` | `hkeq-build-residual-momentum-quality-snapshot` | research-only scaffold | `architecture_scaffold` |
+| `hk_liquid_momentum_quality` | `feature_snapshot` | `hkeq-build-liquid-momentum-quality-snapshot` | research-only scaffold | `architecture_scaffold` |
+| `hk_composite_factor_quality_value_momentum` | `factor_snapshot` | `hkeq-build-composite-factor-qvm-snapshot` | research-only scaffold | `architecture_scaffold` |
+| `hk_southbound_flow_momentum` | `flow_snapshot` | `hkeq-build-southbound-flow-momentum-snapshot` | research-only scaffold | `architecture_scaffold` |
+| `hk_ah_premium_relative_value` | `valuation_snapshot` | `hkeq-build-ah-premium-relative-value-snapshot` | research-only scaffold | `architecture_scaffold` |
+| `hk_blue_chip_leader_rotation` | `feature_snapshot` | `hkeq-build-blue-chip-leader-snapshot` | research-only baseline scaffold | `architecture_scaffold` |
+| `hk_index_rebalance_event` | `event_calendar_snapshot` | `hkeq-build-index-rebalance-event-snapshot` | research-only scaffold | `architecture_scaffold` |
+
+The active promotion order is exposed by the promotion matrix command instead of hard-coded in platform repositories. Use `research_only_scaffold_sequence` for retained non-first scaffolds.
 
 ## Artifact contract
 

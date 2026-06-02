@@ -42,23 +42,25 @@
 
 ## Snapshot profile 索引
 
-| Profile | Snapshot 类型 | Builder 命令 | 状态 |
-| --- | --- | --- | --- |
-| `hk_low_vol_dividend_quality` | `factor_snapshot` | `hkeq-build-low-vol-dividend-quality-snapshot` | `architecture_scaffold` |
-| `hk_shareholder_yield_quality` | `factor_snapshot` | `hkeq-build-shareholder-yield-quality-snapshot` | `architecture_scaffold` |
-| `hk_free_cash_flow_quality` | `factor_snapshot` | `hkeq-build-free-cash-flow-quality-snapshot` | `architecture_scaffold` |
-| `hk_quality_growth_low_volatility` | `factor_snapshot` | `hkeq-build-quality-growth-low-volatility-snapshot` | `architecture_scaffold` |
-| `hk_factor_mix_qvlm_risk_parity` | `factor_snapshot` | `hkeq-build-factor-mix-qvlm-risk-parity-snapshot` | `architecture_scaffold` |
-| `hk_central_soe_value_quality_select` | `factor_snapshot` | `hkeq-build-central-soe-value-quality-select-snapshot` | `architecture_scaffold` |
-| `hk_residual_momentum_quality` | `factor_snapshot` | `hkeq-build-residual-momentum-quality-snapshot` | `architecture_scaffold` |
-| `hk_liquid_momentum_quality` | `feature_snapshot` | `hkeq-build-liquid-momentum-quality-snapshot` | `architecture_scaffold` |
-| `hk_composite_factor_quality_value_momentum` | `factor_snapshot` | `hkeq-build-composite-factor-qvm-snapshot` | `architecture_scaffold` |
-| `hk_southbound_flow_momentum` | `flow_snapshot` | `hkeq-build-southbound-flow-momentum-snapshot` | `architecture_scaffold` |
-| `hk_ah_premium_relative_value` | `valuation_snapshot` | `hkeq-build-ah-premium-relative-value-snapshot` | `architecture_scaffold` |
-| `hk_blue_chip_leader_rotation` | `feature_snapshot` | `hkeq-build-blue-chip-leader-snapshot` | `architecture_scaffold` |
-| `hk_index_rebalance_event` | `event_calendar_snapshot` | `hkeq-build-index-rebalance-event-snapshot` | `architecture_scaffold` |
+只有首批 3 个 profile 进入当前 active live-enable 工作队列。其他已 scaffold 的 profile 保留为 research-only 资产：保留 sample builder 和基础测试，但除非明确重新打开，不要求现在补完整 walk-forward 回测或 live-enable evidence package。
 
-推荐 promotion 顺序由 promotion matrix 命令输出，不应该硬编码到平台仓库。
+| Profile | Snapshot 类型 | Builder 命令 | 工作范围 | 状态 |
+| --- | --- | --- | --- | --- |
+| `hk_low_vol_dividend_quality` | `factor_snapshot` | `hkeq-build-low-vol-dividend-quality-snapshot` | first snapshot candidate | `architecture_scaffold` |
+| `hk_shareholder_yield_quality` | `factor_snapshot` | `hkeq-build-shareholder-yield-quality-snapshot` | first snapshot candidate | `architecture_scaffold` |
+| `hk_free_cash_flow_quality` | `factor_snapshot` | `hkeq-build-free-cash-flow-quality-snapshot` | first snapshot candidate | `architecture_scaffold` |
+| `hk_quality_growth_low_volatility` | `factor_snapshot` | `hkeq-build-quality-growth-low-volatility-snapshot` | research-only scaffold | `architecture_scaffold` |
+| `hk_factor_mix_qvlm_risk_parity` | `factor_snapshot` | `hkeq-build-factor-mix-qvlm-risk-parity-snapshot` | research-only scaffold | `architecture_scaffold` |
+| `hk_central_soe_value_quality_select` | `factor_snapshot` | `hkeq-build-central-soe-value-quality-select-snapshot` | research-only scaffold | `architecture_scaffold` |
+| `hk_residual_momentum_quality` | `factor_snapshot` | `hkeq-build-residual-momentum-quality-snapshot` | research-only scaffold | `architecture_scaffold` |
+| `hk_liquid_momentum_quality` | `feature_snapshot` | `hkeq-build-liquid-momentum-quality-snapshot` | research-only scaffold | `architecture_scaffold` |
+| `hk_composite_factor_quality_value_momentum` | `factor_snapshot` | `hkeq-build-composite-factor-qvm-snapshot` | research-only scaffold | `architecture_scaffold` |
+| `hk_southbound_flow_momentum` | `flow_snapshot` | `hkeq-build-southbound-flow-momentum-snapshot` | research-only scaffold | `architecture_scaffold` |
+| `hk_ah_premium_relative_value` | `valuation_snapshot` | `hkeq-build-ah-premium-relative-value-snapshot` | research-only scaffold | `architecture_scaffold` |
+| `hk_blue_chip_leader_rotation` | `feature_snapshot` | `hkeq-build-blue-chip-leader-snapshot` | research-only baseline scaffold | `architecture_scaffold` |
+| `hk_index_rebalance_event` | `event_calendar_snapshot` | `hkeq-build-index-rebalance-event-snapshot` | research-only scaffold | `architecture_scaffold` |
+
+Active promotion 顺序由 promotion matrix 命令输出，不应该硬编码到平台仓库。保留的非首批 scaffold 使用 `research_only_scaffold_sequence` 查看。
 
 ## Artifact contract
 
