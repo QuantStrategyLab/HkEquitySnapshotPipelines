@@ -226,22 +226,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT_DIR), help="Output directory for draft files")
     parser.add_argument("--evidence-uri", default="", help="Immutable backtest evidence URI")
     parser.add_argument("--evidence-generated-at", help="Evidence generation date in YYYY-MM-DD")
-    parser.add_argument("--json", action="store_true", help="Print payload without writing files")
+    parser.add_argument("--json", action="store_true", help="Print payload after writing draft files")
     args = parser.parse_args(argv)
     summary = _load_json(args.summary)
-    if args.json:
-        payload = build_low_vol_dividend_backtest_evidence_draft(
-            summary=summary,
-            evidence_uri=args.evidence_uri,
-            evidence_generated_at=args.evidence_generated_at,
-        )
-    else:
-        payload = write_low_vol_dividend_backtest_evidence_draft(
-            summary=summary,
-            output_dir=Path(args.output_dir),
-            evidence_uri=args.evidence_uri,
-            evidence_generated_at=args.evidence_generated_at,
-        )
+    payload = write_low_vol_dividend_backtest_evidence_draft(
+        summary=summary,
+        output_dir=Path(args.output_dir),
+        evidence_uri=args.evidence_uri,
+        evidence_generated_at=args.evidence_generated_at,
+    )
     print(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True))
     return 0
 

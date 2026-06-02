@@ -86,7 +86,7 @@ def test_write_low_vol_dividend_production_source_audit_draft_outputs_files(tmp_
     assert json.loads(summary_path.read_text(encoding="utf-8"))["row_count"] == 6
 
 
-def test_low_vol_dividend_production_source_audit_cli_json():
+def test_low_vol_dividend_production_source_audit_cli_json_writes_files(tmp_path):
     completed = subprocess.run(
         [
             sys.executable,
@@ -97,6 +97,8 @@ def test_low_vol_dividend_production_source_audit_cli_json():
             "operator-prod-source",
             "--evidence-generated-at",
             "2026-06-03",
+            "--output-dir",
+            str(tmp_path / "out"),
             "--json",
         ],
         check=True,
@@ -108,3 +110,6 @@ def test_low_vol_dividend_production_source_audit_cli_json():
     assert payload["profile"] == "hk_low_vol_dividend_quality"
     assert payload["production_source_audit_draft"]["status"] == "pending"
     assert payload["local_schema_validation"]["row_count"] == 6
+    assert Path(payload["draft_path"]).exists()
+    assert Path(payload["summary_path"]).exists()
+    assert Path(payload["draft_path"]).name == "production_source_audit.draft.json"

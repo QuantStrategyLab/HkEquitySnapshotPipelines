@@ -239,7 +239,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--point-in-time-data-dictionary-uri", default="", help="Immutable PIT data dictionary URI")
     parser.add_argument("--evidence-uri", default="", help="Immutable evidence URI")
     parser.add_argument("--evidence-generated-at", help="Evidence generation date in YYYY-MM-DD")
-    parser.add_argument("--json", action="store_true", help="Print payload without writing files")
+    parser.add_argument("--json", action="store_true", help="Print payload after writing draft files")
     args = parser.parse_args(argv)
     kwargs = {
         "factor_snapshot_path": args.factor_snapshot,
@@ -250,10 +250,7 @@ def main(argv: list[str] | None = None) -> int:
         "evidence_uri": args.evidence_uri,
         "evidence_generated_at": args.evidence_generated_at,
     }
-    if args.json:
-        payload = build_low_vol_dividend_production_source_audit_draft(**kwargs)
-    else:
-        payload = write_low_vol_dividend_production_source_audit_draft(output_dir=Path(args.output_dir), **kwargs)
+    payload = write_low_vol_dividend_production_source_audit_draft(output_dir=Path(args.output_dir), **kwargs)
     print(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True))
     return 0
 
