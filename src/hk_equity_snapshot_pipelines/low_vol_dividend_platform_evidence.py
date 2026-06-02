@@ -80,7 +80,7 @@ def _infer_order_count(
     if orders:
         return len(orders)
     summary = _as_mapping(runtime_report.get("summary"))
-    for field in ("orders_submitted_count", "orders_previewed"):
+    for field in ("orders_previewed_count", "orders_submitted_count", "orders_previewed"):
         try:
             return max(0, int(summary.get(field) or 0))
         except (TypeError, ValueError):

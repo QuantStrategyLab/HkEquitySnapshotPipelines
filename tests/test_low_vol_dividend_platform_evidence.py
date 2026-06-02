@@ -30,7 +30,7 @@ def _runtime_report(tmp_path: Path, *, platform: str = "ibkr", dry_run: bool = T
                 "status": status,
                 "dry_run": dry_run,
                 "summary": {
-                    "orders_submitted_count": 2,
+                    "orders_previewed_count": 2,
                 },
                 "artifacts": {},
             },
