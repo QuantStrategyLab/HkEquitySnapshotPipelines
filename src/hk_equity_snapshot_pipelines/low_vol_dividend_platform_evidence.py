@@ -16,6 +16,10 @@ from .snapshot_readiness import SUPPORTED_SNAPSHOT_PLATFORMS
 
 DEFAULT_OUTPUT_DIR = Path("data/output/low_vol_dividend_platform_evidence")
 DRAFT_VERSION = "hk_low_vol_dividend_quality.platform_evidence_draft.v1"
+RUNTIME_REPORT_PLATFORM_ALIASES = {
+    "ibkr": {"ibkr", "interactive_brokers"},
+    "longbridge": {"longbridge"},
+}
 
 
 def _read_json(path: str | Path) -> dict[str, Any]:
@@ -108,12 +112,15 @@ def _runtime_report_checks(
     profile: str,
 ) -> tuple[bool, list[str]]:
     errors: list[str] = []
+    runtime_platform = str(runtime_report.get("platform") or "").strip().lower()
+    accepted_platforms = RUNTIME_REPORT_PLATFORM_ALIASES.get(platform, {platform})
     if runtime_report.get("dry_run") is not True:
         errors.append("runtime_report.dry_run must be true")
     if str(runtime_report.get("status") or "").strip().lower() != "ok":
         errors.append("runtime_report.status must be 'ok'")
-    if str(runtime_report.get("platform") or "").strip().lower() != platform:
-        errors.append(f"runtime_report.platform must be {platform!r}")
+    if runtime_platform not in accepted_platforms:
+        accepted = ", ".join(repr(item) for item in sorted(accepted_platforms))
+        errors.append(f"runtime_report.platform must be one of {accepted}")
     if str(runtime_report.get("strategy_profile") or "").strip() != profile:
         errors.append(f"runtime_report.strategy_profile must be {profile!r}")
     return not errors, errors
@@ -375,6 +382,7 @@ def main(argv: list[str] | None = None) -> int:
 __all__ = [
     "DEFAULT_OUTPUT_DIR",
     "DRAFT_VERSION",
+    "RUNTIME_REPORT_PLATFORM_ALIASES",
     "build_low_vol_dividend_platform_evidence_draft",
     "main",
     "write_low_vol_dividend_platform_evidence_draft",

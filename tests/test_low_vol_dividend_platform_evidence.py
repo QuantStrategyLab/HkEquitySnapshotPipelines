@@ -86,6 +86,22 @@ def test_platform_evidence_draft_fills_dry_run_section_but_full_evidence_remains
     assert payload["validation_errors_count"] > 0
 
 
+def test_platform_evidence_accepts_ibkr_runtime_report_platform_alias(tmp_path):
+    report_path = _runtime_report(tmp_path, platform="interactive_brokers")
+
+    payload = build_low_vol_dividend_platform_evidence_draft(
+        platform="ibkr",
+        runtime_report_path=report_path,
+        runtime_report_uri="gs://qsl-evidence/hk-low-vol/ibkr/runtime-report.json",
+        orders_previewed=1,
+        evidence_generated_at="2026-06-03",
+    )
+
+    assert payload["runtime_report_checks_passed"] is True
+    assert payload["runtime_report_errors"] == []
+    assert payload["platform"] == "ibkr"
+
+
 def test_platform_evidence_draft_keeps_section_pending_when_runtime_report_is_not_dry_run(tmp_path):
     report_path = _runtime_report(tmp_path, platform="longbridge", dry_run=False)
 
