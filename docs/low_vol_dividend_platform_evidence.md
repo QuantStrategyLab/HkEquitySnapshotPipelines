@@ -11,6 +11,23 @@ It keeps the full evidence pack blocked until the production source, artifact, b
 
 ## Usage
 
+First collect support artifacts from a real platform dry-run runtime report:
+
+```bash
+python scripts/collect_low_vol_dividend_dry_run_support_artifacts.py \
+  --platform longbridge \
+  --runtime-report runtime-report.json \
+  --evidence-generated-at 2026-06-03 \
+  --output-dir evidence/low_vol_dividend_quality/support \
+  --json
+```
+
+The collector writes `raw_order_preview`, `quote_snapshot`, and `fee_breakdown` support files.
+It does not fabricate missing evidence: generated quote or fee files are marked `missing` unless the runtime report already contains a complete payload.
+Files marked `missing` keep the platform evidence section `pending`, even if confirmation flags are supplied later.
+
+Then draft the platform evidence:
+
 ```bash
 python scripts/draft_low_vol_dividend_platform_evidence.py \
   --platform longbridge \
@@ -44,6 +61,7 @@ The platform dry-run section is marked `passed` only when:
 - fractional-share and lot-size errors are zero;
 - stable runtime-report, quote-snapshot, fee-breakdown, and notification-log URIs are provided;
 - local quote and fee files are provided so sha256 provenance can be computed;
+- generated support-artifact files, when used, are marked `status=passed`;
 - order-preview provenance, notification audit, and execution-capacity confirmations are explicitly supplied.
 
 Even if the platform dry-run section is `passed`, the full evidence file can still fail validation until every other live-enable evidence gate is complete.

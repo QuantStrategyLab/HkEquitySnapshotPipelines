@@ -124,6 +124,51 @@ def test_platform_evidence_reads_longbridge_structured_order_previews(tmp_path):
     assert payload["platform"] == "longbridge"
 
 
+def test_platform_evidence_rejects_missing_support_artifact_status_even_with_confirmations(tmp_path):
+    report_path = _runtime_report(tmp_path, platform="longbridge")
+    quote_path = _artifact(
+        tmp_path / "quotes.json",
+        {
+            "artifact_type": "hk_low_vol_dividend_quality.dry_run_support.quote_snapshot.v1",
+            "status": "missing",
+        },
+    )
+    fee_path = _artifact(
+        tmp_path / "fees.json",
+        {
+            "artifact_type": "hk_low_vol_dividend_quality.dry_run_support.fee_breakdown.v1",
+            "status": "missing",
+        },
+    )
+
+    payload = build_low_vol_dividend_platform_evidence_draft(
+        platform="longbridge",
+        runtime_report_path=report_path,
+        runtime_report_uri="gs://qsl-evidence/hk-low-vol/longbridge/runtime-report.json",
+        quote_snapshot_uri="gs://qsl-evidence/hk-low-vol/longbridge/quotes.json",
+        quote_snapshot_file=quote_path,
+        fee_breakdown_uri="gs://qsl-evidence/hk-low-vol/longbridge/fees.json",
+        fee_breakdown_file=fee_path,
+        notification_delivery_log_uri="gs://qsl-evidence/hk-low-vol/longbridge/notification-log.json",
+        notification_correlation_id="longbridge-run-001",
+        adv_window_trading_days=20,
+        median_daily_turnover_hkd=50_000_000,
+        max_single_order_adv_fraction=0.01,
+        rebalance_adv_fraction=0.05,
+        confirm_order_preview_provenance=True,
+        confirm_notification_audit=True,
+        confirm_execution_capacity=True,
+        evidence_generated_at="2026-06-03",
+    )
+
+    section = payload["evidence"]["platform_dry_run_order_preview"]
+    assert payload["quote_snapshot_artifact_passed"] is False
+    assert payload["fee_breakdown_artifact_passed"] is False
+    assert payload["platform_dry_run_section_status"] == "pending"
+    assert section["quote_snapshot_artifact_status"] == "pending"
+    assert section["fee_breakdown_artifact_status"] == "pending"
+
+
 def test_platform_evidence_draft_keeps_section_pending_when_runtime_report_is_not_dry_run(tmp_path):
     report_path = _runtime_report(tmp_path, platform="longbridge", dry_run=False)
 

@@ -11,6 +11,23 @@ IBKR 在 CLI 中使用 `--platform ibkr`，同时兼容 runtime report 顶层 `p
 
 ## 使用方式
 
+先从真实平台 dry-run runtime report 收集 support artifacts：
+
+```bash
+python scripts/collect_low_vol_dividend_dry_run_support_artifacts.py \
+  --platform longbridge \
+  --runtime-report runtime-report.json \
+  --evidence-generated-at 2026-06-03 \
+  --output-dir evidence/low_vol_dividend_quality/support \
+  --json
+```
+
+collector 会写出 `raw_order_preview`、`quote_snapshot` 和 `fee_breakdown` support files。
+它不会伪造缺失证据：只有 runtime report 已包含完整 payload 时，生成的 quote 或 fee 文件才会标记为 `passed`；否则标记为 `missing`。
+后续即使传入确认 flags，`missing` support artifact 也会让平台 evidence section 保持 `pending`。
+
+然后再生成平台 evidence：
+
 ```bash
 python scripts/draft_low_vol_dividend_platform_evidence.py \
   --platform longbridge \
@@ -44,6 +61,7 @@ python scripts/draft_low_vol_dividend_platform_evidence.py \
 - fractional-share 和 lot-size errors 都为 0；
 - 提供稳定的 runtime-report、quote-snapshot、fee-breakdown 和 notification-log URI；
 - 提供本地 quote 和 fee 文件，用于计算 sha256 provenance；
+- 如果使用生成的 support-artifact 文件，其 `status` 必须是 `passed`；
 - 显式确认 order-preview provenance、notification audit 和 execution-capacity controls。
 
 即使平台 dry-run section 为 `passed`，只要其他 live-enable evidence gate 未补齐，完整 evidence 文件仍可能无法通过校验。

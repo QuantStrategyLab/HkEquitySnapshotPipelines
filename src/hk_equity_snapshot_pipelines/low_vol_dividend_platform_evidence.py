@@ -20,6 +20,7 @@ RUNTIME_REPORT_PLATFORM_ALIASES = {
     "ibkr": {"ibkr", "interactive_brokers"},
     "longbridge": {"longbridge"},
 }
+SUPPORT_ARTIFACT_TYPE_PREFIX = "hk_low_vol_dividend_quality.dry_run_support"
 
 
 def _read_json(path: str | Path) -> dict[str, Any]:
@@ -48,6 +49,24 @@ def _optional_sha(path: str | Path | None) -> str:
     if not resolved.exists():
         return ""
     return sha256_file(resolved)
+
+
+def _support_artifact_passed(path: str | Path | None) -> bool:
+    if path is None:
+        return False
+    resolved = Path(path)
+    if not resolved.exists():
+        return False
+    try:
+        payload = json.loads(resolved.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError, UnicodeDecodeError):
+        return True
+    if not isinstance(payload, Mapping):
+        return True
+    artifact_type = str(payload.get("artifact_type") or "").strip()
+    if artifact_type.startswith(SUPPORT_ARTIFACT_TYPE_PREFIX):
+        return str(payload.get("status") or "").strip().lower() == "passed"
+    return True
 
 
 def _normalize_platform(platform: str) -> str:
@@ -205,6 +224,8 @@ def build_low_vol_dividend_platform_evidence_draft(
     raw_order_preview_sha256 = sha256_file(runtime_report_path)
     quote_snapshot_sha256 = _optional_sha(quote_snapshot_file)
     fee_breakdown_sha256 = _optional_sha(fee_breakdown_file)
+    quote_snapshot_artifact_passed = _support_artifact_passed(quote_snapshot_file)
+    fee_breakdown_artifact_passed = _support_artifact_passed(fee_breakdown_file)
     report_ok, report_errors = _runtime_report_checks(
         runtime_report,
         platform=normalized_platform,
@@ -234,8 +255,10 @@ def build_low_vol_dividend_platform_evidence_draft(
             "raw_order_preview_sha256": raw_order_preview_sha256,
             "quote_snapshot_uri": _stable_uri(quote_snapshot_uri),
             "quote_snapshot_sha256": quote_snapshot_sha256,
+            "quote_snapshot_artifact_status": "passed" if quote_snapshot_artifact_passed else "pending",
             "fee_breakdown_uri": _stable_uri(fee_breakdown_uri),
             "fee_breakdown_sha256": fee_breakdown_sha256,
+            "fee_breakdown_artifact_status": "passed" if fee_breakdown_artifact_passed else "pending",
             "order_preview_artifact_not_sample": bool(confirm_order_preview_provenance),
             "order_preview_redacts_sensitive_fields": bool(confirm_order_preview_provenance),
             "quote_snapshot_covers_all_symbols": bool(confirm_order_preview_provenance),
@@ -271,6 +294,8 @@ def build_low_vol_dividend_platform_evidence_draft(
                 notification_delivery_log_uri,
                 section.get("dry_run_session_id"),
             ),
+            quote_snapshot_artifact_passed,
+            fee_breakdown_artifact_passed,
             int(adv_window_trading_days) > 0,
             median_daily_turnover_hkd is not None,
             max_single_order_adv_fraction is not None,
@@ -290,6 +315,8 @@ def build_low_vol_dividend_platform_evidence_draft(
         "runtime_report_checks_passed": report_ok,
         "runtime_report_errors": report_errors,
         "orders_previewed": resolved_orders_previewed,
+        "quote_snapshot_artifact_passed": quote_snapshot_artifact_passed,
+        "fee_breakdown_artifact_passed": fee_breakdown_artifact_passed,
         "platform_dry_run_section_status": section["status"],
         "live_enablement_allowed": bool(validation.get("live_enablement_allowed")),
         "validation_status": validation.get("validation_status"),
@@ -384,6 +411,7 @@ __all__ = [
     "DEFAULT_OUTPUT_DIR",
     "DRAFT_VERSION",
     "RUNTIME_REPORT_PLATFORM_ALIASES",
+    "SUPPORT_ARTIFACT_TYPE_PREFIX",
     "build_low_vol_dividend_platform_evidence_draft",
     "main",
     "write_low_vol_dividend_platform_evidence_draft",
