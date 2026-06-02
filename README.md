@@ -173,6 +173,23 @@ hkeq-draft-low-vol-dividend-platform-evidence \
   --evidence-generated-at 2026-06-03
 ```
 
+Draft operator-controlled broker, rebalance, rollout, approval, and strategy-policy evidence:
+
+```bash
+hkeq-draft-low-vol-dividend-operator-evidence \
+  --platform longbridge \
+  --evidence-generated-at 2026-06-03 \
+  --broker-evidence-uri gs://.../longbridge/broker-permissions.json \
+  --rebalance-evidence-uri gs://.../longbridge/rebalance-window.json \
+  --rollout-evidence-uri gs://.../longbridge/rollout-plan.json \
+  --approval-reference operator-approval://hk-low-vol-dividend-quality/20260603 \
+  --strategy-policy-evidence-uri gs://.../policy/quality-yield-policy-evidence.json \
+  --output-dir evidence/operator \
+  --json
+```
+
+Add the relevant `--confirm-*` flags only after the referenced evidence packs have been reviewed; otherwise the sections remain `pending`.
+
 Assemble section-level evidence into the final platform evidence pack:
 
 ```bash
@@ -276,6 +293,7 @@ python -m pytest -q
 - [`docs/low_vol_dividend_artifact_evidence.md`](./docs/low_vol_dividend_artifact_evidence.md): artifact-pack validation result to live-enable artifact evidence draft tool.
 - [`docs/low_vol_dividend_platform_evidence.md`](./docs/low_vol_dividend_platform_evidence.md): LongBridge/IBKR dry-run runtime report to platform evidence draft tool.
 - [`docs/low_vol_dividend_evidence_assembler.md`](./docs/low_vol_dividend_evidence_assembler.md): assemble section-level evidence drafts into final LongBridge/IBKR live-enable evidence packs.
+- [`docs/low_vol_dividend_operator_evidence.md`](./docs/low_vol_dividend_operator_evidence.md): draft broker permission, rebalance, rollout, risk approval, and strategy-policy evidence sections.
 - [`docs/low_vol_dividend_production_source_audit.md`](./docs/low_vol_dividend_production_source_audit.md): production source audit draft tool for `hk_low_vol_dividend_quality`.
 - [`docs/low_vol_dividend_backtest_evidence.md`](./docs/low_vol_dividend_backtest_evidence.md): walk-forward backtest evidence draft tool for `hk_low_vol_dividend_quality`.
 - [`docs/research/hk_snapshot_strategy_candidates.md`](./docs/research/hk_snapshot_strategy_candidates.md): snapshot strategy research queue, curated candidates, and gating rationale.
