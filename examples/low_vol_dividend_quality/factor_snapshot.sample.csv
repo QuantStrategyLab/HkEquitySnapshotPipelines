@@ -1,0 +1,7 @@
+as_of,snapshot_date,symbol,sector,eligible,close_hkd,adv20_hkd,market_cap_hkd,dividend_yield_net,dividend_stability_3y,earnings_positive,payout_ratio,realized_vol_126,beta_252,maxdd_252,mom_6m,mom_12_1,sma200_gap,suspension_days_63,lot_size,corporate_action_flag
+2026-05-29,2026-05-29,02800,ETF,True,20.0,500000000,200000000000,0.030,0.80,True,0.50,0.180,1.00,-0.20,0.02,0.04,0.02,0,500,False
+2026-05-29,2026-05-29,00941,Telecommunications,True,75.0,1200000000,1500000000000,0.070,0.95,True,0.62,0.120,0.55,-0.10,0.10,0.15,0.08,0,500,False
+2026-05-29,2026-05-29,00002,Utilities,True,45.0,250000000,120000000000,0.055,0.90,True,0.58,0.140,0.50,-0.12,0.06,0.08,0.06,0,500,False
+2026-05-29,2026-05-29,00003,Utilities,True,6.0,180000000,70000000000,0.045,0.85,True,0.55,0.160,0.60,-0.15,0.04,0.06,0.04,0,1000,False
+2026-05-29,2026-05-29,01378,Materials,True,13.0,160000000,90000000000,0.150,0.70,True,1.20,0.400,1.40,-0.35,0.25,0.30,0.15,0,500,False
+2026-05-29,2026-05-29,09999,Technology,True,80.0,500000000,300000000000,0.030,0.40,False,0.00,0.350,1.20,-0.45,0.20,0.30,0.12,0,100,False

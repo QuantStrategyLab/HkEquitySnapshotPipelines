@@ -128,7 +128,6 @@ def build_feature_snapshot(
         turnover = sorted_group["turnover_hkd"].astype(float).reset_index(drop=True)
         if close.empty:
             continue
-        latest = sorted_group.iloc[-1]
         recent_252 = close.tail(252)
         recent_63 = close.tail(63)
         row = {
@@ -142,6 +141,7 @@ def build_feature_snapshot(
             "mom_6m": _return(close, 126),
             "mom_12_1": _return(close, 252),
             "rel_mom_6m_vs_benchmark": (_return(close, 126) or 0.0) - benchmark_6m,
+            "high_63_gap": float(close.iloc[-1] / recent_63.max() - 1.0) if not recent_63.empty else None,
             "high_252_gap": float(close.iloc[-1] / recent_252.max() - 1.0) if not recent_252.empty else None,
             "sma200_gap": float(close.iloc[-1] / close.tail(200).mean() - 1.0) if len(close) >= 200 else None,
             "vol_63": float(recent_63.pct_change().dropna().std()) if len(recent_63) >= 20 else None,
@@ -170,6 +170,7 @@ def build_feature_snapshot(
         "mom_6m",
         "mom_12_1",
         "rel_mom_6m_vs_benchmark",
+        "high_63_gap",
         "high_252_gap",
         "sma200_gap",
         "vol_63",
