@@ -586,7 +586,7 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert "new_snapshot_profile_name_and_contract_version" in (
         backlog["future_research_live_enablement_policy"]["required_pre_scaffold_gates"]
     )
-    assert backlog["candidate_count"] == 6
+    assert backlog["candidate_count"] == 7
     assert backlog["candidates"][0]["profile_hint"] == "hk_earnings_revision_quality_overlay"
     assert backlog["candidates"][0]["scaffold_status"] == "research_only_not_scaffolded"
     assert any("earnings-revision-overlay" in url for url in backlog["candidates"][0]["source_reference_urls"])
@@ -613,6 +613,11 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert any("pacfin" in url or "applec" in url for url in backlog["candidates"][5]["source_reference_urls"])
     assert any("dually_traded" in item for item in backlog["candidates"][5]["required_new_data"])
     assert any("vcm_cas_fee_slippage" in item for item in backlog["candidates"][5]["required_new_data"])
+    assert backlog["candidates"][6]["profile_hint"] == "hk_earnings_announcement_drift_overlay"
+    assert backlog["candidates"][6]["suggested_contract_type"] == "event_calendar_snapshot_overlay"
+    assert any("hkexnews" in url.lower() or "4070" in url for url in backlog["candidates"][6]["source_reference_urls"])
+    assert any("earnings_surprise" in item for item in backlog["candidates"][6]["required_new_data"])
+    assert any("announcement_publication_timestamp" in item for item in backlog["candidates"][6]["required_new_data"])
 
 
 def test_future_research_live_enablement_policy_blocks_backlog_until_new_contract_and_evidence():
@@ -629,6 +634,7 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
         "hk_short_selling_pressure_risk_overlay",
         "hk_director_dealing_disclosure_quality_overlay",
         "hk_dually_traded_liquid_reversal_overlay",
+        "hk_earnings_announcement_drift_overlay",
     ]
     assert "same_universe_ablation_vs_existing_quality_yield_momentum_and_special_situation_profiles" in (
         policy["required_pre_scaffold_gates"]
@@ -650,6 +656,15 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     )
     assert "point_in_time_dually_traded_security_mapping_history" in policy["required_data_provenance"]
     assert "weekly_reversal_signal_cost_spread_and_capacity_history" in policy["required_data_provenance"]
+    assert "point_in_time_hkex_results_announcement_profit_warning_and_alert_history" in (
+        policy["required_data_provenance"]
+    )
+    assert "earnings_surprise_sign_magnitude_and_post_announcement_window_history" in (
+        policy["required_data_provenance"]
+    )
+    assert "announcement_publication_timestamp_suspension_and_trading_resumption_history" in (
+        policy["required_data_provenance"]
+    )
     assert policy["dry_run_order_preview_policy"]["policy_version"] == "hk_dry_run_order_preview_provenance.v1"
     assert any("IM_hsscsqe.pdf" in url for url in policy["source_reference_urls"])
     assert any("factor-indexes" in url for url in policy["source_reference_urls"])
@@ -659,6 +674,7 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert any("Short-Selling-Turnover" in url for url in policy["source_reference_urls"])
     assert any("Disclosure-of-Interests" in url for url in policy["source_reference_urls"])
     assert any("applec" in url or "pacfin" in url for url in policy["source_reference_urls"])
+    assert any("hkexnews" in url.lower() or "4070" in url for url in policy["source_reference_urls"])
 
 
 
