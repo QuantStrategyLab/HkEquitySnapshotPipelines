@@ -179,6 +179,7 @@ python -m pytest -q
 - [`docs/artifact_contract.md`](./docs/artifact_contract.md)：snapshot artifact schema 和 manifest contract。
 - [`docs/first_snapshot_promotion_runbook.md`](./docs/first_snapshot_promotion_runbook.md)：首批 3 个港股 snapshot 候选的 promotion runbook。
 - [`docs/low_vol_dividend_live_enablement_package.zh-CN.md`](./docs/low_vol_dividend_live_enablement_package.zh-CN.md)：`hk_low_vol_dividend_quality` 首个候选 evidence package。
+- [`docs/low_vol_dividend_evidence_bundle.zh-CN.md`](./docs/low_vol_dividend_evidence_bundle.zh-CN.md)：`hk_low_vol_dividend_quality` 的生产数据源和 walk-forward 回测证据模板。
 - [`docs/research/hk_snapshot_strategy_candidates.md`](./docs/research/hk_snapshot_strategy_candidates.md)：snapshot 策略研究队列、候选排序和门槛依据。
 
 ## 相关仓库
