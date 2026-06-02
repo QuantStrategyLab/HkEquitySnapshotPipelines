@@ -58,6 +58,9 @@ HK_DOWNSIDE_BETA_TAIL_RISK_VOLATILITY_OVERLAY_PROFILE_HINT = (
 HK_STRUCTURED_PRODUCT_WARRANT_CBBC_FLOW_RISK_OVERLAY_PROFILE_HINT = (
     "hk_structured_product_warrant_cbbc_flow_risk_overlay"
 )
+HK_INDEX_DERIVATIVES_FUTURES_OPTIONS_SENTIMENT_BASIS_OVERLAY_PROFILE_HINT = (
+    "hk_index_derivatives_futures_options_sentiment_basis_overlay"
+)
 
 SP_EARNINGS_REVISION_OVERLAY_ASIA_URL = (
     "https://www.spglobal.com/spdji/en/research/article/"
@@ -415,6 +418,31 @@ SCIENCEDIRECT_HK_CBBC_TRADING_STRATEGY_URL = (
 IDEAS_HK_CBBC_MCE_PRICE_VOLUME_EFFECTS_URL = (
     "https://ideas.repec.org/a/wly/jfutmk/v35y2015i11p1042-1066.html"
 )
+HKEX_FUTURES_OPTIONS_PRICES_URL = "https://www.hkex.com.hk/Market-Data/Futures-and-Options-Prices?sc_lang=en"
+HKEX_HSI_FUTURES_OPTIONS_INFO_SHEET_URL = (
+    "https://www.hkex.com.hk/-/media/HKEX-Market/Products/Listed-Derivatives/Equity-Index/"
+    "Hang-Seng-Index-%28HSI%29/Hang-Seng-Index-Futures/"
+    "HSI-Futures-and-Options%2C-Min-HSI-Futures-and-Option-Information-Sheet/HKEX_HSI_FO_EN.pdf"
+)
+HSI_OPTIONS_PUT_CALL_CONTRARIAN_BLOG_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/blog/20231010T000000.pdf"
+)
+HKMU_HSI_FUTURES_OPTIONS_MISPRICING_URL = (
+    "https://scholars.hkmu.edu.hk/en/publications/"
+    "mispricing-of-index-futures-contracts-a-study-of-index-futures-ve"
+)
+SCIENCEDIRECT_HSI_OPTIONS_GARCH_PRICING_URL = "https://www.sciencedirect.com/science/article/pii/S0378426600001667"
+SCIENCEDIRECT_HSI_FUTURES_ELECTRONIC_TRADING_URL = (
+    "https://www.sciencedirect.com/science/article/abs/pii/S1059056004000395"
+)
+SCIENCEDIRECT_HSI_SPOT_FUTURES_OPTIONS_LEAD_LAG_URL = (
+    "https://www.sciencedirect.com/science/article/abs/pii/S0378426699001272"
+)
+IDEAS_HSI_INDEX_FUTURES_PRICE_DISCOVERY_URL = "https://ideas.repec.org/a/wly/jfutmk/v24y2004i9p887-907.html"
+HKUST_HSI_FUTURES_OPTIONS_VOLATILITY_URL = (
+    "https://researchportal.hkust.edu.hk/en/publications/"
+    "the-impact-of-futures-and-options-tradings-on-the-hang-seng-index"
+)
 
 FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_EARNINGS_REVISION_QUALITY_OVERLAY_PROFILE_HINT,
@@ -445,6 +473,7 @@ FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_FINANCIAL_DISTRESS_DELEVERAGING_RISK_OVERLAY_PROFILE_HINT,
     HK_DOWNSIDE_BETA_TAIL_RISK_VOLATILITY_OVERLAY_PROFILE_HINT,
     HK_STRUCTURED_PRODUCT_WARRANT_CBBC_FLOW_RISK_OVERLAY_PROFILE_HINT,
+    HK_INDEX_DERIVATIVES_FUTURES_OPTIONS_SENTIMENT_BASIS_OVERLAY_PROFILE_HINT,
 )
 
 FUTURE_RESEARCH_REQUIRED_PRE_SCAFFOLD_GATES: tuple[str, ...] = (
@@ -557,6 +586,9 @@ FUTURE_RESEARCH_REQUIRED_DATA_PROVENANCE: tuple[str, ...] = (
     "point_in_time_derivative_warrant_cbbc_listing_issuance_expiry_underlying_and_turnover_history",
     "cbbc_call_price_mce_distance_bull_bear_outstanding_notional_and_strike_maturity_history",
     "structured_product_liquidity_provider_spread_hedging_stress_and_underlying_ablation_history",
+    "point_in_time_hsi_hstech_hscei_futures_options_price_volume_open_interest_basis_and_put_call_history",
+    "options_implied_volatility_skew_term_structure_futures_basis_calendar_spread_and_expiry_roll_history",
+    "same_universe_index_etf_largecap_momentum_volatility_structured_product_and_macro_ablation_history",
 )
 
 FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
@@ -710,6 +742,15 @@ FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
     SCIENCEDIRECT_HK_DERIVATIVE_WARRANT_INTRO_EXPIRATION_URL,
     SCIENCEDIRECT_HK_CBBC_TRADING_STRATEGY_URL,
     IDEAS_HK_CBBC_MCE_PRICE_VOLUME_EFFECTS_URL,
+    HKEX_FUTURES_OPTIONS_PRICES_URL,
+    HKEX_HSI_FUTURES_OPTIONS_INFO_SHEET_URL,
+    HSI_OPTIONS_PUT_CALL_CONTRARIAN_BLOG_URL,
+    HKMU_HSI_FUTURES_OPTIONS_MISPRICING_URL,
+    SCIENCEDIRECT_HSI_OPTIONS_GARCH_PRICING_URL,
+    SCIENCEDIRECT_HSI_FUTURES_ELECTRONIC_TRADING_URL,
+    SCIENCEDIRECT_HSI_SPOT_FUTURES_OPTIONS_LEAD_LAG_URL,
+    IDEAS_HSI_INDEX_FUTURES_PRICE_DISCOVERY_URL,
+    HKUST_HSI_FUTURES_OPTIONS_VOLATILITY_URL,
 )
 
 
@@ -766,6 +807,7 @@ __all__ = [
     "HK_FINANCIAL_DISTRESS_DELEVERAGING_RISK_OVERLAY_PROFILE_HINT",
     "HK_DOWNSIDE_BETA_TAIL_RISK_VOLATILITY_OVERLAY_PROFILE_HINT",
     "HK_STRUCTURED_PRODUCT_WARRANT_CBBC_FLOW_RISK_OVERLAY_PROFILE_HINT",
+    "HK_INDEX_DERIVATIVES_FUTURES_OPTIONS_SENTIMENT_BASIS_OVERLAY_PROFILE_HINT",
     "HK_TAKEOVER_PRIVATIZATION_EVENT_SPREAD_OVERLAY_PROFILE_HINT",
     "HK_LOTTERY_STOCK_RISK_EXCLUSION_OVERLAY_PROFILE_HINT",
     "HK_LOW_SIZE_QUALITY_LIQUIDITY_PREMIUM_PROFILE_HINT",
@@ -917,5 +959,14 @@ __all__ = [
     "SCIENCEDIRECT_HK_DERIVATIVE_WARRANT_INTRO_EXPIRATION_URL",
     "SCIENCEDIRECT_HK_CBBC_TRADING_STRATEGY_URL",
     "IDEAS_HK_CBBC_MCE_PRICE_VOLUME_EFFECTS_URL",
+    "HKEX_FUTURES_OPTIONS_PRICES_URL",
+    "HKEX_HSI_FUTURES_OPTIONS_INFO_SHEET_URL",
+    "HSI_OPTIONS_PUT_CALL_CONTRARIAN_BLOG_URL",
+    "HKMU_HSI_FUTURES_OPTIONS_MISPRICING_URL",
+    "SCIENCEDIRECT_HSI_OPTIONS_GARCH_PRICING_URL",
+    "SCIENCEDIRECT_HSI_FUTURES_ELECTRONIC_TRADING_URL",
+    "SCIENCEDIRECT_HSI_SPOT_FUTURES_OPTIONS_LEAD_LAG_URL",
+    "IDEAS_HSI_INDEX_FUTURES_PRICE_DISCOVERY_URL",
+    "HKUST_HSI_FUTURES_OPTIONS_VOLATILITY_URL",
     "build_future_research_live_enablement_policy",
 ]

@@ -640,7 +640,7 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert "new_snapshot_profile_name_and_contract_version" in (
         backlog["future_research_live_enablement_policy"]["required_pre_scaffold_gates"]
     )
-    assert backlog["candidate_count"] == 28
+    assert backlog["candidate_count"] == 29
     assert backlog["candidates"][0]["profile_hint"] == "hk_earnings_revision_quality_overlay"
     assert backlog["candidates"][0]["scaffold_status"] == "research_only_not_scaffolded"
     assert any("earnings-revision-overlay" in url for url in backlog["candidates"][0]["source_reference_urls"])
@@ -809,6 +809,17 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert any("v35y2015i11p1042-1066" in url for url in backlog["candidates"][27]["source_reference_urls"])
     assert any("warrant_cbbc" in item for item in backlog["candidates"][27]["required_new_data"])
     assert any("mandatory_call_event" in item for item in backlog["candidates"][27]["required_new_data"])
+    assert backlog["candidates"][28]["profile_hint"] == (
+        "hk_index_derivatives_futures_options_sentiment_basis_overlay"
+    )
+    assert backlog["candidates"][28]["suggested_contract_type"] == (
+        "index_derivatives_sentiment_basis_snapshot_overlay"
+    )
+    assert any("Futures-and-Options-Prices" in url for url in backlog["candidates"][28]["source_reference_urls"])
+    assert any("20231010T000000.pdf" in url for url in backlog["candidates"][28]["source_reference_urls"])
+    assert any("S0378426699001272" in url for url in backlog["candidates"][28]["source_reference_urls"])
+    assert any("put_call" in item for item in backlog["candidates"][28]["required_new_data"])
+    assert any("expiry_roll" in item for item in backlog["candidates"][28]["required_new_data"])
 
 
 def test_future_research_live_enablement_policy_blocks_backlog_until_new_contract_and_evidence():
@@ -847,6 +858,7 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
         "hk_financial_distress_deleveraging_risk_overlay",
         "hk_downside_beta_tail_risk_volatility_overlay",
         "hk_structured_product_warrant_cbbc_flow_risk_overlay",
+        "hk_index_derivatives_futures_options_sentiment_basis_overlay",
     ]
     assert "same_universe_ablation_vs_existing_quality_yield_momentum_and_special_situation_profiles" in (
         policy["required_pre_scaffold_gates"]
@@ -1043,6 +1055,15 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert "structured_product_liquidity_provider_spread_hedging_stress_and_underlying_ablation_history" in (
         policy["required_data_provenance"]
     )
+    assert "point_in_time_hsi_hstech_hscei_futures_options_price_volume_open_interest_basis_and_put_call_history" in (
+        policy["required_data_provenance"]
+    )
+    assert "options_implied_volatility_skew_term_structure_futures_basis_calendar_spread_and_expiry_roll_history" in (
+        policy["required_data_provenance"]
+    )
+    assert "same_universe_index_etf_largecap_momentum_volatility_structured_product_and_macro_ablation_history" in (
+        policy["required_data_provenance"]
+    )
     assert "sector_rate_beta_inflation_beta_property_financial_and_dividend_yield_sensitivity_history" in (
         policy["required_data_provenance"]
     )
@@ -1117,6 +1138,11 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert any("products/securities/cbbc" in url.lower() for url in policy["source_reference_urls"])
     assert any("S0378426600001382" in url for url in policy["source_reference_urls"])
     assert any("v35y2015i11p1042-1066" in url for url in policy["source_reference_urls"])
+    assert any("Futures-and-Options-Prices" in url for url in policy["source_reference_urls"])
+    assert any("HKEX_HSI_FO_EN.pdf" in url for url in policy["source_reference_urls"])
+    assert any("mispricing-of-index-futures-contracts" in url for url in policy["source_reference_urls"])
+    assert any("S0378426600001667" in url for url in policy["source_reference_urls"])
+    assert any("jfutmk/v24y2004i9p887-907" in url for url in policy["source_reference_urls"])
 
 
 
