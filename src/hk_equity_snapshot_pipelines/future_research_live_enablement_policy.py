@@ -55,6 +55,9 @@ HK_FINANCIAL_DISTRESS_DELEVERAGING_RISK_OVERLAY_PROFILE_HINT = (
 HK_DOWNSIDE_BETA_TAIL_RISK_VOLATILITY_OVERLAY_PROFILE_HINT = (
     "hk_downside_beta_tail_risk_volatility_overlay"
 )
+HK_STRUCTURED_PRODUCT_WARRANT_CBBC_FLOW_RISK_OVERLAY_PROFILE_HINT = (
+    "hk_structured_product_warrant_cbbc_flow_risk_overlay"
+)
 
 SP_EARNINGS_REVISION_OVERLAY_ASIA_URL = (
     "https://www.spglobal.com/spdji/en/research/article/"
@@ -394,6 +397,24 @@ SCIENCEDIRECT_HK_LOW_FREQUENCY_VOLATILITY_URL = (
 HKMU_RISK_RETURN_RELATIONSHIPS_HK_URL = (
     "https://scholars.hkmu.edu.hk/en/publications/risk-return-relationships-in-the-hong-kong-stock-market"
 )
+HKEX_STRUCTURED_PRODUCTS_OVERVIEW_URL = "https://www.hkex.com.hk/Products/Securities/Structured-Products/Overview"
+HKEX_STRUCTURED_PRODUCTS_TRADING_INFORMATION_URL = (
+    "https://www.hkex.com.hk/Products/Securities/Structured-Products/Trading-Information-and-Historical-Data"
+)
+HKEX_DERIVATIVE_WARRANT_FAQ_URL = "https://www.hkex.com.hk/global/exchange/faq/products/securities/dw?sc_lang=en"
+HKEX_CBBC_FAQ_URL = "https://www.hkex.com.hk/Global/Exchange/FAQ/Products/Securities/CBBC?sc_lang=en"
+SCIENCEDIRECT_HK_DERIVATIVE_WARRANT_ISSUANCE_URL = (
+    "https://www.sciencedirect.com/science/article/pii/S0378426600001382"
+)
+SCIENCEDIRECT_HK_DERIVATIVE_WARRANT_INTRO_EXPIRATION_URL = (
+    "https://www.sciencedirect.com/science/article/pii/S1057521900000442"
+)
+SCIENCEDIRECT_HK_CBBC_TRADING_STRATEGY_URL = (
+    "https://www.sciencedirect.com/science/article/pii/S0927538X09000778"
+)
+IDEAS_HK_CBBC_MCE_PRICE_VOLUME_EFFECTS_URL = (
+    "https://ideas.repec.org/a/wly/jfutmk/v35y2015i11p1042-1066.html"
+)
 
 FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_EARNINGS_REVISION_QUALITY_OVERLAY_PROFILE_HINT,
@@ -423,6 +444,7 @@ FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_ANALYST_DISPERSION_COVERAGE_RISK_OVERLAY_PROFILE_HINT,
     HK_FINANCIAL_DISTRESS_DELEVERAGING_RISK_OVERLAY_PROFILE_HINT,
     HK_DOWNSIDE_BETA_TAIL_RISK_VOLATILITY_OVERLAY_PROFILE_HINT,
+    HK_STRUCTURED_PRODUCT_WARRANT_CBBC_FLOW_RISK_OVERLAY_PROFILE_HINT,
 )
 
 FUTURE_RESEARCH_REQUIRED_PRE_SCAFFOLD_GATES: tuple[str, ...] = (
@@ -532,6 +554,9 @@ FUTURE_RESEARCH_REQUIRED_DATA_PROVENANCE: tuple[str, ...] = (
     "point_in_time_downside_beta_semivariance_realized_volatility_and_tail_risk_history",
     "var_cvar_drawdown_contribution_volatility_regime_and_stress_beta_history",
     "same_universe_quality_value_yield_momentum_liquidity_lottery_and_distress_ablation_history",
+    "point_in_time_derivative_warrant_cbbc_listing_issuance_expiry_underlying_and_turnover_history",
+    "cbbc_call_price_mce_distance_bull_bear_outstanding_notional_and_strike_maturity_history",
+    "structured_product_liquidity_provider_spread_hedging_stress_and_underlying_ablation_history",
 )
 
 FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
@@ -677,6 +702,14 @@ FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
     LINGNAN_EXTREME_DOWNSIDE_RISK_URL,
     SCIENCEDIRECT_HK_LOW_FREQUENCY_VOLATILITY_URL,
     HKMU_RISK_RETURN_RELATIONSHIPS_HK_URL,
+    HKEX_STRUCTURED_PRODUCTS_OVERVIEW_URL,
+    HKEX_STRUCTURED_PRODUCTS_TRADING_INFORMATION_URL,
+    HKEX_DERIVATIVE_WARRANT_FAQ_URL,
+    HKEX_CBBC_FAQ_URL,
+    SCIENCEDIRECT_HK_DERIVATIVE_WARRANT_ISSUANCE_URL,
+    SCIENCEDIRECT_HK_DERIVATIVE_WARRANT_INTRO_EXPIRATION_URL,
+    SCIENCEDIRECT_HK_CBBC_TRADING_STRATEGY_URL,
+    IDEAS_HK_CBBC_MCE_PRICE_VOLUME_EFFECTS_URL,
 )
 
 
@@ -732,6 +765,7 @@ __all__ = [
     "HK_ANALYST_DISPERSION_COVERAGE_RISK_OVERLAY_PROFILE_HINT",
     "HK_FINANCIAL_DISTRESS_DELEVERAGING_RISK_OVERLAY_PROFILE_HINT",
     "HK_DOWNSIDE_BETA_TAIL_RISK_VOLATILITY_OVERLAY_PROFILE_HINT",
+    "HK_STRUCTURED_PRODUCT_WARRANT_CBBC_FLOW_RISK_OVERLAY_PROFILE_HINT",
     "HK_TAKEOVER_PRIVATIZATION_EVENT_SPREAD_OVERLAY_PROFILE_HINT",
     "HK_LOTTERY_STOCK_RISK_EXCLUSION_OVERLAY_PROFILE_HINT",
     "HK_LOW_SIZE_QUALITY_LIQUIDITY_PREMIUM_PROFILE_HINT",
@@ -875,5 +909,13 @@ __all__ = [
     "LINGNAN_EXTREME_DOWNSIDE_RISK_URL",
     "SCIENCEDIRECT_HK_LOW_FREQUENCY_VOLATILITY_URL",
     "HKMU_RISK_RETURN_RELATIONSHIPS_HK_URL",
+    "HKEX_STRUCTURED_PRODUCTS_OVERVIEW_URL",
+    "HKEX_STRUCTURED_PRODUCTS_TRADING_INFORMATION_URL",
+    "HKEX_DERIVATIVE_WARRANT_FAQ_URL",
+    "HKEX_CBBC_FAQ_URL",
+    "SCIENCEDIRECT_HK_DERIVATIVE_WARRANT_ISSUANCE_URL",
+    "SCIENCEDIRECT_HK_DERIVATIVE_WARRANT_INTRO_EXPIRATION_URL",
+    "SCIENCEDIRECT_HK_CBBC_TRADING_STRATEGY_URL",
+    "IDEAS_HK_CBBC_MCE_PRICE_VOLUME_EFFECTS_URL",
     "build_future_research_live_enablement_policy",
 ]
