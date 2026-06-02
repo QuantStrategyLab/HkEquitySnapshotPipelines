@@ -174,6 +174,7 @@ GENERIC_REQUIRED_NEXT_EVIDENCE: tuple[str, ...] = (
     "survivorship_safe_walk_forward_backtest_min_three_oos_years",
     "backtest_validation_policy_evidence",
     "point_in_time_no_lookahead_and_no_overfit_controls",
+    "per_fold_drawdown_parameter_stability_and_regime_stress_controls",
     "positive_annual_return_and_positive_excess_return_vs_profile_benchmark",
     "hk_fee_stamp_duty_or_exemption_slippage_and_lot_size_model",
     "paper_or_dry_run_rebalance_windows",

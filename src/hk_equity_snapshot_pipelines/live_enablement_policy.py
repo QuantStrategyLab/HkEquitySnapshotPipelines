@@ -69,6 +69,12 @@ REQUIRED_BACKTEST_BIAS_CONTROL_FIELDS: tuple[str, ...] = (
     "survivorship_bias_controls",
     "lookahead_bias_controls",
     "benchmark_period_aligned",
+    "rolling_oos_fold_drawdown_controls",
+    "parameter_sensitivity_and_holdout_stability_controls",
+    "regime_stress_and_liquidity_shock_controls",
+    "net_return_after_costs_controls",
+    "corporate_action_delisting_and_stale_price_controls",
+    "cash_leverage_short_borrow_and_margin_controls",
 )
 
 REQUIRED_EXECUTION_CAPACITY_FIELDS: tuple[str, ...] = (
