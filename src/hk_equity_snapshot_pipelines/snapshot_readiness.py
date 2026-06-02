@@ -10,9 +10,7 @@ from .baseline_rotation_live_enablement_policy import (
     build_baseline_rotation_live_enablement_policy,
 )
 from .contracts import (
-    HK_FREE_CASH_FLOW_QUALITY_PROFILE,
     HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,
-    HK_SHAREHOLDER_YIELD_QUALITY_PROFILE,
     SnapshotProfileContract,
     get_profile_contract,
     list_profile_contracts,
@@ -56,8 +54,6 @@ RESEARCH_ONLY_SCAFFOLD_SCOPE = "research_only_scaffold"
 FIRST_SNAPSHOT_READINESS_PROFILES = frozenset(
     {
         HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,
-        HK_SHAREHOLDER_YIELD_QUALITY_PROFILE,
-        HK_FREE_CASH_FLOW_QUALITY_PROFILE,
     }
 )
 
@@ -236,7 +232,7 @@ def build_snapshot_readiness(profile: str, *, platform_id: str) -> dict[str, Any
         "live_enablement_work_queue": is_first_snapshot_candidate,
         "requires_full_backtest_now": is_first_snapshot_candidate,
         "evidence_tooling_scope": (
-            "first_snapshot_shared_evidence_tools"
+            "active_first_snapshot_shared_evidence_tools"
             if is_first_snapshot_candidate
             else "research_only_no_live_enablement_package"
         ),
@@ -273,7 +269,7 @@ def build_snapshot_readiness(profile: str, *, platform_id: str) -> dict[str, Any
             []
             if is_first_snapshot_candidate
             else [
-                "This profile is retained as a research-only scaffold and is outside the active first-three live-enable work queue."
+                "This profile is retained as a research-only scaffold and is outside the active live-enable work queue."
             ]
         ),
     }

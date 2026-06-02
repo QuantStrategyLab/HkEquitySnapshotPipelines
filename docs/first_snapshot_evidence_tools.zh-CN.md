@@ -2,7 +2,7 @@
 
 [English version](./first_snapshot_evidence_tools.md)
 
-本文档说明首批 3 个港股 snapshot 候选共用的 evidence 工具：
+本文档说明 active 和 deferred 港股 quality/yield snapshot 候选共用的 evidence 工具：
 
 1. `hk_low_vol_dividend_quality`
 2. `hk_shareholder_yield_quality`
@@ -12,18 +12,18 @@
 
 ## 范围
 
-工具会为首批 3 个 profile 生成同一套 live-enable scaffold：
+工具默认只为 active profile 生成 evidence scaffold；显式指定 `--profile` 时，仍支持 deferred profile 的重新回测：
 
 - live-enable evidence package；
 - production evidence template bundle；
 - production source audit draft；
 - walk-forward backtest evidence draft。
 
-原来的低波红利专项命令继续保留，用于兼容已有流程。准备首批 3 个候选的 evidence 时，优先使用这里的共用 first-snapshot 命令。
+原来的低波红利专项命令继续保留，用于兼容已有流程。准备 `hk_low_vol_dividend_quality` evidence 时优先使用这里的共用 first-snapshot 命令；只有明确重新打开 deferred profile 时才用显式 `--profile`。
 
 ## 生成 live-enable evidence package
 
-为首批 3 个 profile 全部生成 package：
+为 active profile 生成 package：
 
 ```bash
 PYTHONPATH=src python scripts/build_first_snapshot_live_enablement_packages.py
@@ -54,7 +54,7 @@ data/output/first_snapshot_live_enablement_packages/<profile>/live_enablement_pa
 
 ## 生成 evidence template bundle
 
-为首批 3 个 profile 全部生成模板包：
+为 active profile 生成模板包：
 
 ```bash
 PYTHONPATH=src python scripts/build_first_snapshot_evidence_bundles.py

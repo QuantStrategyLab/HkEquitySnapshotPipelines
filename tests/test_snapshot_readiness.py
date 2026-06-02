@@ -109,7 +109,7 @@ def test_snapshot_readiness_ibkr_env_uses_contract_artifacts():
     assert plan["promotion_scope"] == "first_snapshot_live_enablement_candidate"
     assert plan["live_enablement_work_queue"] is True
     assert plan["requires_full_backtest_now"] is True
-    assert plan["evidence_tooling_scope"] == "first_snapshot_shared_evidence_tools"
+    assert plan["evidence_tooling_scope"] == "active_first_snapshot_shared_evidence_tools"
     assert plan["platform_env_template"]["IBKR_MARKET"] == "HK"
     assert plan["platform_env_template"]["IBKR_FEATURE_SNAPSHOT_PATH"] == (
         "hk_low_vol_dividend_quality_factor_snapshot_latest.csv"

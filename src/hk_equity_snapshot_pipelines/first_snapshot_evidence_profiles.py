@@ -11,7 +11,7 @@ from .contracts import (
     HK_SHAREHOLDER_YIELD_QUALITY_PROFILE,
     get_profile_contract,
 )
-from .first_snapshot_promotion_plan import FIRST_SNAPSHOT_PROFILE_ORDER
+from .first_snapshot_promotion_plan import FIRST_SNAPSHOT_PROFILE_ORDER, SUPPORTED_FIRST_SNAPSHOT_EVIDENCE_PROFILE_ORDER
 from .free_cash_flow_quality_strategy import (
     OPTIONAL_FACTOR_COLUMNS as FCF_OPTIONAL_FACTOR_COLUMNS,
 )
@@ -174,7 +174,7 @@ FIRST_SNAPSHOT_EVIDENCE_PROFILES: dict[str, FirstSnapshotEvidenceProfile] = {
 def normalize_first_snapshot_profile(profile: str) -> str:
     normalized = str(profile or "").strip().lower().replace("-", "_")
     if normalized not in FIRST_SNAPSHOT_EVIDENCE_PROFILES:
-        known = ", ".join(FIRST_SNAPSHOT_PROFILE_ORDER)
+        known = ", ".join(SUPPORTED_FIRST_SNAPSHOT_EVIDENCE_PROFILE_ORDER)
         raise ValueError(f"Unsupported first snapshot evidence profile {profile!r}; known profiles: {known}")
     return normalized
 

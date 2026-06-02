@@ -210,17 +210,16 @@ def test_snapshot_promotion_matrix_covers_every_contract_profile():
     )
     ranking = matrix["curated_snapshot_strategy_ranking"]
     assert ranking["ranking_version"] == CURATED_SNAPSHOT_STRATEGY_RANKING_VERSION
-    assert ranking["selection_scope"] == "first_three_live_enablement_candidates_only"
-    assert [row["profile"] for row in ranking["ranking"][:3]] == [
-        "hk_low_vol_dividend_quality",
-        "hk_shareholder_yield_quality",
-        "hk_free_cash_flow_quality",
-    ]
-    assert len(ranking["ranking"]) == 3
+    assert ranking["selection_scope"] == "single_active_candidate_after_proxy_cycle_backtest"
+    assert [row["profile"] for row in ranking["ranking"]] == ["hk_low_vol_dividend_quality"]
+    assert len(ranking["ranking"]) == 1
+    assert "hk_shareholder_yield_quality" in {row["profile"] for row in ranking["deprioritized_profiles"]}
+    assert "hk_free_cash_flow_quality" in {row["profile"] for row in ranking["deprioritized_profiles"]}
     assert "hk_residual_momentum_quality" in {row["profile"] for row in ranking["deprioritized_profiles"]}
     assert "hk_index_rebalance_event" in {row["profile"] for row in ranking["deprioritized_profiles"]}
-    assert matrix["active_live_enablement_candidate_count"] == 3
-    assert matrix["research_only_scaffold_count"] == matrix["profile_count"] - 3
+    assert matrix["active_live_enablement_candidate_count"] == 1
+    assert matrix["deferred_proxy_retest_candidate_count"] == 2
+    assert matrix["research_only_scaffold_count"] == matrix["profile_count"] - 1
     assert matrix["recommended_live_enablement_sequence"] == matrix["first_snapshot_candidates"]
     assert matrix["research_only_scaffold_sequence"] == [
         row["profile"]
@@ -245,6 +244,8 @@ def test_first_snapshot_candidates_prioritize_low_turnover_quality_styles():
 
     assert matrix["first_snapshot_candidates"] == [
         "hk_low_vol_dividend_quality",
+    ]
+    assert matrix["deferred_proxy_retest_candidates"] == [
         "hk_shareholder_yield_quality",
         "hk_free_cash_flow_quality",
     ]
@@ -256,9 +257,9 @@ def test_curated_snapshot_strategy_ranking_excludes_weaker_backlog_profiles():
     assert ranking["live_enablement_allowed_without_evidence"] is False
     assert ranking["max_allowed_drawdown"] == 0.30
     assert ranking["ranking"][0]["profile"] == "hk_low_vol_dividend_quality"
-    assert ranking["ranking"][1]["profile"] == "hk_shareholder_yield_quality"
-    assert ranking["ranking"][2]["profile"] == "hk_free_cash_flow_quality"
-    assert len(ranking["ranking"]) == 3
+    assert len(ranking["ranking"]) == 1
+    assert "hk_shareholder_yield_quality" in {row["profile"] for row in ranking["deprioritized_profiles"]}
+    assert "hk_free_cash_flow_quality" in {row["profile"] for row in ranking["deprioritized_profiles"]}
     assert "hk_factor_mix_qvlm_risk_parity" in {row["profile"] for row in ranking["deprioritized_profiles"]}
     assert ranking["future_research_curated_candidate_order"] == [
         "hk_earnings_revision_quality_overlay",
@@ -372,12 +373,12 @@ def test_shareholder_yield_row_carries_hkex_evidence_and_turnover_cap():
     assert row["profile"] == "hk_shareholder_yield_quality"
     assert row["priority"] == 2
     assert row["promotion_bucket"] == "first_snapshot_candidate"
-    assert row["promotion_scope"] == FIRST_SNAPSHOT_PROMOTION_SCOPE
-    assert row["live_enablement_work_queue"] is True
-    assert row["requires_full_backtest_now"] is True
-    assert row["evidence_tooling_scope"] == "first_snapshot_shared_evidence_tools"
-    assert row["recommended_live_enablement_stage"] == "production_data_audit_and_walk_forward_first"
-    assert "production snapshot source" in row["next_live_enablement_action"]
+    assert row["promotion_scope"] == RESEARCH_ONLY_SCAFFOLD_SCOPE
+    assert row["live_enablement_work_queue"] is False
+    assert row["requires_full_backtest_now"] is False
+    assert row["evidence_tooling_scope"] == "deferred_first_snapshot_evidence_supported_not_default"
+    assert row["recommended_live_enablement_stage"] == "deferred_after_proxy_cycle_retest_with_real_factors"
+    assert "reopen only if long, medium, and short cycle max drawdowns" in row["next_live_enablement_action"]
     assert row["live_enablement_thresholds"]["max_allowed_annualized_turnover"] == 1.0
     assert "hkex_buyback_disclosure_history" in row["production_source_audit_policy"]["required_boolean_fields"]
     assert "hkex_next_day_share_repurchase_return_history" in (
@@ -1662,8 +1663,8 @@ def test_print_snapshot_promotion_matrix_json():
 
     assert payload["live_enablement_gate"] == SNAPSHOT_PROMOTION_GATE
     assert payload["runtime_enabled_count"] == 0
-    assert payload["recommended_live_enablement_sequence"][:3] == [
-        "hk_low_vol_dividend_quality",
+    assert payload["recommended_live_enablement_sequence"] == ["hk_low_vol_dividend_quality"]
+    assert payload["deferred_proxy_retest_candidates"] == [
         "hk_shareholder_yield_quality",
         "hk_free_cash_flow_quality",
     ]

@@ -15,6 +15,9 @@ from .snapshot_readiness import build_snapshot_readiness
 FIRST_SNAPSHOT_PROMOTION_PLAN_VERSION = "hk_snapshot_first_promotion_plan.v1"
 FIRST_SNAPSHOT_PROFILE_ORDER = (
     HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,
+)
+SUPPORTED_FIRST_SNAPSHOT_EVIDENCE_PROFILE_ORDER = (
+    HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,
     HK_SHAREHOLDER_YIELD_QUALITY_PROFILE,
     HK_FREE_CASH_FLOW_QUALITY_PROFILE,
 )
@@ -100,13 +103,18 @@ def _profiles_by_name(matrix: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return {str(row["profile"]): row for row in matrix["profiles"]}
 
 
-def _filter_profiles(profiles: tuple[str, ...], profile: str | None) -> tuple[str, ...]:
+def _filter_profiles(
+    default_profiles: tuple[str, ...],
+    profile: str | None,
+    *,
+    allowed_profiles: tuple[str, ...] = SUPPORTED_FIRST_SNAPSHOT_EVIDENCE_PROFILE_ORDER,
+) -> tuple[str, ...]:
     if profile is None:
-        return profiles
+        return default_profiles
     normalized = str(profile).strip().lower().replace("-", "_")
-    matched = tuple(candidate for candidate in profiles if candidate == normalized)
+    matched = tuple(candidate for candidate in allowed_profiles if candidate == normalized)
     if not matched:
-        known = ", ".join(profiles)
+        known = ", ".join(allowed_profiles)
         raise ValueError(f"Unsupported first snapshot promotion profile {profile!r}; known profiles: {known}")
     return matched
 
@@ -180,16 +188,20 @@ def build_first_snapshot_promotion_plan(
 
     selected_profiles = _filter_profiles(first_snapshot_candidates, profile)
     rows_by_name = _profiles_by_name(matrix)
+    excluded_from_scope: list[str] = []
+    for candidate in [
+        *matrix["recommended_live_enablement_sequence"],
+        *matrix.get("research_only_scaffold_sequence", []),
+    ]:
+        if candidate not in selected_profiles and candidate not in excluded_from_scope:
+            excluded_from_scope.append(candidate)
     return {
         "plan_version": FIRST_SNAPSHOT_PROMOTION_PLAN_VERSION,
         "source_project": matrix["source_project"],
         "status": "first_snapshot_promotion_plan_not_live_enabled",
         "live_enablement_allowed_without_evidence": False,
         "profiles_in_scope": list(selected_profiles),
-        "excluded_from_scope": [
-            candidate for candidate in matrix["recommended_live_enablement_sequence"] if candidate not in selected_profiles
-        ]
-        + list(matrix.get("research_only_scaffold_sequence", [])),
+        "excluded_from_scope": excluded_from_scope,
         "promotion_steps": list(_PROMOTION_STEPS),
         "shared_gates": {
             "backtest_validation_policy": matrix["backtest_validation_policy"],
@@ -206,7 +218,8 @@ def build_first_snapshot_promotion_plan(
             for candidate in selected_profiles
         ],
         "blocking_reasons": [
-            "The three profiles remain architecture scaffolds until production data and evidence validators pass.",
+            "Only hk_low_vol_dividend_quality is in the default active live-enable work queue after proxy cycle triage.",
+            "Deferred quality/yield scaffolds remain architecture scaffolds until real point-in-time data and evidence validators pass.",
             "Sample artifacts must never be used for scheduled live trading.",
             "This plan is read-only and does not deploy Cloud Run, publish artifacts, or place broker orders.",
         ],
@@ -248,6 +261,7 @@ __all__ = [
     "DEFAULT_PLATFORMS",
     "FIRST_SNAPSHOT_PROFILE_ORDER",
     "FIRST_SNAPSHOT_PROMOTION_PLAN_VERSION",
+    "SUPPORTED_FIRST_SNAPSHOT_EVIDENCE_PROFILE_ORDER",
     "build_first_snapshot_promotion_plan",
     "main",
 ]

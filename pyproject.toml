@@ -38,6 +38,7 @@ hkeq-build-first-snapshot-live-enablement-packages = "hk_equity_snapshot_pipelin
 hkeq-build-first-snapshot-evidence-bundles = "hk_equity_snapshot_pipelines.first_snapshot_evidence_bundle:main"
 hkeq-draft-first-snapshot-production-source-audit = "hk_equity_snapshot_pipelines.first_snapshot_production_source_audit:main"
 hkeq-draft-first-snapshot-backtest-evidence = "hk_equity_snapshot_pipelines.first_snapshot_backtest_evidence:main"
+hkeq-research-snapshot-proxy-cycle-backtest = "hk_equity_snapshot_pipelines.snapshot_proxy_backtest:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

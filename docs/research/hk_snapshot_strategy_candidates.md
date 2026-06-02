@@ -16,22 +16,54 @@ This note keeps HK snapshot-backed strategy research separate from the non-snaps
 ## Final snapshot shortlist / 收口排名
 
 This is now a deliberately small live-enable work queue. We only require full production-source, walk-forward,
-platform dry-run, bilingual notification, and operator-approval evidence for the first three quality/yield profiles.
-Other scaffolded strategies are retained as research-only assets so they do not create mandatory backtest or
-live-enable evidence work until explicitly reopened.
+platform dry-run, bilingual notification, and operator-approval evidence for `hk_low_vol_dividend_quality`.
+Other scaffolded strategies are retained as research-only / deferred retest assets so they do not create mandatory
+backtest or live-enable evidence work until explicitly reopened.
 
 | Rank | Profile | Decision | Why |
 | ---: | --- | --- | --- |
-| 1 | `hk_low_vol_dividend_quality` | First snapshot candidate | Low-turnover high-dividend plus low-volatility evidence fits HK costs and drawdown-control needs. |
-| 2 | `hk_shareholder_yield_quality` | First snapshot candidate | HKEX buyback disclosure, dividends, and share-count quality can complement defensive yield selection. |
-| 3 | `hk_free_cash_flow_quality` | First snapshot candidate | FCF yield adds quality/value exposure after point-in-time fundamentals lineage is audited. |
+| 1 | `hk_low_vol_dividend_quality` | Active first snapshot candidate | Low-turnover high-dividend plus low-volatility evidence fits HK costs and passed the proxy 30% drawdown gate across long/medium/short windows. |
+| 2 | `hk_shareholder_yield_quality` | Deferred proxy retest | HKEX buyback disclosure, dividends, and share-count quality can complement defensive yield selection, but proxy long-cycle drawdown failed the 30% gate. |
+| 3 | `hk_free_cash_flow_quality` | Deferred proxy retest | FCF yield adds quality/value exposure after point-in-time fundamentals lineage is audited, but proxy long-cycle drawdown failed the 30% gate. |
 
-Research-only scaffolded profiles kept for future reopening: `hk_residual_momentum_quality`,
+Research-only or deferred scaffolded profiles kept for future reopening: `hk_shareholder_yield_quality`,
+`hk_free_cash_flow_quality`, `hk_residual_momentum_quality`,
 `hk_factor_mix_qvlm_risk_parity`, `hk_quality_growth_low_volatility`, `hk_southbound_flow_momentum`,
 `hk_central_soe_value_quality_select`, `hk_composite_factor_quality_value_momentum`,
 `hk_liquid_momentum_quality`, `hk_blue_chip_leader_rotation`, `hk_ah_premium_relative_value`, and
 `hk_index_rebalance_event`. The promotion matrix exposes the active queue through
 `recommended_live_enablement_sequence` and retained research scaffolds through `research_only_scaffold_sequence`.
+
+## Proxy cycle backtest triage / proxy 周期回测收口
+
+The repository includes a research-only proxy backtest for long / medium / short cycle comparison:
+
+```bash
+PYTHONPATH=src python scripts/research_hk_snapshot_proxy_cycle_backtest.py \
+  --start 2016-01-01 \
+  --end 2026-06-03 \
+  --output-dir data/output/research_snapshot_proxy_backtest
+```
+
+Latest local run: public Yahoo chart prices from 2016-01-04 to 2026-06-02, monthly rebalance, top 5 names, 20 bps turnover cost, benchmark `2800.HK`. Missing fundamentals, buyback, FCF, Southbound-flow, policy, valuation, and event fields are deterministic simulated proxies; therefore the run is a triage filter only and is not live-enable evidence.
+
+| Proxy rank | Profile | Scope | Long ann. return | Long max DD | Medium ann. return | Medium max DD | Short ann. return | Short max DD | 30% DD gate |
+| ---: | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| 1 | `hk_low_vol_dividend_quality` | first candidate | 13.34% | -23.05% | 23.24% | -11.12% | 12.21% | -10.59% | PASS |
+| 2 | `hk_quality_growth_low_volatility` | research-only | 10.06% | -27.98% | 25.00% | -12.23% | 21.06% | -10.53% | PASS |
+| 3 | `hk_factor_mix_qvlm_risk_parity` | research-only | 11.65% | -30.86% | 23.25% | -20.74% | 18.51% | -9.73% | FAIL |
+| 4 | `hk_shareholder_yield_quality` | deferred retest | 9.83% | -35.82% | 24.74% | -19.21% | 30.68% | -13.70% | FAIL |
+| 5 | `hk_liquid_momentum_quality` | research-only | 16.42% | -35.86% | 26.96% | -23.71% | 11.09% | -17.41% | FAIL |
+| 6 | `hk_ah_premium_relative_value` | research-only | 10.47% | -34.87% | 22.36% | -14.09% | 9.76% | -12.91% | FAIL |
+| 7 | `hk_blue_chip_leader_rotation` | research-only | 17.15% | -44.09% | 31.46% | -23.17% | 27.64% | -9.81% | FAIL |
+| 8 | `hk_residual_momentum_quality` | research-only | 13.66% | -35.84% | 19.21% | -25.06% | 7.78% | -18.89% | FAIL |
+| 9 | `hk_composite_factor_quality_value_momentum` | research-only | 15.05% | -38.21% | 23.84% | -20.47% | 6.52% | -17.04% | FAIL |
+| 10 | `hk_free_cash_flow_quality` | deferred retest | 11.78% | -39.31% | 22.83% | -26.51% | 13.66% | -10.75% | FAIL |
+| 11 | `hk_index_rebalance_event` | research-only | 6.75% | -47.61% | 24.49% | -18.58% | 32.55% | -12.66% | FAIL |
+| 12 | `hk_southbound_flow_momentum` | research-only | 12.54% | -48.19% | 21.63% | -18.68% | 7.50% | -8.95% | FAIL |
+| 13 | `hk_central_soe_value_quality_select` | research-only | 12.24% | -52.01% | 8.84% | -29.54% | 4.10% | -12.08% | FAIL |
+
+Triage decision: `hk_low_vol_dividend_quality` is the only first-candidate profile that passes the proxy drawdown gate across all three windows. `hk_quality_growth_low_volatility` also passes the proxy gate but remains research-only until real point-in-time fundamentals and same-universe ablation evidence exist. `hk_shareholder_yield_quality` and `hk_free_cash_flow_quality` stay in the evidence queue because their economics are still plausible, but they should not be live-enabled unless production-source walk-forward backtests improve the long-cycle drawdown result below 30%. High-return momentum, blue-chip, flow, event, and composite profiles remain research-only or rejection candidates because the proxy comparison shows excessive long-cycle drawdown.
 
 Current live-enable evidence gate:
 
@@ -116,9 +148,9 @@ Required pre-live evidence now includes:
 
 The live-enable evidence validator now requires `strategy_policy_evidence.policy_version=hk_snapshot_baseline_rotation_live_enablement_policy.v1` for this profile, with passed status, stable URI, fresh `evidence_generated_at`, and every required ablation, stress-test, and data-provenance flag set to true.
 
-### Quality / yield first-candidate live-enable policy
+### Quality / yield active and deferred live-enable policy
 
-The first promotion bucket remains `hk_low_vol_dividend_quality`, `hk_shareholder_yield_quality`, and `hk_free_cash_flow_quality`, but they now have their own machine-readable `quality_yield_live_enablement_policy`. Before any of them can remove dry-run, platform evidence must compare all three on the same survivorship-safe universe and prove that the apparent yield/quality edge is not just a dividend trap, buyback headline, stale fundamental, or sector bet.
+The active promotion bucket is now limited to `hk_low_vol_dividend_quality`. `hk_shareholder_yield_quality` and `hk_free_cash_flow_quality` keep their machine-readable quality/yield policy and evidence tooling as deferred retest profiles, but they are not part of the default live-enable work queue. Before any quality/yield profile can remove dry-run, platform evidence must compare all three on the same survivorship-safe universe and prove that the apparent yield/quality edge is not just a dividend trap, buyback headline, stale fundamental, or sector bet.
 
 Required pre-live evidence now includes:
 
