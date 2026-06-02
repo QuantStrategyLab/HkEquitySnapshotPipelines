@@ -181,6 +181,7 @@ python -m pytest -q
 - [`docs/low_vol_dividend_live_enablement_package.zh-CN.md`](./docs/low_vol_dividend_live_enablement_package.zh-CN.md)：`hk_low_vol_dividend_quality` 首个候选 evidence package。
 - [`docs/low_vol_dividend_evidence_bundle.zh-CN.md`](./docs/low_vol_dividend_evidence_bundle.zh-CN.md)：`hk_low_vol_dividend_quality` 的生产数据源和 walk-forward 回测证据模板。
 - [`docs/low_vol_dividend_production_source_audit.zh-CN.md`](./docs/low_vol_dividend_production_source_audit.zh-CN.md)：`hk_low_vol_dividend_quality` 的生产数据源审计草稿工具。
+- [`docs/low_vol_dividend_backtest_evidence.zh-CN.md`](./docs/low_vol_dividend_backtest_evidence.zh-CN.md)：`hk_low_vol_dividend_quality` 的 walk-forward 回测证据草稿工具。
 - [`docs/research/hk_snapshot_strategy_candidates.md`](./docs/research/hk_snapshot_strategy_candidates.md)：snapshot 策略研究队列、候选排序和门槛依据。
 
 ## 相关仓库
