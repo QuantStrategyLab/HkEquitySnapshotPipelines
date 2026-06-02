@@ -211,6 +211,19 @@ hkeq-assemble-low-vol-dividend-live-enable-evidence \
 
 The assembler writes the final evidence JSON, validation JSON, and a compact summary. It does not live-enable trading unless the final validator returns `live_enablement_allowed=true`.
 
+Run the convention-based end-to-end live-enable gate:
+
+```bash
+hkeq-run-low-vol-dividend-live-enable-gate \
+  --evidence-dir evidence/low_vol_dividend_quality \
+  --artifact-dir data/output/low_vol_dividend_quality \
+  --validation-as-of 2026-06-03 \
+  --output-dir data/output/low_vol_dividend_live_enablement_gate \
+  --json
+```
+
+Use `--fail-on-blocked` in CI/release gates. The gate remains blocked until both platform evidence packs and the final audit return `live_enablement_allowed=true`.
+
 For the active and deferred quality/yield snapshot candidates, use the shared evidence draft commands. Deferred profiles should stay out of the default live-enable queue until real point-in-time walk-forward evidence passes the 30% drawdown gate:
 
 ```bash
@@ -294,6 +307,7 @@ python -m pytest -q
 - [`docs/low_vol_dividend_platform_evidence.md`](./docs/low_vol_dividend_platform_evidence.md): LongBridge/IBKR dry-run runtime report to platform evidence draft tool.
 - [`docs/low_vol_dividend_evidence_assembler.md`](./docs/low_vol_dividend_evidence_assembler.md): assemble section-level evidence drafts into final LongBridge/IBKR live-enable evidence packs.
 - [`docs/low_vol_dividend_operator_evidence.md`](./docs/low_vol_dividend_operator_evidence.md): draft broker permission, rebalance, rollout, risk approval, and strategy-policy evidence sections.
+- [`docs/low_vol_dividend_live_enablement_gate.md`](./docs/low_vol_dividend_live_enablement_gate.md): convention-based end-to-end evidence gate runner for the final true live-enable audit.
 - [`docs/low_vol_dividend_production_source_audit.md`](./docs/low_vol_dividend_production_source_audit.md): production source audit draft tool for `hk_low_vol_dividend_quality`.
 - [`docs/low_vol_dividend_backtest_evidence.md`](./docs/low_vol_dividend_backtest_evidence.md): walk-forward backtest evidence draft tool for `hk_low_vol_dividend_quality`.
 - [`docs/research/hk_snapshot_strategy_candidates.md`](./docs/research/hk_snapshot_strategy_candidates.md): snapshot strategy research queue, curated candidates, and gating rationale.
