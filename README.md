@@ -105,6 +105,7 @@ Other sample scripts live in [`scripts/`](./scripts/).
 Use these read-only tools to inspect promotion state before touching platform configuration:
 
 ```bash
+python scripts/print_first_snapshot_promotion_plan.py --json
 python scripts/print_snapshot_promotion_matrix.py --json
 python scripts/print_snapshot_readiness.py --profile hk_low_vol_dividend_quality --json
 ```
@@ -142,6 +143,7 @@ python -m pytest -q
 ## Documentation
 
 - [`docs/artifact_contract.md`](./docs/artifact_contract.md): snapshot artifact schema and manifest contract.
+- [`docs/first_snapshot_promotion_runbook.md`](./docs/first_snapshot_promotion_runbook.md): promotion runbook for the first three HK snapshot candidates.
 - [`docs/research/hk_snapshot_strategy_candidates.md`](./docs/research/hk_snapshot_strategy_candidates.md): snapshot strategy research queue, curated candidates, and gating rationale.
 
 ## Related repositories
