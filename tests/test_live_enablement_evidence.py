@@ -171,6 +171,7 @@ def _evidence(**overrides):
             "annual_return": 0.12,
             "max_drawdown": -0.18,
             "rolling_oos_fold_max_drawdown": -0.22,
+            "annual_return_to_max_drawdown_ratio": 0.67,
             "annualized_turnover": 0.60,
             "hk_fees_and_levies": True,
             "stamp_duty_or_exemption": True,
@@ -440,6 +441,7 @@ def test_build_live_enablement_evidence_template_is_fillable_but_not_preapproved
     assert template["production_snapshot_source_audit"]["evidence_generated_at"] == ""
     assert template["walk_forward_backtest"]["max_drawdown"] is None
     assert template["walk_forward_backtest"]["rolling_oos_fold_max_drawdown"] is None
+    assert template["walk_forward_backtest"]["annual_return_to_max_drawdown_ratio"] is None
     assert template["walk_forward_backtest"]["annualized_turnover"] is None
     assert template["walk_forward_backtest"]["hk_fees_and_levies"] is False
     assert template["walk_forward_backtest"]["fee_slippage_spread_stress_sensitivity_controls"] is False
@@ -875,6 +877,33 @@ def test_validate_live_enablement_evidence_rejects_oos_fold_drawdown_above_30_pe
 
     assert result["live_enablement_allowed"] is False
     assert any("rolling_oos_fold_max_drawdown exceeds" in error for error in result["errors"])
+
+
+def test_validate_live_enablement_evidence_rejects_low_return_to_drawdown_ratio():
+    payload = _evidence(
+        walk_forward_backtest={**_evidence()["walk_forward_backtest"], "annual_return_to_max_drawdown_ratio": 0.49}
+    )
+
+    result = validate_live_enablement_evidence(payload)
+
+    assert result["live_enablement_allowed"] is False
+    assert any("annual_return_to_max_drawdown_ratio must be" in error for error in result["errors"])
+
+
+def test_validate_live_enablement_evidence_rejects_low_computed_return_to_drawdown_ratio():
+    payload = _evidence(
+        walk_forward_backtest={
+            **_evidence()["walk_forward_backtest"],
+            "annual_return": 0.04,
+            "max_drawdown": -0.20,
+            "annual_return_to_max_drawdown_ratio": 2.00,
+        }
+    )
+
+    result = validate_live_enablement_evidence(payload)
+
+    assert result["live_enablement_allowed"] is False
+    assert any("computed_annual_return_to_max_drawdown_ratio must be" in error for error in result["errors"])
 
 
 def test_validate_live_enablement_evidence_rejects_excess_turnover():

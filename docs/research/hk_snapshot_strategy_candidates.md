@@ -17,6 +17,7 @@ Current live-enable evidence gate:
 
 - `walk_forward_backtest.annual_return` must be positive.
 - `walk_forward_backtest.max_drawdown` must not exceed 30% in absolute value.
+- `walk_forward_backtest.annual_return_to_max_drawdown_ratio` must be at least 0.50, and the validator also recomputes the ratio from reported annual return / max drawdown so a low-return strategy cannot pass only because drawdown is barely under 30%.
 - `walk_forward_backtest.annualized_turnover` must stay below the profile cap exposed by `hkeq-validate-live-enable-evidence --print-template`.
 - `walk_forward_backtest.period_start` / `period_end` must cover at least three out-of-sample years.
 - `walk_forward_backtest.benchmark_symbol` must match the profile benchmark, and `strategy_excess_return` must be positive.
@@ -182,7 +183,7 @@ Required pre-live evidence now includes:
 - sector-neutral versus sector-unconstrained checks because financials, energy, telecom, and infrastructure SOEs can dominate the universe;
 - policy-event, SOE reform, SASAC/MOF reclassification, parent restructuring, source-list effective-date drift, HSI factor-screen/cap turnover spikes, macro-credit/property/rate-cycle, public-float, connected-transaction, sanctions/geopolitical, dividend-cut, suspension, lot-size, slippage, and capacity stress windows.
 
-This policy is a gate, not a live switch: production ownership/fundamentals data, walk-forward evidence with max drawdown <= 30%, artifact provenance, dry-run order-preview evidence, bilingual notifications, rollout controls, and operator approval remain mandatory before dry-run can be removed.
+This policy is a gate, not a live switch: production ownership/fundamentals data, walk-forward evidence with max drawdown <= 30% and annual-return-to-max-drawdown ratio >= 0.50, artifact provenance, dry-run order-preview evidence, bilingual notifications, rollout controls, and operator approval remain mandatory before dry-run can be removed.
 
 ### Quality growth low-volatility live-enable policy
 
@@ -268,7 +269,7 @@ It intentionally reuses the price-feature style contract already available to `h
 Do not live-enable until:
 
 - a production feature snapshot source handles total-return adjustments, corporate actions, suspensions, and stale prices;
-- walk-forward backtests include positive annual return, max drawdown under 30%, profile-compliant annualized turnover, stamp duty, fees, lot-size rounding, liquidity caps, suspensions, and slippage;
+- walk-forward backtests include positive annual return, max drawdown under 30%, annual-return-to-max-drawdown ratio >= 0.50, profile-compliant annualized turnover, stamp duty, fees, lot-size rounding, liquidity caps, suspensions, and slippage;
 - paper-trading confirms turnover and order preview quality on IBKR and LongBridge.
 
 ### Current research harness
@@ -306,7 +307,7 @@ Do not live-enable until:
 
 - residual momentum and industry-relative momentum are reproducible from survivorship-safe adjusted history;
 - sector/industry neutralization, beta estimation, and benchmark-relative returns are audited against a fixed point-in-time universe;
-- walk-forward tests include positive annual return, positive excess return versus `02800`, max drawdown under 30%, annualized turnover below 120%, realistic HK fees, stamp duty or exemption, slippage, lot-size rounding, liquidity caps, survivorship/look-ahead controls, and suspension handling;
+- walk-forward tests include positive annual return, positive excess return versus `02800`, max drawdown under 30%, annual-return-to-max-drawdown ratio >= 0.50, annualized turnover below 120%, realistic HK fees, stamp duty or exemption, slippage, lot-size rounding, liquidity caps, survivorship/look-ahead controls, and suspension handling;
 - platform dry-run confirms artifact loading, order preview, notifications, and rollback on both IBKR and LongBridge.
 
 ## 4. `hk_composite_factor_quality_value_momentum`
@@ -339,7 +340,7 @@ This is the broader HK single-name multi-factor scaffold. It converts the extern
 Do not live-enable until:
 
 - production quality/value/momentum/low-vol factor sources are audited and survivorship-safe;
-- walk-forward tests include positive annual return, positive excess return versus an aligned benchmark, max drawdown under 30%, annualized turnover below 120%, realistic HK fees, stamp duty or exemption, slippage, lot-size rounding, liquidity caps, survivorship/look-ahead controls, and suspension handling;
+- walk-forward tests include positive annual return, positive excess return versus an aligned benchmark, max drawdown under 30%, annual-return-to-max-drawdown ratio >= 0.50, annualized turnover below 120%, realistic HK fees, stamp duty or exemption, slippage, lot-size rounding, liquidity caps, survivorship/look-ahead controls, and suspension handling;
 - sector-cap, hold-buffer, and safe-haven behavior are reviewed across bull, bear, and sideways regimes;
 - platform dry-run confirms artifact loading, order preview, notifications, and rollback on both IBKR and LongBridge.
 
@@ -373,7 +374,7 @@ Do not live-enable until:
 
 - production dividend, buyback, treasury-share, share-count, FCF, ROE, and debt fields are audited and survivorship-safe;
 - buyback yield is reconciled against actual share-count reduction, dilution, treasury-share resale, and corporate actions;
-- walk-forward tests include positive annual return, positive excess return versus `02800`, max drawdown under 30%, annualized turnover below 100%, realistic HK fees, stamp duty or exemption, slippage, lot-size rounding, liquidity caps, survivorship/look-ahead controls, and suspension handling;
+- walk-forward tests include positive annual return, positive excess return versus `02800`, max drawdown under 30%, annual-return-to-max-drawdown ratio >= 0.50, annualized turnover below 100%, realistic HK fees, stamp duty or exemption, slippage, lot-size rounding, liquidity caps, survivorship/look-ahead controls, and suspension handling;
 - platform dry-run confirms artifact loading, order preview, notifications, and rollback on both IBKR and LongBridge.
 
 ## 6. `hk_free_cash_flow_quality`
@@ -406,7 +407,7 @@ Do not live-enable until:
 
 - production FCF, EV, ROE, revenue, FCF formula lineage, EV input lineage, and reporting-date availability are audited and survivorship-safe;
 - negative-FCF, financial-sector and real-estate EV/FCF exceptions, restatements, corporate actions, stale fundamentals, as-of snapshots, and sector normalization/concentration are handled explicitly;
-- walk-forward tests include positive annual return, positive excess return versus an aligned benchmark, max drawdown under 30%, annualized turnover below 100%, realistic HK fees, stamp duty or exemption, slippage, lot-size rounding, liquidity caps, survivorship/look-ahead controls, and suspension handling;
+- walk-forward tests include positive annual return, positive excess return versus an aligned benchmark, max drawdown under 30%, annual-return-to-max-drawdown ratio >= 0.50, annualized turnover below 100%, realistic HK fees, stamp duty or exemption, slippage, lot-size rounding, liquidity caps, survivorship/look-ahead controls, and suspension handling;
 - platform dry-run confirms artifact loading, order preview, notifications, and rollback on both IBKR and LongBridge.
 
 ## 7. `hk_southbound_flow_momentum`
@@ -443,7 +444,7 @@ Do not live-enable until:
 
 - production Stock Connect flow source is audited against HKEX historical daily turnover, top-10 active-stock turnover, CCASS Southbound shareholding, eligible-security lists, calendars, holidays, stale rows, corporate actions, data-dissemination changes, and ticker eligibility changes;
 - flow z-score and persistence calculations are reproducible from raw data, not manually supplied sample columns;
-- walk-forward tests include positive annual return, max drawdown under 30%, profile-compliant annualized turnover, fees, stamp duty, lot-size rounding, missing flow days, and holiday-adjusted flow windows;
+- walk-forward tests include positive annual return, max drawdown under 30%, annual-return-to-max-drawdown ratio >= 0.50, profile-compliant annualized turnover, fees, stamp duty, lot-size rounding, missing flow days, and holiday-adjusted flow windows;
 - platform dry-run confirms artifact loading, order preview, notifications, and rollback on both IBKR and LongBridge.
 
 ## 8. `hk_ah_premium_relative_value`

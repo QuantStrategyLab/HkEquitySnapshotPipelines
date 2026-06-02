@@ -43,6 +43,7 @@ from .contracts import get_profile_contract
 from .live_enablement_policy import (
     MAX_ALLOWED_BACKTEST_DRAWDOWN,
     MIN_REQUIRED_WALK_FORWARD_YEARS,
+    MIN_RETURN_TO_DRAWDOWN_RATIO,
     REQUIRED_BACKTEST_BIAS_CONTROL_FIELDS,
     REQUIRED_BACKTEST_COST_MODEL_FIELDS,
     REQUIRED_EXECUTION_CAPACITY_FIELDS,
@@ -389,6 +390,21 @@ def _validate_backtest(errors: list[str], evidence: Mapping[str, Any], *, profil
             f"{section_name}.rolling_oos_fold_max_drawdown exceeds {MAX_ALLOWED_BACKTEST_DRAWDOWN:.0%}: "
             f"got {rolling_oos_fold_max_drawdown:.2%}"
         )
+    annual_return_to_max_drawdown_ratio = _number(section.get("annual_return_to_max_drawdown_ratio"))
+    if annual_return_to_max_drawdown_ratio is None:
+        errors.append(f"{section_name}.annual_return_to_max_drawdown_ratio is required")
+    elif annual_return_to_max_drawdown_ratio < MIN_RETURN_TO_DRAWDOWN_RATIO:
+        errors.append(
+            f"{section_name}.annual_return_to_max_drawdown_ratio must be >= "
+            f"{MIN_RETURN_TO_DRAWDOWN_RATIO:.2f}: got {annual_return_to_max_drawdown_ratio:.2f}"
+        )
+    if annual_return is not None and max_drawdown not in (None, 0.0):
+        computed_return_to_max_drawdown_ratio = annual_return / max_drawdown
+        if computed_return_to_max_drawdown_ratio < MIN_RETURN_TO_DRAWDOWN_RATIO:
+            errors.append(
+                f"{section_name}.computed_annual_return_to_max_drawdown_ratio must be >= "
+                f"{MIN_RETURN_TO_DRAWDOWN_RATIO:.2f}: got {computed_return_to_max_drawdown_ratio:.2f}"
+            )
     max_turnover = get_max_allowed_annualized_turnover(profile)
     annualized_turnover = _number(section.get("annualized_turnover"))
     if annualized_turnover is None:
@@ -659,6 +675,7 @@ def build_live_enablement_evidence_template(profile: str, *, platform: str) -> d
             "annual_return": None,
             "max_drawdown": None,
             "rolling_oos_fold_max_drawdown": None,
+            "annual_return_to_max_drawdown_ratio": None,
             "annualized_turnover": None,
             "hk_fees_and_levies": False,
             "stamp_duty_or_exemption": False,

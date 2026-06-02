@@ -27,6 +27,7 @@ def test_snapshot_readiness_blocks_scaffold_live_enablement():
     assert "--print-template" in plan["live_enablement_evidence_validation"]["template_command"]
     assert plan["live_enablement_thresholds"] == {
         "max_allowed_backtest_drawdown": 0.30,
+        "min_return_to_drawdown_ratio": 0.50,
         "max_allowed_annualized_turnover": 1.50,
         "min_required_rebalance_windows": 3,
         "min_required_walk_forward_years": 3.0,

@@ -52,6 +52,7 @@ def test_snapshot_promotion_matrix_covers_every_contract_profile():
     assert matrix["backtest_validation_policy"]["policy_version"] == BACKTEST_VALIDATION_POLICY_VERSION
     assert matrix["backtest_validation_policy"]["live_enablement_allowed_without_policy_evidence"] is False
     assert matrix["backtest_validation_policy"]["max_allowed_drawdown"] == 0.30
+    assert matrix["backtest_validation_policy"]["min_return_to_drawdown_ratio"] == 0.50
     assert "point_in_time_inputs_only" in matrix["backtest_validation_policy"]["required_controls"]
     assert "no_full_sample_parameter_selection" in matrix["backtest_validation_policy"]["required_controls"]
     assert "rolling_oos_fold_drawdown_controls" in matrix["backtest_validation_policy"]["required_controls"]
@@ -71,9 +72,13 @@ def test_snapshot_promotion_matrix_covers_every_contract_profile():
     assert "fee_slippage_spread_sensitivity_stays_profitable" in (
         matrix["backtest_validation_policy"]["required_risk_constraints"]
     )
+    assert "annual_return_to_max_drawdown_ratio_at_or_above_50_percent" in (
+        matrix["backtest_validation_policy"]["required_risk_constraints"]
+    )
     assert "cross_strategy_correlation_and_aggregate_drawdown_budget_limits" in (
         matrix["backtest_validation_policy"]["required_risk_constraints"]
     )
+    assert "annual_return_to_max_drawdown_ratio" in matrix["backtest_validation_policy"]["required_metrics"]
     assert "data_vendor_reconciliation_and_missingness_controls" in (
         matrix["backtest_validation_policy"]["required_controls"]
     )
@@ -85,6 +90,9 @@ def test_snapshot_promotion_matrix_covers_every_contract_profile():
     )
     assert "rolling_or_oos_fold_drawdown_above_30_percent" in matrix["backtest_validation_policy"]["reject_criteria"]
     assert "fee_slippage_spread_stress_turns_excess_return_non_positive" in (
+        matrix["backtest_validation_policy"]["reject_criteria"]
+    )
+    assert "annual_return_to_max_drawdown_ratio_below_50_percent" in (
         matrix["backtest_validation_policy"]["reject_criteria"]
     )
     assert "gross_return_only_backtest_without_net_cost_validation" in (
