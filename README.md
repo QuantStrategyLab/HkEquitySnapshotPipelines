@@ -134,6 +134,41 @@ hkeq-validate-live-enable-evidence \
 
 The validators require stable evidence URIs, no secret-like query parameters, point-in-time data proof, out-of-sample backtests, HK cost/slippage/lot-size/capacity checks, dry-run order-preview provenance, bilingual notification evidence, rollout controls, and operator approval references.
 
+## Monthly AI audit
+
+The scheduled [`monthly_snapshot_audit.yml`](./.github/workflows/monthly_snapshot_audit.yml) workflow creates a monthly GitHub issue and dispatches `QuantStrategyLab/CodexAuditBridge` with task `monthly_snapshot_audit`.
+This mirrors the snapshot monthly-review architecture used by the existing snapshot repositories while keeping AI provider keys out of this source repository.
+
+The workflow only builds an audit bundle under `data/output/monthly_snapshot_audit`:
+
+- `ai_review_input.md`: issue body sent to the AI auditor
+- `job_summary.md`: GitHub Actions summary
+- `monthly_snapshot_audit_issue.json`: issue metadata and artifact name
+
+It does **not** publish artifacts, deploy Cloud Run, change broker configuration, or place orders.
+The first audit scope is limited to `hk_low_vol_dividend_quality`, `hk_shareholder_yield_quality`, and `hk_free_cash_flow_quality`; non-selected snapshot scaffolds remain research-only / deprioritized unless validated evidence is added.
+
+Manual local bundle generation:
+
+```bash
+python scripts/write_monthly_snapshot_audit_issue.py --as-of-month 2026-06
+```
+
+Manual workflow dispatch:
+
+```bash
+gh workflow run monthly_snapshot_audit.yml --repo QuantStrategyLab/HkEquitySnapshotPipelines
+```
+
+Source-repo settings:
+
+- `SELFHOSTED_CODEX_REVIEW_REPOSITORY` defaults to `QuantStrategyLab/CodexAuditBridge`.
+- `SELFHOSTED_CODEX_REVIEW_MODE` defaults to `review_and_fix`.
+- `SELFHOSTED_CODEX_REVIEW_PROVIDER` defaults to `auto`.
+- `SELFHOSTED_CODEX_REVIEW_AUTO_MERGE` defaults to `false`.
+- Cross-repo dispatch needs either `CROSS_REPO_GITHUB_APP_ID` + `CROSS_REPO_GITHUB_APP_PRIVATE_KEY`, or a scoped `CODEX_AUDIT_DISPATCH_TOKEN`.
+- `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` belong in `CodexAuditBridge`, not in this source repository.
+
 ## Local smoke command
 
 ```bash
