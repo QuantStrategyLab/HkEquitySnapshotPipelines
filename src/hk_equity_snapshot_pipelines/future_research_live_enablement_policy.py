@@ -67,6 +67,9 @@ HK_VCM_CAS_MICROSTRUCTURE_SHOCK_RISK_OVERLAY_PROFILE_HINT = (
 HK_REIT_DIVIDEND_SPREAD_RATE_SENSITIVITY_OVERLAY_PROFILE_HINT = (
     "hk_reit_dividend_spread_rate_sensitivity_overlay"
 )
+HK_REGULATORY_ENFORCEMENT_DISCIPLINARY_RISK_OVERLAY_PROFILE_HINT = (
+    "hk_regulatory_enforcement_disciplinary_risk_overlay"
+)
 
 SP_EARNINGS_REVISION_OVERLAY_ASIA_URL = (
     "https://www.spglobal.com/spdji/en/research/article/"
@@ -469,6 +472,32 @@ SCIENCEDIRECT_PACIFIC_RIM_REIT_RATE_SENSITIVITY_URL = (
     "https://www.sciencedirect.com/science/article/abs/pii/S1463578X21000190"
 )
 HKU_REIT_RENTAL_GROWTH_RETURN_URL = "https://hub.hku.hk/handle/10722/194611"
+HKEX_DISCIPLINARY_ENFORCEMENT_OVERVIEW_URL = (
+    "https://www.hkex.com.hk/Listing/Disciplinary-and-Enforcement/Overview?sc_lang=en"
+)
+HKEX_DISCIPLINARY_SANCTIONS_URL = (
+    "https://www.hkex.com.hk/Listing/Disciplinary-and-Enforcement/Disciplinary-Sanctions?sc_lang=en"
+)
+HKEX_DISCIPLINARY_SANCTIONS_2001_2017_URL = (
+    "https://www.hkex.com.hk/Listing/Disciplinary-and-Enforcement/"
+    "Disciplinary-Sanctions-2001-2017/Enforcement-Search-Index-Page"
+)
+HKEX_LISTING_ENFORCEMENT_POLICY_URL = (
+    "https://www.hkex.com.hk/-/media/HKEX-Market/Listing/Rules-and-Guidance/"
+    "Disciplinary-and-Enforcement/Disciplinary-Procedures-and-Enforcement-Guidance-Materials/"
+    "enf_policy.pdf"
+)
+SFC_ENFORCEMENT_URL = "https://www.sfc.hk/en/Regulatory-functions/Enforcement"
+SFC_DISCIPLINARY_PROCEEDINGS_URL = (
+    "https://www.sfc.hk/en/Regulatory-functions/Enforcement/Disciplinary-proceedings"
+)
+SFC_MARKET_MISCONDUCT_MAGIC_DISCLOSURE_URL = (
+    "https://apps.sfc.hk/edistributionWeb/gateway/EN/news-and-announcements/news/doc?refNo=21PR27"
+)
+SSRN_HK_GOVERNANCE_SCANDALS_RETURNS_URL = "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1869454"
+SCIENCEDIRECT_PCHIP_CORPORATE_MALFEASANCE_URL = (
+    "https://www.sciencedirect.com/science/article/abs/pii/S0929119916301808"
+)
 
 FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_EARNINGS_REVISION_QUALITY_OVERLAY_PROFILE_HINT,
@@ -502,6 +531,7 @@ FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_INDEX_DERIVATIVES_FUTURES_OPTIONS_SENTIMENT_BASIS_OVERLAY_PROFILE_HINT,
     HK_VCM_CAS_MICROSTRUCTURE_SHOCK_RISK_OVERLAY_PROFILE_HINT,
     HK_REIT_DIVIDEND_SPREAD_RATE_SENSITIVITY_OVERLAY_PROFILE_HINT,
+    HK_REGULATORY_ENFORCEMENT_DISCIPLINARY_RISK_OVERLAY_PROFILE_HINT,
 )
 
 FUTURE_RESEARCH_REQUIRED_PRE_SCAFFOLD_GATES: tuple[str, ...] = (
@@ -623,6 +653,9 @@ FUTURE_RESEARCH_REQUIRED_DATA_PROVENANCE: tuple[str, ...] = (
     "point_in_time_hk_reit_universe_distribution_nav_gav_leverage_and_property_sector_history",
     "reit_dividend_yield_hibor_base_rate_bond_yield_spread_and_rental_growth_expectation_history",
     "same_universe_reit_vs_property_dividend_quality_macro_rate_and_etf_ablation_history",
+    "point_in_time_hkex_disciplinary_sanction_enforcement_bulletin_and_remedial_action_history",
+    "sfc_enforcement_mmt_restriction_notice_false_disclosure_and_market_misconduct_history",
+    "same_universe_governance_audit_opinion_connected_transaction_concentration_and_liquidity_ablation_history",
 )
 
 FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
@@ -800,6 +833,15 @@ FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
     HSI_REIT_INDEX_METHODOLOGY_URL,
     SCIENCEDIRECT_PACIFIC_RIM_REIT_RATE_SENSITIVITY_URL,
     HKU_REIT_RENTAL_GROWTH_RETURN_URL,
+    HKEX_DISCIPLINARY_ENFORCEMENT_OVERVIEW_URL,
+    HKEX_DISCIPLINARY_SANCTIONS_URL,
+    HKEX_DISCIPLINARY_SANCTIONS_2001_2017_URL,
+    HKEX_LISTING_ENFORCEMENT_POLICY_URL,
+    SFC_ENFORCEMENT_URL,
+    SFC_DISCIPLINARY_PROCEEDINGS_URL,
+    SFC_MARKET_MISCONDUCT_MAGIC_DISCLOSURE_URL,
+    SSRN_HK_GOVERNANCE_SCANDALS_RETURNS_URL,
+    SCIENCEDIRECT_PCHIP_CORPORATE_MALFEASANCE_URL,
 )
 
 
@@ -859,6 +901,7 @@ __all__ = [
     "HK_INDEX_DERIVATIVES_FUTURES_OPTIONS_SENTIMENT_BASIS_OVERLAY_PROFILE_HINT",
     "HK_VCM_CAS_MICROSTRUCTURE_SHOCK_RISK_OVERLAY_PROFILE_HINT",
     "HK_REIT_DIVIDEND_SPREAD_RATE_SENSITIVITY_OVERLAY_PROFILE_HINT",
+    "HK_REGULATORY_ENFORCEMENT_DISCIPLINARY_RISK_OVERLAY_PROFILE_HINT",
     "HK_TAKEOVER_PRIVATIZATION_EVENT_SPREAD_OVERLAY_PROFILE_HINT",
     "HK_LOTTERY_STOCK_RISK_EXCLUSION_OVERLAY_PROFILE_HINT",
     "HK_LOW_SIZE_QUALITY_LIQUIDITY_PREMIUM_PROFILE_HINT",
@@ -1034,5 +1077,14 @@ __all__ = [
     "HSI_REIT_INDEX_METHODOLOGY_URL",
     "SCIENCEDIRECT_PACIFIC_RIM_REIT_RATE_SENSITIVITY_URL",
     "HKU_REIT_RENTAL_GROWTH_RETURN_URL",
+    "HKEX_DISCIPLINARY_ENFORCEMENT_OVERVIEW_URL",
+    "HKEX_DISCIPLINARY_SANCTIONS_URL",
+    "HKEX_DISCIPLINARY_SANCTIONS_2001_2017_URL",
+    "HKEX_LISTING_ENFORCEMENT_POLICY_URL",
+    "SFC_ENFORCEMENT_URL",
+    "SFC_DISCIPLINARY_PROCEEDINGS_URL",
+    "SFC_MARKET_MISCONDUCT_MAGIC_DISCLOSURE_URL",
+    "SSRN_HK_GOVERNANCE_SCANDALS_RETURNS_URL",
+    "SCIENCEDIRECT_PCHIP_CORPORATE_MALFEASANCE_URL",
     "build_future_research_live_enablement_policy",
 ]
