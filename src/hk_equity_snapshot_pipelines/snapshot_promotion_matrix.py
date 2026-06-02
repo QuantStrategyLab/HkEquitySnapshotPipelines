@@ -1,0 +1,2890 @@
+from __future__ import annotations
+
+import argparse
+import json
+from dataclasses import dataclass
+from typing import Any
+
+from .artifact_provenance_policy import build_artifact_provenance_policy
+from .backtest_validation_policy import BACKTEST_VALIDATION_POLICY_VERSION, build_backtest_validation_policy
+from .baseline_rotation_live_enablement_policy import (
+    BASELINE_ROTATION_LIVE_ENABLEMENT_POLICY_VERSION,
+    BASELINE_ROTATION_PROFILES,
+    build_baseline_rotation_live_enablement_policy,
+)
+from .contracts import (
+    HK_AH_PREMIUM_RELATIVE_VALUE_PROFILE,
+    HK_BLUE_CHIP_LEADER_ROTATION_PROFILE,
+    HK_CENTRAL_SOE_VALUE_QUALITY_SELECT_PROFILE,
+    HK_COMPOSITE_FACTOR_QUALITY_VALUE_MOMENTUM_PROFILE,
+    HK_FACTOR_MIX_QVLM_RISK_PARITY_PROFILE,
+    HK_FREE_CASH_FLOW_QUALITY_PROFILE,
+    HK_INDEX_REBALANCE_EVENT_PROFILE,
+    HK_LIQUID_MOMENTUM_QUALITY_PROFILE,
+    HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,
+    HK_QUALITY_GROWTH_LOW_VOLATILITY_PROFILE,
+    HK_RESIDUAL_MOMENTUM_QUALITY_PROFILE,
+    HK_SHAREHOLDER_YIELD_QUALITY_PROFILE,
+    HK_SOUTHBOUND_FLOW_MOMENTUM_PROFILE,
+    SOURCE_PROJECT,
+    SnapshotProfileContract,
+    get_profile_contract,
+    list_profile_contracts,
+)
+from .dry_run_order_preview_policy import build_dry_run_order_preview_policy
+from .evidence_freshness_policy import build_evidence_freshness_policy
+from .evidence_uri_policy import build_evidence_uri_policy
+from .factor_mix_live_enablement_policy import (
+    FACTOR_MIX_LIVE_ENABLEMENT_POLICY_VERSION,
+    FACTOR_MIX_STOCK_SELECTION_PROFILES,
+    build_factor_mix_live_enablement_policy,
+)
+from .future_research_live_enablement_policy import (
+    ECONPAPERS_DIRECTOR_DEALING_SHARE_REPURCHASE_HK_URL,
+    ECONPAPERS_STOCK_CONNECT_INCLUSION_EXCLUSION_URL,
+    FUTURE_RESEARCH_LIVE_ENABLEMENT_POLICY_VERSION,
+    CENSTATD_CONSUMER_PRICES_URL,
+    HK_AUDIT_OPINION_SUSPENSION_RISK_OVERLAY_PROFILE_HINT,
+    HK_LIQUID_PAIRS_COINTEGRATION_STAT_ARB_OVERLAY_PROFILE_HINT,
+    HK_MACRO_LIQUIDITY_INFLATION_RATE_SENSITIVITY_OVERLAY_PROFILE_HINT,
+    HK_SHARE_REPURCHASE_EXECUTION_SIGNAL_OVERLAY_PROFILE_HINT,
+    HK_TURN_OF_MONTH_LUNAR_NEW_YEAR_CALENDAR_OVERLAY_PROFILE_HINT,
+    HK_ETF_PREMIUM_DISCOUNT_TRACKING_QUALITY_OVERLAY_PROFILE_HINT,
+    HK_ASSET_GROWTH_NET_ISSUANCE_QUALITY_OVERLAY_PROFILE_HINT,
+    HK_ACCRUAL_QUALITY_EARNINGS_PERSISTENCE_OVERLAY_PROFILE_HINT,
+    HK_FSCORE_GROSS_PROFITABILITY_QUALITY_OVERLAY_PROFILE_HINT,
+    HK_SHAREHOLDING_CONCENTRATION_FREE_FLOAT_RISK_OVERLAY_PROFILE_HINT,
+    HK_AMIHUD_LIQUIDITY_RISK_CAPACITY_OVERLAY_PROFILE_HINT,
+    HK_ANALYST_DISPERSION_COVERAGE_RISK_OVERLAY_PROFILE_HINT,
+    HK_FINANCIAL_DISTRESS_DELEVERAGING_RISK_OVERLAY_PROFILE_HINT,
+    HK_DOWNSIDE_BETA_TAIL_RISK_VOLATILITY_OVERLAY_PROFILE_HINT,
+    HK_STRUCTURED_PRODUCT_WARRANT_CBBC_FLOW_RISK_OVERLAY_PROFILE_HINT,
+    HK_INDEX_DERIVATIVES_FUTURES_OPTIONS_SENTIMENT_BASIS_OVERLAY_PROFILE_HINT,
+    HK_VCM_CAS_MICROSTRUCTURE_SHOCK_RISK_OVERLAY_PROFILE_HINT,
+    HK_REIT_DIVIDEND_SPREAD_RATE_SENSITIVITY_OVERLAY_PROFILE_HINT,
+    HK_REGULATORY_ENFORCEMENT_DISCIPLINARY_RISK_OVERLAY_PROFILE_HINT,
+    HK_MARGIN_FINANCING_COLLATERAL_FORCED_SELLING_RISK_OVERLAY_PROFILE_HINT,
+    HK_LIQUID_LARGECAP_WEEKLY_REVERSAL_COST_AWARE_OVERLAY_PROFILE_HINT,
+    HK_US_ADR_HK_SECONDARY_LISTING_LEAD_LAG_OVERLAY_PROFILE_HINT,
+    HK_SMART_BETA_FACTOR_REGIME_ROTATION_OVERLAY_PROFILE_HINT,
+    HK_ESG_DOWNSIDE_RISK_QUALITY_OVERLAY_PROFILE_HINT,
+    HSI_ESG_ENHANCED_INDEX_FACTSHEET_URL,
+    HSI_ESG_ENHANCED_INDEX_METHODOLOGY_URL,
+    HSI_ESG_INDEX_PAGE_URL,
+    HSI_ESG_PERFORMANCE_ASSESSMENT_URL,
+    MDPI_HSI_ESG_DOWNSIDE_RISK_URL,
+    SSRN_HKIMR_ESG_RISK_RETURN_URL,
+    HK_CONNECTED_TRANSACTION_GOVERNANCE_RISK_OVERLAY_PROFILE_HINT,
+    HK_DIRECTOR_DEALING_DISCLOSURE_QUALITY_OVERLAY_PROFILE_HINT,
+    HK_DISTRIBUTION_EX_DATE_ENTITLEMENT_OVERLAY_PROFILE_HINT,
+    HK_DUALLY_TRADED_LIQUID_REVERSAL_OVERLAY_PROFILE_HINT,
+    HK_EARNINGS_ANNOUNCEMENT_DRIFT_OVERLAY_PROFILE_HINT,
+    HK_EARNINGS_REVISION_QUALITY_OVERLAY_PROFILE_HINT,
+    HK_EQUITY_FINANCING_DILUTION_RISK_OVERLAY_PROFILE_HINT,
+    HK_IPO_LOCKUP_OVERHANG_EVENT_OVERLAY_PROFILE_HINT,
+    HK_LOTTERY_STOCK_RISK_EXCLUSION_OVERLAY_PROFILE_HINT,
+    HK_LOW_SIZE_QUALITY_LIQUIDITY_PREMIUM_PROFILE_HINT,
+    HK_MOMENTUM_PROFITABILITY_RESEARCH_URL,
+    HK_SHORT_SELLING_PRESSURE_RISK_OVERLAY_PROFILE_HINT,
+    HK_STOCK_CONNECT_INCLUSION_EVENT_FLOW_PROFILE_HINT,
+    HK_TAKEOVER_PRIVATIZATION_EVENT_SPREAD_OVERLAY_PROFILE_HINT,
+    HKBU_HSI_FUTURES_INTRADAY_REVERSAL_URL,
+    HKBU_HK_ETF_PREMIUM_INTRADAY_PATTERNS_URL,
+    HKEX_CAPITAL_RAISINGS_RULE_CHANGE_2018_URL,
+    HKEX_CONNECTED_TRANSACTION_RULES_ELEARNING_URL,
+    HKEX_CONNECTED_TRANSACTIONS_RULEBOOK_URL,
+    HKEX_DIVIDENDS_AND_OTHER_ENTITLEMENTS_GUIDE_URL,
+    HKEX_DIVIDENDS_AND_OTHER_ENTITLEMENTS_REPORT_URL,
+    HKEX_DOUBLE_DIPPING_REFORMS_2023_URL,
+    HKEX_EX_ENTITLEMENT_TRADING_MECHANISM_URL,
+    HKEX_DESIGNATED_SHORT_SELLING_SECURITIES_URL,
+    HKEX_CCASS_SHAREHOLDING_SEARCH_URL,
+    HKEX_DISCLOSURE_OF_INTERESTS_SEARCH_URL,
+    HKEX_LISTED_COMPANY_INFORMATION_DISSEMINATION_FAQ_URL,
+    HKEX_LISTED_ISSUER_EQUITY_SECURITIES_DISCLOSURE_URL,
+    HKEX_LIST_WITH_HKEX_FAQ_URL,
+    HKEX_MAIN_BOARD_ISSUER_FORMS_URL,
+    HKEX_NEW_LISTING_APPLICANTS_PLACING_RELATED_GUIDE_URL,
+    HKEX_PRE_IPO_INVESTMENT_GUIDANCE_LETTER_URL,
+    HKEX_ADVERSE_AUDIT_OPINION_RULE_CHANGE_2019_URL,
+    HKEX_RULE_13_50A_AUDIT_OPINION_SUSPENSION_URL,
+    HKEX_ADVERSE_AUDIT_OPINION_CONCLUSIONS_URL,
+    HKEX_LONG_SUSPENSION_GUIDANCE_GL95_URL,
+    HKEX_PROLONGED_SUSPENSION_STATUS_REPORT_URL,
+    HKEX_LISTING_NEWSLETTER_BUYBACKS_2025_URL,
+    HKEX_SHARE_REPURCHASE_REPORTS_URL,
+    HKEX_TREASURY_SHARES_RULE_CHANGE_2024_URL,
+    HKEX_TRADING_HOURS_SEVERE_WEATHER_URL,
+    HKEX_SEVERE_WEATHER_OVERVIEW_URL,
+    HKEX_ETF_HANDBOOK_URL,
+    HKEX_PROFIT_WARNING_ALERT_FAQ_URL,
+    HKEX_REGULATED_SHORT_SELLING_URL,
+    HKEX_REVERSAL_EXECUTION_TRADING_MECHANISM_URL,
+    HKEX_REVERSAL_EXECUTION_TRANSACTION_FEES_URL,
+    HKEX_SHORT_SELLING_DAILY_FILE_DATA_PRODUCT_URL,
+    HKEX_SHORT_SELLING_TURNOVER_TODAY_URL,
+    HKEX_STOCK_CONNECT_EXPANSION_2023_URL,
+    HKEX_STOCK_CONNECT_FAQ_URL,
+    HKEX_STOCK_CONNECT_SOUTHBOUND_SHAREHOLDING_SEARCH_URL,
+    HKEX_SECURITIES_MARKET_STATISTICS_URL,
+    HKEX_VCM_FAQ_URL,
+    HKAB_HKD_INTEREST_SETTLEMENT_RATES_URL,
+    HKMA_BASE_RATE_URL,
+    HKMA_INTERBANK_LIQUIDITY_API_DOC_URL,
+    HKMA_ETF_RISK_EDUCATION_URL,
+    HKU_ASSET_GROWTH_EFFECT_INTERNATIONAL_URL,
+    HKU_OWNERSHIP_CONCENTRATION_PERFORMANCE_HK_URL,
+    HKU_ANALYST_FORECAST_DISPERSION_HK_URL,
+    HKBU_ANALYST_DISPERSION_INSTITUTIONAL_OWNERSHIP_URL,
+    HKUST_MARKET_DEVELOPMENT_ASSET_GROWTH_URL,
+    HKUST_DISTRESSED_STOCKS_LIQUIDITY_SHOCK_URL,
+    HKEXNEWS_ADVANCED_SEARCH_URL,
+    HSI_LOW_SIZE_INDEX_METHODOLOGY_URL,
+    HSI_FACTOR_INDEXES_SOLUTIONS_URL,
+    HSI_SMART_BETA_PRESS_RELEASE_URL,
+    HSI_SMART_BETA_RESEARCH_PAPER_URL,
+    HSI_SMART_BETA_BROCHURE_URL,
+    SP_HK_SMART_BETA_STRATEGIES_RESEARCH_URL,
+    SSRN_HK_SMART_BETA_STRATEGIES_URL,
+    SCIENCEDIRECT_SMART_BETA_REGIME_SWITCHING_URL,
+    HKU_STOCK_DISTRIBUTIONS_EX_DAY_ANCHORING_URL,
+    HKUST_GOING_CONCERN_BANKRUPTCY_REACTION_URL,
+    HKU_COINTEGRATION_PAIRS_TRADING_POWER_STATISTIC_URL,
+    IDEAS_HK_STOCK_RETURN_REVERSAL_CONTINUANCE_URL,
+    IDEAS_HK_PAIRS_TRADING_PROFITABILITY_URL,
+    IDEAS_HK_EX_DAY_ELECTRONIC_SETTLEMENT_URL,
+    IDEAS_HK_LIQUIDITY_ASSET_PRICING_URL,
+    IDEAS_HK_TOM_CLNY_CHINESE_MARKETS_URL,
+    POLYU_HK_EARNINGS_ANNOUNCEMENT_DRIFT_THESIS_URL,
+    POLYU_HK_ACQUISITION_MERGER_WEALTH_THESIS_URL,
+    POLYU_HK_GAMBLING_STOCK_MARKET_PDF_URL,
+    POLYU_HK_RIGHTS_ISSUE_REACTION_THESIS_URL,
+    POLYU_EARNINGS_QUALITY_CASH_FLOW_URL,
+    POLYU_FREE_FLOAT_MARKET_LIQUIDITY_URL,
+    POLYU_QUALITY_INVESTING_ASIAN_STOCK_MARKETS_URL,
+    SCIENCEDIRECT_HK_DIRECTOR_DEALING_SHARE_REPURCHASE_URL,
+    SCIENCEDIRECT_HK_DUALLY_TRADED_CONTRARIAN_URL,
+    SCIENCEDIRECT_HK_GAMBLING_STOCK_MARKET_URL,
+    SCIENCEDIRECT_HK_BUY_HIGH_SELL_LOW_RPT_URL,
+    SCIENCEDIRECT_HK_CONNECTED_TRANSACTIONS_FIRM_VALUE_URL,
+    SCIENCEDIRECT_HK_CORPORATE_TAKEOVER_SHAREHOLDER_WEALTH_URL,
+    SCIENCEDIRECT_HK_ADR_EX_DIVIDEND_ADJUSTMENT_URL,
+    SCIENCEDIRECT_HK_INDEPENDENT_DIRECTORS_RPT_URL,
+    SCIENCEDIRECT_HK_EX_DIVIDEND_PRICE_ADJUSTMENT_URL,
+    SCIENCEDIRECT_TURN_OF_MONTH_INTERNATIONAL_URL,
+    SCIENCEDIRECT_LIMITS_TO_ARBITRAGE_ASSET_GROWTH_URL,
+    SCIENCEDIRECT_UK_ACCRUAL_ANOMALY_URL,
+    SCIENCEDIRECT_IDIOSYNCRATIC_RISK_ACCRUAL_URL,
+    SCIENCEDIRECT_PACIFIC_BASIN_FSCORE_URL,
+    SCIENCEDIRECT_HK_GOING_PRIVATE_TUNNELING_URL,
+    SCIENCEDIRECT_HK_IPO_OFFERING_METHOD_UNDERPRICING_URL,
+    SCIENCEDIRECT_HK_IPO_PRICE_BLOCK_TRADING_URL,
+    SCIENCEDIRECT_HK_RIGHTS_OFFERS_DIFFERENT_URL,
+    SCIENCEDIRECT_HK_SEO_INSIDER_TRADING_URL,
+    SCIENCEDIRECT_QUALIFIED_AUDIT_OPINIONS_STOCK_PRICES_URL,
+    SCIENCEDIRECT_HK_SHORT_SALE_BAN_PEAD_URL,
+    SCIENCEDIRECT_HK_VOLATILITY_EFFECT_URL,
+    SCIENCEDIRECT_HK_LOW_FREQUENCY_VOLATILITY_URL,
+    SCIENCEDIRECT_HK_DERIVATIVE_WARRANT_ISSUANCE_URL,
+    SCIENCEDIRECT_HK_DERIVATIVE_WARRANT_INTRO_EXPIRATION_URL,
+    SCIENCEDIRECT_HK_CBBC_TRADING_STRATEGY_URL,
+    SCIENCEDIRECT_HSI_OPTIONS_GARCH_PRICING_URL,
+    SCIENCEDIRECT_HSI_FUTURES_ELECTRONIC_TRADING_URL,
+    SCIENCEDIRECT_HSI_SPOT_FUTURES_OPTIONS_LEAD_LAG_URL,
+    SCIENCEDIRECT_COINTEGRATED_BASKET_TRADING_URL,
+    SCIENCEDIRECT_HK_LIQUIDITY_ASSET_PRICING_URL,
+    SCIENCEDIRECT_GLOBAL_LIQUIDITY_RISK_URL,
+    SCIENCEDIRECT_HK_OWNERSHIP_CONCENTRATION_DIVIDEND_URL,
+    SCIENCEDIRECT_HK_ANALYST_EPU_BEHAVIOR_URL,
+    SCIENCEDIRECT_SHORT_SALES_PRICE_ADJUSTMENT_HK_URL,
+    SFC_DISCLOSURE_OF_INTERESTS_DI_NOTICES_URL,
+    SFC_DISCLOSURE_OF_INTERESTS_PART_XV_URL,
+    SFC_HIGH_SHAREHOLDING_CONCENTRATION_ANNOUNCEMENTS_URL,
+    SFC_LEVERAGED_INVERSE_PRODUCTS_CIRCULAR_URL,
+    SFC_RAMP_DUMP_RED_FLAGS_CIRCULAR_URL,
+    SFC_RAMP_DUMP_RESTRICTION_NOTICE_URL,
+    SFC_TAKEOVER_OFFER_PERIODS_URL,
+    SFC_TAKEOVER_PAST_OFFER_PERIODS_URL,
+    SFC_TAKEOVER_TRANSACTION_ANNOUNCEMENTS_URL,
+    SFC_TAKEOVERS_AND_MERGERS_URL,
+    SP_DO_EARNINGS_REVISIONS_MATTER_ASIA_URL,
+    SP_EARNINGS_REVISION_OVERLAY_ASIA_URL,
+    SCIEDU_HK_STOCK_RETURN_DRIVERS_URL,
+    SPRINGER_HK_PROFIT_WARNING_MARKET_REACTION_URL,
+    SSRN_SHORT_INTEREST_RETURN_PREDICTABILITY_URL,
+    SSRN_HK_ETF_TRACKING_ERROR_DETERMINANTS_URL,
+    SSRN_ASSET_GROWTH_INVESTABILITY_URL,
+    AAA_ACCRUAL_RISK_VS_ANOMALY_URL,
+    AAA_INTERNATIONAL_ACCRUAL_ANOMALY_PDF_URL,
+    DOAJ_STOCK_LIQUIDITY_ACCRUAL_ANOMALY_URL,
+    SAGE_HK_SHARE_BUYBACKS_EMPIRICAL_URL,
+    SSRN_HK_CORNERSTONE_INVESTORS_IPO_SURVIVAL_URL,
+    SSRN_HK_CONNECTED_TRANSACTIONS_TUNNELING_URL,
+    SSRN_DISAGREEMENT_RETURN_PREDICTABILITY_URL,
+    IMF_HK_CORPORATE_SECTOR_VULNERABILITIES_URL,
+    MDPI_HK_GEM_FINANCIAL_DISTRESS_PREDICTION_URL,
+    SAGE_HK_ZSCORE_POORLY_PERFORMING_FIRMS_URL,
+    LINGNAN_EXTREME_DOWNSIDE_RISK_URL,
+    HKMU_RISK_RETURN_RELATIONSHIPS_HK_URL,
+    HKEX_STRUCTURED_PRODUCTS_OVERVIEW_URL,
+    HKEX_STRUCTURED_PRODUCTS_TRADING_INFORMATION_URL,
+    HKEX_DERIVATIVE_WARRANT_FAQ_URL,
+    HKEX_CBBC_FAQ_URL,
+    IDEAS_HK_CBBC_MCE_PRICE_VOLUME_EFFECTS_URL,
+    HKEX_FUTURES_OPTIONS_PRICES_URL,
+    HKEX_HSI_FUTURES_OPTIONS_INFO_SHEET_URL,
+    HSI_OPTIONS_PUT_CALL_CONTRARIAN_BLOG_URL,
+    HKMU_HSI_FUTURES_OPTIONS_MISPRICING_URL,
+    IDEAS_HSI_INDEX_FUTURES_PRICE_DISCOVERY_URL,
+    HKUST_HSI_FUTURES_OPTIONS_VOLATILITY_URL,
+    HKEX_VCM_ENHANCEMENTS_INITIATIVE_URL,
+    HKEX_VCM_CAS_CONSULTATION_CONCLUSIONS_URL,
+    HKEX_VCM_SECURITIES_MARKET_ROLLOUT_URL,
+    SSRN_HKIMR_VCM_EVIDENCE_HK_URL,
+    HKU_MARKET_STRUCTURE_RETURN_VOLATILITY_HK_URL,
+    SAGE_HSI_FUTURES_SPOT_RESILIENCY_HK_URL,
+    HKEX_REIT_PRODUCTS_URL,
+    HKEX_REIT_SECURITIES_PRICE_LIST_URL,
+    HKEX_REIT_FAQ_URL,
+    SFC_REIT_OVERVIEW_URL,
+    SFC_REIT_CODE_URL,
+    HSI_REIT_INDEX_FACTSHEET_URL,
+    HSI_REIT_INDEX_METHODOLOGY_URL,
+    SCIENCEDIRECT_PACIFIC_RIM_REIT_RATE_SENSITIVITY_URL,
+    HKU_REIT_RENTAL_GROWTH_RETURN_URL,
+    HKEX_DISCIPLINARY_ENFORCEMENT_OVERVIEW_URL,
+    HKEX_DISCIPLINARY_SANCTIONS_URL,
+    HKEX_DISCIPLINARY_SANCTIONS_2001_2017_URL,
+    HKEX_LISTING_ENFORCEMENT_POLICY_URL,
+    SFC_ENFORCEMENT_URL,
+    SFC_DISCIPLINARY_PROCEEDINGS_URL,
+    SFC_MARKET_MISCONDUCT_MAGIC_DISCLOSURE_URL,
+    SSRN_HK_GOVERNANCE_SCANDALS_RETURNS_URL,
+    SCIENCEDIRECT_PCHIP_CORPORATE_MALFEASANCE_URL,
+    SFC_SECURITIES_MARGIN_FINANCE_TOPIC_URL,
+    SFC_SMF_GUIDELINES_FAQ_URL,
+    SFC_MARGIN_LENDING_POLICY_CONTROL_REQUIREMENTS_URL,
+    SFC_SMF_PRUDENT_RISK_MANAGEMENT_CIRCULAR_URL,
+    SFC_SMF_REVIEW_REPORT_URL,
+    SFC_POOLING_RISK_MARGIN_ACCOUNTS_URL,
+    SCIENCEDIRECT_CONTROLLING_SHAREHOLDER_SHARE_PLEDGE_CRASH_RISK_URL,
+    HKMU_HK_STOCK_MARKET_OVERREACT_URL,
+    SCIENCEDIRECT_HK_OVERREACTION_URL,
+    DOAJ_HK_SHORT_TERM_MOMENTUM_EFFECT_URL,
+    HKEX_SECONDARY_LISTINGS_URL,
+    HKEX_OVERSEAS_ISSUERS_INVESTOR_RISK_GUIDE_URL,
+    SCIENCEDIRECT_CHINA_CROSSLISTED_PRICE_DISCOVERY_URL,
+    SCIENCEDIRECT_CHINESE_ADR_DAY_NIGHT_RETURNS_URL,
+    SSRN_ASYNCHRONOUS_ADR_OVERNIGHT_INTRADAY_URL,
+    DOAJ_CHINA_HK_NY_DUAL_LISTING_LAW_ONE_PRICE_URL,
+    TANDF_HK_SHORT_TERM_OVERREACTION_URL,
+    TANDF_HK_HOLIDAY_EFFECT_URL,
+    AQR_GLOBAL_ASSET_GROWTH_ANOMALY_URL,
+    MSCI_QUALITY_INDEXES_METHODOLOGY_URL,
+    SPRINGER_PIOTROSKI_FSCORE_INTERNATIONAL_URL,
+    UNIBIRMINGHAM_IPO_LOCKUPS_LONG_RUN_PERFORMANCE_URL,
+    build_future_research_live_enablement_policy,
+)
+from .live_enablement_policy import (
+    build_execution_capacity_policy,
+    build_live_enablement_thresholds,
+    build_production_source_audit_policy,
+)
+from .momentum_live_enablement_policy import (
+    MOMENTUM_LIVE_ENABLEMENT_POLICY_VERSION,
+    MOMENTUM_LIVE_ENABLEMENT_SOURCE_URLS,
+    MOMENTUM_STOCK_SELECTION_PROFILES,
+    build_momentum_live_enablement_policy,
+)
+from .notification_audit_policy import SNAPSHOT_DRY_RUN_NOTIFICATION_EVENT_TYPE, build_notification_audit_policy
+from .policy_value_live_enablement_policy import (
+    POLICY_VALUE_LIVE_ENABLEMENT_POLICY_VERSION,
+    POLICY_VALUE_STOCK_SELECTION_PROFILES,
+    build_policy_value_live_enablement_policy,
+)
+from .quality_yield_live_enablement_policy import (
+    QUALITY_YIELD_LIVE_ENABLEMENT_POLICY_VERSION,
+    QUALITY_YIELD_STOCK_SELECTION_PROFILES,
+    build_quality_yield_live_enablement_policy,
+)
+from .quality_growth_live_enablement_policy import (
+    QUALITY_GROWTH_LIVE_ENABLEMENT_POLICY_VERSION,
+    QUALITY_GROWTH_STOCK_SELECTION_PROFILES,
+    build_quality_growth_live_enablement_policy,
+)
+from .rollout_risk_policy import build_rollout_risk_policy
+from .snapshot_readiness import SNAPSHOT_STATUS
+from .special_situation_live_enablement_policy import (
+    SPECIAL_SITUATION_LIVE_ENABLEMENT_POLICY_VERSION,
+    SPECIAL_SITUATION_STOCK_SELECTION_PROFILES,
+    build_special_situation_live_enablement_policy,
+)
+
+SNAPSHOT_PROMOTION_GATE = "blocked_until_production_evidence"
+SNAPSHOT_RUNTIME_ENABLED = False
+
+GENERIC_REQUIRED_NEXT_EVIDENCE: tuple[str, ...] = (
+    "production_snapshot_source_audit",
+    "production_source_uri_and_quality_report_provenance",
+    "artifact_publication_provenance",
+    "fresh_section_evidence_generated_at",
+    "execution_capacity_and_liquidity_limits",
+    "dry_run_order_preview_artifact_provenance",
+    "staged_rollout_tripwires_and_rollback",
+    "survivorship_safe_walk_forward_backtest_min_three_oos_years",
+    "backtest_validation_policy_evidence",
+    "point_in_time_no_lookahead_and_no_overfit_controls",
+    "minimum_three_independent_oos_folds",
+    "single_period_return_contribution_below_60_percent",
+    "per_fold_drawdown_parameter_stability_and_regime_stress_controls",
+    "positive_annual_return_and_positive_excess_return_vs_profile_benchmark",
+    "hk_fee_stamp_duty_or_exemption_slippage_and_lot_size_model",
+    "paper_or_dry_run_rebalance_windows",
+    "platform_order_preview_notifications_and_operator_approval",
+    "bilingual_notification_delivery_log",
+    "baseline_rotation_ablation_hsi_constituent_and_execution_controls",
+    "quality_yield_ablation_and_yield_trap_controls_for_first_snapshot_candidates",
+    "quality_growth_ablation_growth_deceleration_and_low_vol_controls",
+    "factor_mix_risk_parity_ablation_and_factor_volatility_controls",
+    "policy_value_government_ownership_and_concentration_controls",
+    "special_situation_signal_decay_crowding_and_calendar_alignment_controls",
+)
+
+EVIDENCE_URI_POLICY: dict[str, Any] = build_evidence_uri_policy()
+EVIDENCE_FRESHNESS_POLICY: dict[str, Any] = build_evidence_freshness_policy()
+HSI_MOMENTUM_METHODOLOGY_URL = "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/methodologies/IM_hssbisme.pdf"
+HSI_SMART_BETA_MOMENTUM_INDEX_URL = "https://www.hsi.com.hk/eng/indexes/all-indexes/hssbism"
+HSI_MOMENTUM_RESEARCH_PAPER_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/research_paper/20191216T000000.pdf"
+)
+HSI_SCHK_SOES_MOMENTUM_FACTSHEET_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/factsheets/hsscsme.pdf"
+)
+HSI_FACTOR_INDEXES_URL = "https://www.hsi.com.hk/solutions/factor-indexes/"
+MSCI_MOMENTUM_INDEXES_URL = "https://www.msci.com/indexes/group/momentum-indexes"
+MSCI_HK_MOMENTUM_INDEX_URL = "https://www.msci.com/indexes/index/711028"
+MSCI_MOMENTUM_METHODOLOGY_URL = (
+    "https://www.msci.com/indexes/documents/methodology/2_MSCI_Momentum_Indexes_Methodology_20250417.pdf"
+)
+MSCI_HK_LISTED_SOUTHBOUND_MOMENTUM_FACTSHEET_URL = (
+    "https://www.msci.com/documents/10199/a79b1588-26c8-5224-d68b-269b256ba22c"
+)
+HSI_QUALITY_GROWTH_LOW_VOL_FACTSHEET_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/factsheets/hsqglve.pdf"
+)
+HSI_QUALITY_GROWTH_LOW_VOL_METHODOLOGY_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/methodologies/IM_hsqglve.pdf"
+)
+HSI_LOW_VOLATILITY_METHODOLOGY_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/methodologies/IM_hssbisve.pdf"
+)
+HSI_SCHK_HIGH_DIV_LOW_VOL_INDEX_URL = "https://www.hsi.com.hk/eng/indexes/all-indexes/hshylv"
+HSI_SCHK_HIGH_DIV_LOW_VOL_FACTSHEET_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/factsheets/hshylve.pdf"
+)
+HSI_SCHK_HIGH_DIV_LOW_VOL_METHODOLOGY_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/methodologies/IM_hshylve.pdf"
+)
+HSI_SCHK_HIGH_DIV_SCREENED_INDEX_URL = "https://www.hsi.com.hk/eng/indexes/all-indexes/hsschys"
+HSI_SCHK_HIGH_DIV_SCREENED_FACTSHEET_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/factsheets/hsschyse.pdf"
+)
+HSI_SCHK_HIGH_DIV_SCREENED_METHODOLOGY_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/methodologies/IM_hsschkye.pdf"
+)
+HSI_HIGH_DIVIDEND_RESEARCH_PAPER_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/research_paper/20231214T000000.pdf"
+)
+MSCI_HK_QUALITY_INDEX_URL = "https://www.msci.com/indexes/index/721604"
+MSCI_QUALITY_INDEXES_URL = "https://www.msci.com/indexes/group/quality-indexes"
+MSCI_HK_LISTED_SOUTHBOUND_QUALITY_FACTSHEET_URL = (
+    "https://www.msci.com/documents/10199/60ebccab-109f-6a16-8451-557498ea39fb"
+)
+MSCI_MINIMUM_VOLATILITY_INDEXES_URL = "https://www.msci.com/indexes/group/minimum-volatility-indexes/"
+MSCI_HK_LISTED_SOUTHBOUND_MIN_VOL_FACTSHEET_URL = (
+    "https://www.msci.com/documents/10199/1396fa66-b4bd-40f3-8dfb-0109895d94ac"
+)
+HSI_RISK_PARITY_FACTOR_MIX_QVLM_FACTSHEET_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/factsheets/hssbmfrpe.pdf"
+)
+HSI_RISK_PARITY_FACTOR_MIX_QVLM_METHODOLOGY_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/methodologies/IM_hssbmfrpe.pdf"
+)
+HSI_EQUAL_WEIGHT_FACTOR_MIX_INDEX_URL = "https://www.hsi.com.hk/eng/indexes/all-indexes/hssbmfew"
+HSI_SCHK_CENTRAL_SOES_FACTOR_METHODOLOGY_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/methodologies/IM_hssccsme.pdf"
+)
+HSI_SCHK_CENTRAL_SOES_METHODOLOGY_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/methodologies/IM_hsscsoee.pdf"
+)
+HSI_SCHK_CENTRAL_SOES_FACTSHEET_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/factsheets/hsscsoee.pdf"
+)
+HSI_SCHK_CENTRAL_SOES_VALUE_FACTSHEET_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/factsheets/hssccsve.pdf"
+)
+HSI_SCHK_CENTRAL_SOES_QUALITY_FACTSHEET_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/factsheets/hssccsqe.pdf"
+)
+SASAC_CENTRAL_SOE_DIRECTORY_URL = "https://www.sasac.gov.cn/n2588045/n27271785/n27271792/index.html"
+MOF_CENTRAL_FINANCIAL_SOE_DIRECTORY_RULES_URL = "https://www.mof.gov.cn/zcsjtsgb/gfxwj/202007/t20200713_3583827.htm"
+MSCI_HK_FACTOR_MIX_A_SERIES_URL = "https://www.msci.com/indexes/index/705097"
+MSCI_FACTOR_MIX_A_SERIES_INDEXES_URL = "https://www.msci.com/indexes/factor-indexes/factor-mix-a-series-indexes"
+MSCI_HK_FACTOR_MIX_A_SERIES_FACTSHEET_URL = (
+    "https://www.msci.com/documents/10199/e56a62f4-3ff6-40a7-a8e6-54a6de8e6763"
+)
+MSCI_FACTOR_MIX_A_SERIES_METHODOLOGY_URL = (
+    "https://www.msci.com/eqb/methodology/meth_docs/MSCI_Factor_Mix_Indexes_Methodology_Apr16.pdf"
+)
+MSCI_QUALITY_MIX_INDEXES_PAPER_URL = "https://www.msci.com/research-and-insights/paper/the-msci-quality-mix-indexes"
+HKEX_ETF_CONNECT_FACTSHEET_URL = (
+    "https://www.hkex.com.hk/-/media/HKEX-Market/Products/Securities/Exchange-Traded-Products/"
+    "Launch/Inclusion-of-ETFs-in-Stock-Connect_Investor.pdf"
+)
+HKEX_STOCK_CONNECT_STATISTICS_URL = "https://www.hkex.com.hk/mutual-market/stock-connect/statistics?sc_lang=en"
+HKEX_STOCK_CONNECT_HISTORICAL_DAILY_URL = (
+    "https://www.hkex.com.hk/Mutual-Market/Stock-Connect/Statistics/Historical-Daily?sc_lang=en"
+)
+HKEX_SOUTHBOUND_CCASS_SHAREHOLDING_URL = "https://www3.hkexnews.hk/sdw/search/mutualmarket.aspx?t=hk"
+HKEX_STOCK_CONNECT_ELIGIBLE_SECURITIES_URL = (
+    "https://www.hkex.com.hk/mutual-market/stock-connect/eligible-stocks/view-all-eligible-securities?sc_lang=en"
+)
+HKEX_STOCK_CONNECT_DATA_DISSEMINATION_URL = (
+    "https://www.hkex.com.hk/News/Market-Communications/2024/2404122news?sc_lang=en"
+)
+SOUTHBOUND_FLOW_RETURN_PREDICTABILITY_SSRN_URL = "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5128472"
+HSI_AH_PREMIUM_INDEX_URL = "https://www.hsi.com.hk/eng/indexes/all-indexes/ahpremium"
+HSI_CHINA_AH_INDEX_SERIES_URL = "https://www.hsi.com.hk/eng/indexes/all-indexes/chinaah"
+HSI_AH_PREMIUM_FACTSHEET_URL = "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/factsheets/ahpremiume.pdf"
+HSI_AH_PREMIUM_INDEX_FLASH_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/index_flash/20240124T000000.pdf"
+)
+HSI_AH_SMART_INDEX_BLOG_URL = "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/blog/20210914T000000.pdf"
+SSE_SH_HK_AH_PREMIUM_METHODOLOGY_URL = (
+    "https://english.sse.com.cn/indices/indices/list/indexmethods/c/H50066_h50066hbooken_EN.pdf"
+)
+AH_PREMIUM_SIAMESE_TWIN_SCIENCEDIRECT_URL = (
+    "https://www.sciencedirect.com/science/article/abs/pii/S0927539825000210"
+)
+HSI_INDEX_METHODOLOGY_GUIDE_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/methodologies/index_methodology_guide_e.pdf"
+)
+HSI_INDEX_OPERATION_GUIDE_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/methodologies/index_operation_guide_e.pdf"
+)
+HSI_INDEX_REBALANCE_SCHEDULE_URL = "https://www.hsi.com.hk/static/uploads/contents/en/products/is_update.xlsx"
+HSI_INDEX_NEXT_REVIEW_NOTICE_20260102_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/news/indexChgNotice/20260102T163000.pdf"
+)
+HSI_INDEX_REVIEW_RESULT_20260213_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/news/pressRelease/20260213T174500.pdf"
+)
+HSI_INDEX_REVIEW_RESULT_20260522_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/news/pressRelease/20260522T174500.pdf"
+)
+HKEX_CLOSING_AUCTION_SESSION_FAQ_URL = (
+    "https://www.hkex.com.hk/Global/Exchange/FAQ/Securities-Market/Trading/CAS?sc_lang=en"
+)
+HKEX_TRADING_MECHANISM_URL = (
+    "https://www.hkex.com.hk/Services/Trading/Securities/Overview/Trading-Mechanism?sc_lang=en"
+)
+HKEX_REPURCHASE_TREASURY_SHARES_RULEBOOK_URL = (
+    "https://en-rules.hkex.com.hk/rulebook/9-repurchase-securities-and-treasury-shares"
+)
+HKEX_SHARE_REPURCHASE_RULE_SECTION_URL = "https://en-rules.hkex.com.hk/entiresection/498"
+HKEX_TREASURY_SHARES_CONCLUSIONS_URL = (
+    "https://www.hkex.com.hk/News/Regulatory-Announcements/2024/240412news?sc_lang=en"
+)
+HKEX_SHARE_REPURCHASE_ELEARNING_URL = (
+    "https://www.hkex.com.hk/Listing/Education-Centre/Listed-Issuers/"
+    "Share-Repurchase-and-Treasury-Shares?sc_lang=en"
+)
+HSI_SCHK_FREE_CASH_FLOW_INDEX_URL = "https://www.hsi.com.hk/eng/indexes/all-indexes/hsscfcf"
+HSI_SCHK_FREE_CASH_FLOW_FACTSHEET_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/factsheets/hsscfcfe.pdf"
+)
+HSI_SCHK_FREE_CASH_FLOW_METHODOLOGY_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/methodologies/IM_hsscfcfe.pdf"
+)
+SP_ACCESS_HK_FCF_50_INDEX_URL = (
+    "https://www.spglobal.com/spdji/en/indices/dividends-factors/"
+    "sp-access-hong-kong-free-cash-flow-50-index/"
+)
+SP_ACCESS_HK_FCF_50_METHODOLOGY_URL = (
+    "https://www.spglobal.com/spdji/en/documents/methodologies/methodology-sp-access-hk-fcf-50-index.pdf"
+)
+SP_ACCESS_HK_LOW_VOL_HIGH_DIV_URL = (
+    "https://www.spglobal.com/spdji/en/indices/dividends-factors/"
+    "sp-access-hong-kong-low-volatility-high-dividend-index/"
+)
+SP_LOW_VOL_HIGH_DIV_METHODOLOGY_URL = (
+    "https://www.spglobal.com/spdji/en/methodology/article/sp-low-volatility-high-dividend-indices-methodology/"
+)
+SP_ETF_CONNECT_HK_US_LOW_VOL_HIGH_DIV_URL = (
+    "https://www.spglobal.com/spdji/en/indices/dividends-factors/"
+    "sp-etf-connect-hong-kong-us-low-volatility-high-dividend-index/"
+)
+MOMENTUM_LIVE_ENABLEMENT_COMPARISON_VERSION = "hk_snapshot_momentum_live_enablement_comparison.v1"
+FUTURE_RESEARCH_BACKLOG_VERSION = "hk_snapshot_future_research_backlog.v1"
+CURATED_SNAPSHOT_STRATEGY_RANKING_VERSION = "hk_snapshot_curated_strategy_ranking.v1"
+
+LIVE_ENABLEMENT_STAGE_BY_BUCKET: dict[str, str] = {
+    "first_snapshot_candidate": "production_data_audit_and_walk_forward_first",
+    "quality_growth_snapshot_candidate": "quality_growth_low_vol_after_first_quality_candidates",
+    "factor_mix_snapshot_candidate": "factor_mix_risk_parity_after_single_factor_ablation",
+    "policy_value_quality_candidate": "policy_value_quality_after_factor_mix_and_quality_yield_ablation",
+    "momentum_snapshot_candidate": "momentum_research_after_quality_candidates",
+    "broad_multifactor_candidate": "factor_data_audit_before_promotion",
+    "flow_overlay_candidate": "production_flow_collector_before_promotion",
+    "valuation_overlay_candidate": "valuation_data_alignment_before_promotion",
+    "baseline_snapshot_candidate": "platform_contract_baseline_not_first_live_candidate",
+    "event_research_candidate": "event_study_before_promotion",
+}
+
+NEXT_LIVE_ENABLEMENT_ACTION_BY_BUCKET: dict[str, str] = {
+    "first_snapshot_candidate": "Audit production snapshot source, then run survivorship-safe walk-forward backtests.",
+    "quality_growth_snapshot_candidate": "Ablate quality, growth, and low-volatility factors after first quality/yield candidates.",
+    "factor_mix_snapshot_candidate": (
+        "Compare risk-parity QVLM against equal-weight factor mix and composite QVM before promotion."
+    ),
+    "policy_value_quality_candidate": (
+        "Audit government ownership and compare central-SOE value-quality against broad value/quality candidates."
+    ),
+    "momentum_snapshot_candidate": "Compare residual, liquid, and composite momentum variants after first quality-style candidates.",
+    "broad_multifactor_candidate": "Audit quality/value/momentum/low-vol factor history and run factor ablation.",
+    "flow_overlay_candidate": "Build and validate a production Stock Connect flow collector before promotion-grade backtests.",
+    "valuation_overlay_candidate": "Audit AH pair mapping, FX, close-time alignment, and eligibility history before backtests.",
+    "baseline_snapshot_candidate": "Use for artifact contract plumbing; do not treat as the first preferred live candidate.",
+    "event_research_candidate": "Run an event study with announcement/effective timestamps before any dry-run promotion.",
+}
+
+CURATED_SNAPSHOT_STRATEGY_RANKING: tuple[dict[str, object], ...] = (
+    {
+        "rank": 1,
+        "profile": HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,
+        "decision": "first_snapshot_candidate",
+        "why": "Best single-name HK snapshot starting point: low-turnover high-dividend plus low-volatility evidence.",
+        "next_action": "Audit production dividend/fundamentals history and run same-universe walk-forward tests.",
+    },
+    {
+        "rank": 2,
+        "profile": HK_SHAREHOLDER_YIELD_QUALITY_PROFILE,
+        "decision": "first_snapshot_candidate",
+        "why": "Actual HKEX buybacks plus dividend/share-count quality can improve defensive yield selection.",
+        "next_action": "Audit repurchase execution, treasury-share treatment, dilution, blackout, and share-count data.",
+    },
+    {
+        "rank": 3,
+        "profile": HK_FREE_CASH_FLOW_QUALITY_PROFILE,
+        "decision": "first_snapshot_candidate",
+        "why": "FCF yield is a cleaner quality/value extension once point-in-time reporting-date lineage is proven.",
+        "next_action": "Build FCF/EV formula lineage, restatement controls, sector exceptions, and negative-FCF handling.",
+    },
+    {
+        "rank": 4,
+        "profile": HK_RESIDUAL_MOMENTUM_QUALITY_PROFILE,
+        "decision": "stage_after_quality_yield",
+        "why": "Closest HK analogue to US-style cross-sectional momentum, but turnover and crash windows need proof.",
+        "next_action": "Compare residual, liquid, and composite momentum on one survivorship-safe universe.",
+    },
+    {
+        "rank": 5,
+        "profile": HK_FACTOR_MIX_QVLM_RISK_PARITY_PROFILE,
+        "decision": "stage_after_single_factor_ablation",
+        "why": "QVLM risk parity can diversify factor regimes if factor returns and covariance are point-in-time.",
+        "next_action": "Run equal-weight, composite-QVM, and leave-one-out factor ablations.",
+    },
+    {
+        "rank": 6,
+        "profile": HK_QUALITY_GROWTH_LOW_VOLATILITY_PROFILE,
+        "decision": "stage_after_first_quality_candidates",
+        "why": "Quality/growth/low-volatility can help avoid yield traps, but needs fundamentals provenance.",
+        "next_action": "Audit HSI QGLV descriptors, missing-factor handling, and growth-deceleration stress.",
+    },
+    {
+        "rank": 7,
+        "profile": HK_SOUTHBOUND_FLOW_MOMENTUM_PROFILE,
+        "decision": "research_after_core_factor_profiles",
+        "why": "Southbound flows are HK-specific and observable, but signal decay and crowding risk are high.",
+        "next_action": "Build official HKEX/CCASS flow collector and test event/flow decay before promotion.",
+    },
+)
+
+DEPRIORITIZED_SNAPSHOT_STRATEGY_PROFILES: tuple[dict[str, str], ...] = (
+    {
+        "profile": HK_BLUE_CHIP_LEADER_ROTATION_PROFILE,
+        "decision": "baseline_contract_plumbing_only",
+        "reason": "Useful as a simple artifact baseline, but not an excellent live-enable strategy versus promoted ETF profiles.",
+    },
+    {
+        "profile": HK_AH_PREMIUM_RELATIVE_VALUE_PROFILE,
+        "decision": "exclude_from_live_enablement_shortlist",
+        "reason": "True relative-value edge can require A-share access, shorting, FX, and close-time alignment beyond current safe scope.",
+    },
+    {
+        "profile": HK_INDEX_REBALANCE_EVENT_PROFILE,
+        "decision": "exclude_from_live_enablement_shortlist",
+        "reason": "Event sample size, crowding, closing-auction capacity, and slippage risk are too high for the first live-enable wave.",
+    },
+    {
+        "profile": "future_research_long_tail",
+        "decision": "exclude_from_live_enablement_shortlist",
+        "reason": "Most raw future-research ideas are retained only for audit, not for live-enable ranking.",
+    },
+)
+
+MOMENTUM_COMPARISON_BY_PROFILE: dict[str, dict[str, object]] = {
+    HK_RESIDUAL_MOMENTUM_QUALITY_PROFILE: {
+        "momentum_priority": 1,
+        "momentum_role": "closest_to_us_momentum_factor_stock_selection",
+        "recommended_stage": "first_momentum_factor_candidate_after_quality_styles",
+        "why": (
+            "Closest to a US-style long-only momentum factor because it isolates residual / industry-relative "
+            "momentum and adds beta, volatility, drawdown, suspension, and Southbound eligibility controls."
+        ),
+        "signal_inputs": (
+            "mom_12_1",
+            "residual_mom_12_1",
+            "industry_relative_mom_6m",
+            "rel_mom_6m_vs_benchmark",
+            "high_252_gap",
+            "sma200_gap",
+            "realized_vol_126",
+            "beta_252",
+            "maxdd_252",
+        ),
+        "pre_live_comparison_evidence": (
+            "Compare residual momentum versus liquid price momentum and composite QVM on the same survivorship-safe universe.",
+            "Reconcile 12-1 residual momentum with MSCI-style 6/12-month one-month-skip risk-adjusted momentum and HSI close-to-high descriptors.",
+            "Show positive out-of-sample excess return versus 02800 after HK fees, stamp duty or exemption, slippage, and lot-size rounding.",
+            "Prove annualized turnover stays <= 120% with hold buffers, sector caps, and realistic suspension handling.",
+        ),
+    },
+    HK_LIQUID_MOMENTUM_QUALITY_PROFILE: {
+        "momentum_priority": 2,
+        "momentum_role": "simpler_liquid_price_momentum_candidate",
+        "recommended_stage": "fallback_if_residual_factor_history_is_not_ready",
+        "why": (
+            "Simpler to source from adjusted price history and liquidity fields; useful when residual-model inputs "
+            "are not yet production-grade, but raw price momentum needs stricter turnover and crash-risk controls."
+        ),
+        "signal_inputs": (
+            "mom_3m",
+            "mom_6m",
+            "mom_12_1",
+            "rel_mom_6m_vs_benchmark",
+            "high_252_gap",
+            "sma200_gap",
+            "vol_63",
+            "maxdd_126",
+            "adv20_hkd",
+        ),
+        "pre_live_comparison_evidence": (
+            "Use the same cost model and benchmark window as residual momentum.",
+            "Compare 52-week-high proximity, 12-1 price momentum, and MSCI-style 6/12-month risk-adjusted momentum on one universe.",
+            "Show hold buffers and liquidity filters keep realized turnover compatible with HK single-name costs.",
+            "Stress test sharp HSI/HSTECH reversals because raw momentum can crowd into high-beta rebounds.",
+        ),
+    },
+    HK_COMPOSITE_FACTOR_QUALITY_VALUE_MOMENTUM_PROFILE: {
+        "momentum_priority": 3,
+        "momentum_role": "diversified_multifactor_with_momentum_sleeve",
+        "recommended_stage": "after_single_factor_momentum_ablation",
+        "why": (
+            "Better diversification across quality/value/momentum/low-volatility, but it should not be treated as "
+            "pure momentum live evidence until factor ablations prove the momentum sleeve adds robust excess return."
+        ),
+        "signal_inputs": (
+            "quality_score",
+            "value_score",
+            "momentum_score",
+            "low_volatility_score",
+            "southbound_eligible",
+            "sector",
+        ),
+        "pre_live_comparison_evidence": (
+            "Run factor ablation against residual momentum, liquid momentum, quality-only, and value-only sleeves.",
+            "Prove the momentum sleeve is not just a proxy for MSCI/HSI sector weights, liquidity, or low-volatility exposure.",
+            "Prove the composite does not merely inherit low-volatility or yield exposure from the first quality candidates.",
+            "Validate annualized turnover stays <= 120% and sector concentration stays within the profile cap.",
+        ),
+    },
+}
+
+FUTURE_RESEARCH_BACKLOG: tuple[dict[str, object], ...] = (
+    {
+        "profile_hint": HK_EARNINGS_REVISION_QUALITY_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "earnings_revision_quality_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "factor_snapshot_overlay",
+        "research_thesis": (
+            "Use point-in-time analyst EPS forecast revisions as an overlay on existing HK quality, "
+            "value, low-volatility, and dividend/FCF sleeves instead of a standalone high-turnover signal."
+        ),
+        "required_new_data": (
+            "point_in_time_consensus_eps_estimate_history",
+            "analyst_revision_breadth_and_magnitude_history",
+            "analyst_coverage_count_and_staleness_history",
+            "forecast_vendor_methodology_and_survivorship_controls",
+            "earnings_announcement_calendar_and_reporting_date_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new snapshot profile and contract version before adding any artifact fields.",
+            "Ablate earnings-revision overlay versus existing quality/yield, momentum, QGLV, QVLM, and central-SOE sleeves.",
+            "Prove turnover remains compatible with HK single-name costs, lot-size rounding, and suspension handling.",
+            "Stress stale coverage, estimate clustering, negative-revision whipsaws, sector concentration, and policy-event windows.",
+            "Require walk-forward evidence with max drawdown <= 30%, positive benchmark excess return, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            SP_EARNINGS_REVISION_OVERLAY_ASIA_URL,
+            SP_DO_EARNINGS_REVISIONS_MATTER_ASIA_URL,
+            HK_MOMENTUM_PROFITABILITY_RESEARCH_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_LOW_SIZE_QUALITY_LIQUIDITY_PREMIUM_PROFILE_HINT,
+        "candidate_bucket": "low_size_quality_liquidity_premium_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "factor_snapshot",
+        "research_thesis": (
+            "Test whether HK low-size exposure still adds robust excess return after Hang Seng-style quality "
+            "screening, industry controls, liquidity filters, and capacity limits."
+        ),
+        "required_new_data": (
+            "point_in_time_free_float_market_cap_history",
+            "hsics_industry_classification_history",
+            "roe_de_eps_variability_quality_screen_history",
+            "adv_spread_board_lot_suspension_and_free_float_capacity_history",
+            "stock_connect_or_southbound_eligibility_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new snapshot profile and contract version before adding any artifact fields.",
+            "Ablate low-size exposure versus existing value, quality, low-volatility, momentum, and QVLM sleeves.",
+            "Prove the signal is not an illiquidity proxy by enforcing ADV, spread, board-lot, suspension, and free-float capacity limits.",
+            "Stress small-cap crash, liquidity freeze, sector crowding, index exclusion, Southbound eligibility removal, and corporate-action windows.",
+            "Require walk-forward evidence with max drawdown <= 30%, positive benchmark excess return, turnover within HK single-name cost limits, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            HSI_LOW_SIZE_INDEX_METHODOLOGY_URL,
+            HSI_SMART_BETA_PRESS_RELEASE_URL,
+            HSI_SMART_BETA_RESEARCH_PAPER_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_STOCK_CONNECT_INCLUSION_EVENT_FLOW_PROFILE_HINT,
+        "candidate_bucket": "stock_connect_inclusion_event_flow_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "event_calendar_snapshot",
+        "research_thesis": (
+            "Test Stock Connect Southbound eligibility inclusions, exclusions, and sell-only transitions as an "
+            "event signal, with post-event Southbound turnover or CCASS holding confirmation."
+        ),
+        "required_new_data": (
+            "point_in_time_stock_connect_eligible_security_change_history",
+            "announcement_date_effective_date_review_calendar_and_sell_only_status_history",
+            "southbound_daily_turnover_top10_turnover_and_ccass_holding_history",
+            "pre_event_post_event_liquidity_spread_suspension_and_short_sale_eligibility_history",
+            "raw_hkex_sse_szse_change_list_and_vendor_reconciliation_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new event-calendar snapshot profile and contract version before adding any artifact fields.",
+            "Separate inclusion, exclusion, sell-only, secondary-to-primary, dual-primary, ETF, and review-cycle event labels.",
+            "Ablate Stock Connect event flow versus existing Southbound-flow, index-rebalance, AH-premium, and liquid-momentum profiles.",
+            "Stress signal decay, crowding, passive-flow reversal, eligibility reversal, holiday/settlement gaps, suspension, and slippage windows.",
+            "Require walk-forward event-study evidence with max drawdown <= 30%, positive benchmark excess return, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            HKEX_STOCK_CONNECT_ELIGIBLE_SECURITIES_URL,
+            HKEX_STOCK_CONNECT_EXPANSION_2023_URL,
+            HKEX_STOCK_CONNECT_FAQ_URL,
+            ECONPAPERS_STOCK_CONNECT_INCLUSION_EXCLUSION_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_SHORT_SELLING_PRESSURE_RISK_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "short_selling_pressure_risk_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "factor_snapshot_overlay",
+        "research_thesis": (
+            "Use HKEX daily short-selling turnover, designated-shortable status, and short-interest ratio "
+            "evidence as a risk overlay for crowded longs, short-squeeze risk, or negative-information exposure."
+        ),
+        "required_new_data": (
+            "point_in_time_designated_short_selling_security_history",
+            "daily_short_selling_turnover_short_ratio_and_short_interest_history",
+            "shortable_status_add_delete_effective_date_and_tick_rule_history",
+            "options_or_derivatives_hedging_and_borrow_availability_proxy_history",
+            "price_reversal_squeeze_liquidity_spread_and_suspension_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new overlay snapshot profile and contract version before adding any artifact fields.",
+            "Use as a risk overlay or exclusion test first; do not convert it into a short-selling execution strategy.",
+            "Ablate short-selling pressure versus existing momentum, Southbound-flow, AH-premium, and quality/yield profiles.",
+            "Stress short-squeeze rebounds, borrow/shorting eligibility changes, tick-rule effects, option-hedging flows, liquidity freezes, and crowding windows.",
+            "Require walk-forward evidence with max drawdown <= 30%, positive benchmark excess return, turnover within HK single-name cost limits, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            HKEX_REGULATED_SHORT_SELLING_URL,
+            HKEX_SHORT_SELLING_TURNOVER_TODAY_URL,
+            HKEX_DESIGNATED_SHORT_SELLING_SECURITIES_URL,
+            HKEX_SHORT_SELLING_DAILY_FILE_DATA_PRODUCT_URL,
+            SSRN_SHORT_INTEREST_RETURN_PREDICTABILITY_URL,
+            SCIENCEDIRECT_SHORT_SALES_PRICE_ADJUSTMENT_HK_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_DIRECTOR_DEALING_DISCLOSURE_QUALITY_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "director_dealing_disclosure_quality_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "factor_snapshot_overlay",
+        "research_thesis": (
+            "Use disclosed director, chief-executive, and substantial-shareholder dealings as a legal "
+            "alignment / undervaluation overlay after excluding routine, lagged, or compliance-driven filings."
+        ),
+        "required_new_data": (
+            "point_in_time_disclosure_of_interests_notice_history",
+            "director_chief_executive_and_substantial_shareholder_dealing_history",
+            "buy_sell_exercise_transfer_and_derivative_position_change_history",
+            "filing_lag_correction_cancellation_and_blackout_context_history",
+            "share_repurchase_director_dealing_overlap_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new overlay snapshot profile and contract version before adding any artifact fields.",
+            "Use only disclosed DI notices and director-dealing records; do not imply or trade on illegal insider information.",
+            "Ablate director-dealing disclosure overlay versus shareholder-yield, buyback, quality/yield, value, and momentum profiles.",
+            "Stress routine option exercises, connected-person transfers, filing lags, correction/cancellation notices, blackout/moratorium windows, low liquidity, and crowding.",
+            "Require walk-forward evidence with max drawdown <= 30%, positive benchmark excess return, turnover within HK single-name cost limits, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            SFC_DISCLOSURE_OF_INTERESTS_PART_XV_URL,
+            SFC_DISCLOSURE_OF_INTERESTS_DI_NOTICES_URL,
+            HKEX_DISCLOSURE_OF_INTERESTS_SEARCH_URL,
+            ECONPAPERS_DIRECTOR_DEALING_SHARE_REPURCHASE_HK_URL,
+            SCIENCEDIRECT_HK_DIRECTOR_DEALING_SHARE_REPURCHASE_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_DUALLY_TRADED_LIQUID_REVERSAL_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "dually_traded_liquid_reversal_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "factor_snapshot_overlay",
+        "research_thesis": (
+            "Test whether short-horizon reversal can be harvested only in liquid, dually traded or cross-listed "
+            "HK names where foreign-listing alignment, volume, and execution cost evidence reduce false reversals."
+        ),
+        "required_new_data": (
+            "point_in_time_dually_traded_security_mapping_history",
+            "hk_foreign_close_fx_volume_and_listing_status_alignment_history",
+            "weekly_reversal_signal_rank_volume_and_extreme_move_history",
+            "bid_ask_spread_board_lot_vcm_cas_fee_slippage_and_suspension_history",
+            "same_universe_momentum_value_quality_and_ah_premium_ablation_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new overlay snapshot profile and contract version before adding any artifact fields.",
+            "Treat as execution-aware reversal overlay only; do not promote a high-turnover intraday strategy without order-book evidence.",
+            "Ablate dually traded liquid reversal versus existing momentum, AH-premium, index-event, and quality/yield profiles on the same universe.",
+            "Stress transaction costs, opening/closing auction liquidity, VCM/CAS price controls, bid-ask bounce, stale quotes, suspensions, cross-market close/FX alignment, and crowding decay.",
+            "Require walk-forward evidence with max drawdown <= 30%, positive benchmark excess return, turnover within HK cost/capacity limits, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            SCIENCEDIRECT_HK_DUALLY_TRADED_CONTRARIAN_URL,
+            IDEAS_HK_STOCK_RETURN_REVERSAL_CONTINUANCE_URL,
+            TANDF_HK_SHORT_TERM_OVERREACTION_URL,
+            HKBU_HSI_FUTURES_INTRADAY_REVERSAL_URL,
+            HKEX_REVERSAL_EXECUTION_TRADING_MECHANISM_URL,
+            HKEX_REVERSAL_EXECUTION_TRANSACTION_FEES_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_EARNINGS_ANNOUNCEMENT_DRIFT_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "earnings_announcement_drift_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "event_calendar_snapshot_overlay",
+        "research_thesis": (
+            "Test HK post-earnings-announcement drift and profit-warning / alert reactions as an event overlay, "
+            "using only public HKEXnews announcements after publication timestamps and trading resumption are known."
+        ),
+        "required_new_data": (
+            "point_in_time_hkex_results_announcement_profit_warning_and_alert_history",
+            "announcement_publication_timestamp_board_meeting_date_and_trading_resumption_history",
+            "earnings_surprise_sign_magnitude_and_post_announcement_window_history",
+            "profit_warning_alert_language_classification_and_inside_information_flag_history",
+            "liquidity_short_sale_eligibility_suspension_spread_fee_and_slippage_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new event-calendar overlay snapshot profile and contract version before adding any artifact fields.",
+            "Use only public HKEXnews announcements after publication; never infer unpublished earnings or profit-warning content.",
+            "Ablate PEAD / profit-warning drift versus earnings-revision overlay, momentum, short-selling pressure, and quality/yield profiles on the same universe.",
+            "Stress stale or late announcements, trading halts/suspensions, after-hours publication windows, bilingual headline parsing, profit-warning false positives, short-sale constraints, liquidity freezes, and crowded post-announcement trades.",
+            "Require walk-forward event-study evidence with max drawdown <= 30%, positive benchmark excess return, turnover within HK event-trading cost limits, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            POLYU_HK_EARNINGS_ANNOUNCEMENT_DRIFT_THESIS_URL,
+            HKEX_LISTED_ISSUER_EQUITY_SECURITIES_DISCLOSURE_URL,
+            HKEX_LISTED_COMPANY_INFORMATION_DISSEMINATION_FAQ_URL,
+            HKEX_PROFIT_WARNING_ALERT_FAQ_URL,
+            HKEXNEWS_ADVANCED_SEARCH_URL,
+            SCIENCEDIRECT_HK_SHORT_SALE_BAN_PEAD_URL,
+            SPRINGER_HK_PROFIT_WARNING_MARKET_REACTION_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_LOTTERY_STOCK_RISK_EXCLUSION_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "lottery_stock_risk_exclusion_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "factor_snapshot_overlay",
+        "research_thesis": (
+            "Test HK lottery-like stock features as a risk exclusion / underweight overlay for existing "
+            "single-name snapshots, using IVOL, ISKEW, low price, and MAX-return features to avoid overpaid "
+            "speculative tails rather than to create a direct short-selling strategy."
+        ),
+        "required_new_data": (
+            "point_in_time_lottery_feature_ivol_iskew_max_price_history",
+            "monthly_max1_max5_daily_return_and_idiosyncratic_skewness_history",
+            "market_regime_volatility_drawdown_and_lottery_premium_condition_history",
+            "price_turnover_market_cap_free_float_liquidity_and_suspension_history",
+            "same_universe_quality_momentum_low_size_low_vol_and_short_pressure_ablation_history",
+            "short_sale_eligibility_spread_fee_slippage_vcm_cas_and_capacity_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new overlay snapshot profile and contract version before adding any artifact fields.",
+            "Use as an exclusion or underweight overlay first; do not promote a short-lottery strategy without borrow, short-sale eligibility, and locate evidence.",
+            "Ablate lottery-risk exclusion versus low-vol dividend, quality growth, residual momentum, low-size, short-selling pressure, and composite QVLM profiles on the same universe.",
+            "Stress persistent lottery features, down-market and high-volatility regimes, low-price illiquidity, one-day MAX outliers, stale quotes, suspensions, corporate actions, and retail-crowding windows.",
+            "Require walk-forward evidence with max drawdown <= 30%, positive benchmark excess return, turnover within HK cost/capacity limits, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            POLYU_HK_GAMBLING_STOCK_MARKET_PDF_URL,
+            SCIENCEDIRECT_HK_GAMBLING_STOCK_MARKET_URL,
+            SCIENCEDIRECT_HK_VOLATILITY_EFFECT_URL,
+            HKEX_REVERSAL_EXECUTION_TRADING_MECHANISM_URL,
+            HKEX_REVERSAL_EXECUTION_TRANSACTION_FEES_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_EQUITY_FINANCING_DILUTION_RISK_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "equity_financing_dilution_risk_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "event_calendar_snapshot_overlay",
+        "research_thesis": (
+            "Test HK rights issues, open offers, placings, convertible issues, and other equity financing "
+            "announcements as a dilution / adverse-selection risk overlay for existing single-name snapshots, "
+            "distinguishing value-destroying rights offers from growth-oriented placements."
+        ),
+        "required_new_data": (
+            "point_in_time_hkexnews_rights_issue_open_offer_placement_and_convertible_announcement_history",
+            "announcement_publication_timestamp_trading_halt_resumption_and_completion_history",
+            "issue_size_discount_dilution_use_of_proceeds_underwriter_and_shareholder_commitment_history",
+            "general_mandate_specific_mandate_minority_approval_and_2018_rule_change_history",
+            "same_universe_quality_value_momentum_shareholder_yield_and_director_dealing_ablation_history",
+            "post_announcement_and_long_run_return_liquidity_spread_slippage_suspension_and_capacity_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new event-calendar overlay snapshot profile and contract version before adding any artifact fields.",
+            "Use as a dilution and adverse-selection risk overlay first; do not blindly short every financing announcement because private placements can differ from rights offers.",
+            "Parse announcement type, issue scale, price discount, use of proceeds, underwriting, shareholder pre-commitment, minority approval, mandate type, completion, and cancellation before ranking risk.",
+            "Ablate equity-financing dilution risk versus shareholder-yield, director-dealing, value-quality, momentum, low-size, and short-selling-pressure overlays on the same universe.",
+            "Stress deep-discount rights issues, highly dilutive open offers, specific-mandate placings, convertible/warrant issuance, treasury-share sales, 2018 rule-change regimes, trading halts, suspensions, liquidity freezes, and completion failures.",
+            "Require walk-forward event-study evidence with max drawdown <= 30%, positive benchmark excess return, HK event-trading cost/capacity controls, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            POLYU_HK_RIGHTS_ISSUE_REACTION_THESIS_URL,
+            SCIENCEDIRECT_HK_RIGHTS_OFFERS_DIFFERENT_URL,
+            SCIENCEDIRECT_HK_SEO_INSIDER_TRADING_URL,
+            HKEX_CAPITAL_RAISINGS_RULE_CHANGE_2018_URL,
+            HKEX_MAIN_BOARD_ISSUER_FORMS_URL,
+            HKEX_LISTED_ISSUER_EQUITY_SECURITIES_DISCLOSURE_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_CONNECTED_TRANSACTION_GOVERNANCE_RISK_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "connected_transaction_governance_risk_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "event_calendar_snapshot_overlay",
+        "research_thesis": (
+            "Test HK connected transactions and related-party transaction announcements as a governance, "
+            "tunneling, or expropriation risk overlay for existing single-name snapshots, while distinguishing "
+            "potentially value-enhancing propping or strategic transactions from minority-shareholder value loss."
+        ),
+        "required_new_data": (
+            "point_in_time_hkexnews_connected_transaction_announcement_circular_and_vote_history",
+            "connected_person_relationship_control_chain_and_transaction_type_history",
+            "consideration_asset_valuation_pricing_policy_original_cost_and_independent_financial_advice_history",
+            "independent_shareholder_approval_ined_auditor_annual_review_and_exemption_history",
+            "same_universe_quality_value_momentum_policy_value_and_director_dealing_ablation_history",
+            "post_announcement_12_month_return_disclosure_quality_liquidity_suspension_and_capacity_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new event-calendar overlay snapshot profile and contract version before adding any artifact fields.",
+            "Use as a governance risk exclusion or underweight overlay first; do not assume every connected transaction is negative because propping or strategic transactions can differ from tunneling events.",
+            "Classify connected-person relationship, ultimate controller, transaction type, consideration, pricing policy, asset valuation, original cost, independent financial adviser opinion, shareholder approval, exemption status, and annual-review evidence before ranking risk.",
+            "Ablate connected-transaction risk versus quality/value, central-SOE policy value, director-dealing, shareholder-yield, equity-financing, and short-selling-pressure overlays on the same universe.",
+            "Stress asset sales to controllers, asset purchases from controllers, equity sales, cash payments, financial assistance, recurring connected transactions, weak-disclosure issuers, low-float names, trading halts, suspensions, and regulatory-rule changes.",
+            "Require walk-forward event-study evidence with max drawdown <= 30%, positive benchmark excess return, HK event-trading cost/capacity controls, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            SSRN_HK_CONNECTED_TRANSACTIONS_TUNNELING_URL,
+            SCIENCEDIRECT_HK_INDEPENDENT_DIRECTORS_RPT_URL,
+            SCIENCEDIRECT_HK_BUY_HIGH_SELL_LOW_RPT_URL,
+            SCIENCEDIRECT_HK_CONNECTED_TRANSACTIONS_FIRM_VALUE_URL,
+            HKEX_CONNECTED_TRANSACTIONS_RULEBOOK_URL,
+            HKEX_CONNECTED_TRANSACTION_RULES_ELEARNING_URL,
+            HKEX_LISTED_ISSUER_EQUITY_SECURITIES_DISCLOSURE_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_TAKEOVER_PRIVATIZATION_EVENT_SPREAD_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "takeover_privatization_event_spread_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "event_calendar_snapshot_overlay",
+        "research_thesis": (
+            "Test HK takeover, merger, privatisation, and possible-offer announcements as an event-spread "
+            "overlay that can rank target-company upside versus deal-break, tunneling, and completion risk."
+        ),
+        "required_new_data": (
+            "point_in_time_sfc_offer_period_possible_offer_firm_intention_and_privatisation_history",
+            "hkexnews_rule_3_7_rule_3_5_composite_document_despatch_and_results_announcement_history",
+            "offer_price_last_price_spread_acceptance_level_conditions_approval_and_financing_history",
+            "compulsory_acquisition_scheme_of_arrangement_withdrawal_lapse_and_break_price_history",
+            "same_universe_event_drift_connected_transaction_governance_and_director_dealing_ablation_history",
+            "event_liquidity_trading_halt_suspension_disclosure_dealing_fee_slippage_and_capacity_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new event-calendar overlay snapshot profile and contract version before adding any artifact fields.",
+            "Use as a takeover / privatisation event-spread overlay first; do not expose a live merger-arbitrage profile without completion-probability, break-price, and order-preview evidence.",
+            "Distinguish Rule 3.7 possible-offer talks, Rule 3.5 firm-intention announcements, voluntary / mandatory / partial offers, schemes of arrangement, privatisations, share buy-backs, offer lapses, withdrawals, and compulsory acquisitions.",
+            "Ablate takeover-event spread versus PEAD, connected-transaction governance, director-dealing, equity-financing, Southbound-flow, and value-quality overlays on the same universe.",
+            "Stress offer-period extensions, delayed composite documents, failed shareholder or regulatory approvals, low acceptance levels, financing conditions, no indicative offer price, trading halts, suspensions, disclosure-dealing restrictions, low float, and crowding.",
+            "Require walk-forward event-study evidence with max drawdown <= 30%, positive benchmark excess return, HK event-trading cost/capacity controls, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            SFC_TAKEOVERS_AND_MERGERS_URL,
+            SFC_TAKEOVER_TRANSACTION_ANNOUNCEMENTS_URL,
+            SFC_LEVERAGED_INVERSE_PRODUCTS_CIRCULAR_URL,
+    SFC_TAKEOVER_OFFER_PERIODS_URL,
+            SFC_TAKEOVER_PAST_OFFER_PERIODS_URL,
+            SCIENCEDIRECT_HK_CORPORATE_TAKEOVER_SHAREHOLDER_WEALTH_URL,
+            SCIENCEDIRECT_HK_GOING_PRIVATE_TUNNELING_URL,
+            POLYU_HK_ACQUISITION_MERGER_WEALTH_THESIS_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_DISTRIBUTION_EX_DATE_ENTITLEMENT_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "distribution_ex_date_entitlement_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "event_calendar_snapshot_overlay",
+        "research_thesis": (
+            "Test HK cash dividends, special dividends, scrip dividends, stock distributions, bonus issues, "
+            "splits, and consolidations as an ex-entitlement event overlay, while treating historical "
+            "ex-day return anomalies as fragile after electronic settlement and modern arbitrage."
+        ),
+        "required_new_data": (
+            "point_in_time_hkexnews_dividends_other_entitlements_ex_date_record_date_and_payment_history",
+            "cash_special_scrip_stock_distribution_bonus_issue_split_consolidation_and_currency_history",
+            "exchange_adjusted_previous_close_cum_price_ex_open_adjustment_factor_and_adr_alignment_history",
+            "book_closure_transfer_deadline_settlement_holiday_typhoon_extreme_condition_and_change_notice_history",
+            "same_universe_low_vol_dividend_shareholder_yield_fcf_and_distribution_type_ablation_history",
+            "ex_date_liquidity_spread_board_lot_odd_lot_stamp_duty_fee_slippage_and_capacity_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new event-calendar overlay snapshot profile and contract version before adding any artifact fields.",
+            "Use as an ex-entitlement timing / risk overlay first; do not expose a dividend-capture live profile without post-settlement, cost-after, and order-preview evidence.",
+            "Distinguish ordinary cash dividends, special dividends, scrip elections, stock distributions, bonus issues, splits, consolidations, currency, withholding/tax notes, payment timing, and changed ex-date notices before ranking events.",
+            "Ablate distribution ex-date effects versus low-vol dividend, shareholder-yield, FCF, lottery-risk, reversal, and quality/value profiles on the same universe.",
+            "Stress electronic-settlement regime changes, exchange price-adjustment methodology, ADR or dual-listing date mismatches, typhoon/extreme-condition changes, high-yield traps, crowded capture trades, odd-lot effects, low liquidity, and dividend-cancellation or payment-date changes.",
+            "Require walk-forward event-study evidence with max drawdown <= 30%, positive benchmark excess return, HK cost/capacity controls, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            HKEX_DIVIDENDS_AND_OTHER_ENTITLEMENTS_GUIDE_URL,
+            HKEX_DIVIDENDS_AND_OTHER_ENTITLEMENTS_REPORT_URL,
+            HKEX_EX_ENTITLEMENT_TRADING_MECHANISM_URL,
+            IDEAS_HK_EX_DAY_ELECTRONIC_SETTLEMENT_URL,
+            SCIENCEDIRECT_HK_ADR_EX_DIVIDEND_ADJUSTMENT_URL,
+            SCIENCEDIRECT_HK_EX_DIVIDEND_PRICE_ADJUSTMENT_URL,
+            HKU_STOCK_DISTRIBUTIONS_EX_DAY_ANCHORING_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_IPO_LOCKUP_OVERHANG_EVENT_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "ipo_lockup_overhang_event_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "event_calendar_snapshot_overlay",
+        "research_thesis": (
+            "Test newly listed HK stocks around IPO listing, cornerstone lock-up expiry, pre-IPO investor "
+            "lock-up expiry, and post-IPO overhang windows as a risk overlay, separating short-run IPO "
+            "underpricing from lock-up supply pressure and long-run underperformance."
+        ),
+        "required_new_data": (
+            "point_in_time_ipo_listing_date_prospectus_final_offer_price_and_allotment_result_history",
+            "cornerstone_investor_identity_allocation_lockup_expiry_public_float_and_double_dipping_history",
+            "pre_ipo_investor_controller_employee_and_strategic_investor_lockup_expiry_history",
+            "greenshoe_stabilization_clawback_retail_oversubscription_block_trade_and_placing_history",
+            "same_universe_low_size_liquidity_lottery_momentum_short_pressure_and_quality_ablation_history",
+            "post_ipo_return_lockup_expiry_liquidity_spread_board_lot_suspension_short_sale_and_capacity_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new event-calendar overlay snapshot profile and contract version before adding any artifact fields.",
+            "Use as a post-IPO overhang / risk overlay first; do not expose IPO subscription, first-day flipping, or short-lockup trading without allocation, borrow, settlement, and order-preview evidence.",
+            "Classify cornerstone investors, strategic investors, pre-IPO investors, controllers, employees, allocation size, lock-up length, public-float treatment, double-dipping status, offer price, final allocation, clawback, stabilization, and block-trading evidence before ranking events.",
+            "Ablate IPO lock-up overhang versus low-size, liquidity, lottery-risk, liquid momentum, short-selling pressure, and quality/value profiles on the same universe.",
+            "Stress hot-IPO first-day spikes, weak-market listings, biotech/pre-revenue listings, low free float, concentrated cornerstone ownership, staggered lock-up releases, failed stabilization, block trades, lock-up extensions, suspensions, and Stock Connect ineligibility windows.",
+            "Require walk-forward event-study evidence with max drawdown <= 30%, positive benchmark excess return, HK IPO/liquidity/capacity controls, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            HKEX_NEW_LISTING_APPLICANTS_PLACING_RELATED_GUIDE_URL,
+            HKEX_LIST_WITH_HKEX_FAQ_URL,
+            HKEX_DOUBLE_DIPPING_REFORMS_2023_URL,
+            HKEX_PRE_IPO_INVESTMENT_GUIDANCE_LETTER_URL,
+            SCIENCEDIRECT_HK_IPO_PRICE_BLOCK_TRADING_URL,
+            SCIENCEDIRECT_HK_IPO_OFFERING_METHOD_UNDERPRICING_URL,
+            SSRN_HK_CORNERSTONE_INVESTORS_IPO_SURVIVAL_URL,
+            UNIBIRMINGHAM_IPO_LOCKUPS_LONG_RUN_PERFORMANCE_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_AUDIT_OPINION_SUSPENSION_RISK_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "audit_opinion_suspension_risk_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "event_calendar_snapshot_overlay",
+        "research_thesis": (
+            "Test HK disclaimer, adverse, qualified, and going-concern audit opinions as an audit-quality, "
+            "suspension, resumption, and delisting-risk overlay for existing single-name snapshots, separating "
+            "financial-reporting risk from generic value, leverage, and liquidity risk."
+        ),
+        "required_new_data": (
+            "point_in_time_hkexnews_results_annual_report_audit_opinion_and_auditor_resignation_history",
+            "disclaimer_adverse_qualified_going_concern_modified_opinion_and_key_audit_matter_history",
+            "audit_issue_resolution_remedial_period_resumption_guidance_suspension_cancellation_and_delisting_history",
+            "financial_statement_delay_publication_deadline_auditor_change_and_forensic_investigation_history",
+            "same_universe_quality_value_leverage_fcf_connected_transaction_equity_financing_and_takeover_ablation_history",
+            "post_opinion_return_liquidity_trading_halt_suspension_resumption_restructuring_and_capacity_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new event-calendar overlay snapshot profile and contract version before adding any artifact fields.",
+            "Use as an audit-quality / suspension-risk exclusion or underweight overlay first; do not expose a live resumption-trading strategy without post-resumption liquidity, break-price, and order-preview evidence.",
+            "Classify disclaimer, adverse, qualified, going-concern-only, emphasis-of-matter, auditor resignation, delayed results, forensic investigation, remedial steps, suspension start, resumption guidance, cancellation, and delisting status before ranking risk.",
+            "Ablate audit-opinion risk versus quality/value, leverage, FCF, connected-transaction governance, equity-financing dilution, takeover, and short-selling-pressure overlays on the same universe.",
+            "Stress HKEX 2019 adverse/disclaimer rule-change regimes, long suspensions, unresolved audit issues, liquidation/restructuring, stale marks, low liquidity, trading resumption gaps, auditor changes, and false-positive temporary qualifications.",
+            "Require walk-forward event-study evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, positive benchmark excess return, HK liquidity/capacity controls, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            HKEX_ADVERSE_AUDIT_OPINION_RULE_CHANGE_2019_URL,
+            HKEX_RULE_13_50A_AUDIT_OPINION_SUSPENSION_URL,
+            HKEX_ADVERSE_AUDIT_OPINION_CONCLUSIONS_URL,
+            HKEX_LONG_SUSPENSION_GUIDANCE_GL95_URL,
+            HKEX_PROLONGED_SUSPENSION_STATUS_REPORT_URL,
+            SCIENCEDIRECT_QUALIFIED_AUDIT_OPINIONS_STOCK_PRICES_URL,
+            HKUST_GOING_CONCERN_BANKRUPTCY_REACTION_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_SHARE_REPURCHASE_EXECUTION_SIGNAL_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "share_repurchase_execution_signal_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "event_calendar_snapshot_overlay",
+        "research_thesis": (
+            "Test HK on-exchange share-repurchase execution intensity, first repurchase, and repeat buyback "
+            "windows as an undervaluation / capital-discipline overlay, while separating genuine share-count "
+            "reduction from treasury-share retention, resale, and post-buyback financing risk."
+        ),
+        "required_new_data": (
+            "point_in_time_hkex_share_repurchase_daily_report_next_day_return_and_execution_price_history",
+            "repurchase_mandate_program_waiver_first_buyback_repeat_buyback_and_prior_abnormal_return_history",
+            "treasury_share_retention_cancellation_resale_blackout_moratorium_and_connected_person_history",
+            "post_buyback_share_count_reduction_new_issue_convertible_financing_public_float_and_dilution_history",
+            "same_universe_shareholder_yield_director_dealing_value_quality_fcf_takeover_and_short_pressure_ablation_history",
+            "post_buyback_return_liquidity_spread_board_lot_suspension_vcm_cas_and_capacity_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new event-calendar overlay snapshot profile and contract version before adding any artifact fields.",
+            "Use as a buyback-execution / undervaluation overlay first; do not duplicate the existing shareholder-yield scaffold or expose a live buyback-chasing strategy without order-preview and impact evidence.",
+            "Classify first repurchase, repeat repurchase, daily executed shares, average price, consideration, mandate/program status, waiver/automatic program, treasury-retention versus cancellation, resale moratorium, blackout, connected-person restrictions, and post-buyback financing before ranking signals.",
+            "Ablate repurchase-execution intensity versus shareholder-yield, director-dealing, value, quality, FCF, takeover-vulnerability, short-selling-pressure, and liquidity overlays on the same universe.",
+            "Stress headline-only repurchase mandates with little execution, treasury-share resale dilution, concurrent convertible or placement financing, public-float pressure, low-liquidity buybacks, results blackout, market-stabilization optics, and crowded large-cap repurchase programs.",
+            "Require walk-forward event-study evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, positive benchmark excess return, HK buyback/liquidity/capacity controls, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            HKEX_LISTING_NEWSLETTER_BUYBACKS_2025_URL,
+            HKEX_SHARE_REPURCHASE_REPORTS_URL,
+            HKEX_REPURCHASE_TREASURY_SHARES_RULEBOOK_URL,
+            HKEX_TREASURY_SHARES_RULE_CHANGE_2024_URL,
+            HKEX_SHARE_REPURCHASE_ELEARNING_URL,
+            SAGE_HK_SHARE_BUYBACKS_EMPIRICAL_URL,
+            SCIENCEDIRECT_HK_DIRECTOR_DEALING_SHARE_REPURCHASE_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_LIQUID_PAIRS_COINTEGRATION_STAT_ARB_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "liquid_pairs_cointegration_stat_arb_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "pair_snapshot_overlay",
+        "research_thesis": (
+            "Test liquid HK market-neutral pairs / baskets using cointegration, distance, and correlation "
+            "signals as a relative-value overlay, while proving short-leg feasibility, spread stability, "
+            "and execution capacity before any runtime exposure."
+        ),
+        "required_new_data": (
+            "point_in_time_hsi_liquid_pair_universe_industry_beta_dual_listing_and_corporate_action_history",
+            "cointegration_distance_correlation_formation_window_spread_half_life_hurst_and_breakdown_history",
+            "pair_leg_quote_spread_board_lot_borrow_fee_designated_short_selling_tick_rule_vcm_cas_and_capacity_history",
+            "pair_signal_entry_exit_stop_loss_rebalance_window_leverage_margin_and_locate_availability_history",
+            "same_universe_dually_traded_reversal_ah_premium_short_pressure_liquidity_and_market_beta_ablation_history",
+            "pair_level_net_pnl_tail_loss_forced_buy_in_suspension_gap_and_crowding_decay_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new pair snapshot overlay contract before adding pair, basket, or hedge-ratio fields to any existing snapshot artifact.",
+            "Use as a liquid relative-value research overlay first; do not expose a live market-neutral stat-arb strategy until both legs pass borrow, short-sale, margin, and order-preview evidence.",
+            "Classify pair universe, industry/beta matching, dual-listing or economic-link rationale, hedge ratio, cointegration strength, spread stationarity, half-life, Hurst exponent, formation/trading window, breakdown flags, and rebalance cadence before ranking signals.",
+            "Ablate pairs signals versus dually-traded reversal, AH premium, short-selling pressure, liquid momentum, low-size/liquidity, and market-beta hedging on the same universe.",
+            "Stress spread regime breaks, crowding, low-liquidity widening, one-leg suspension, forced buy-in / locate loss, short-sale tick-rule rejection, VCM/CAS sessions, corporate actions, takeovers, connected transactions, and cost/slippage shocks.",
+            "Require walk-forward pair-level evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, positive net excess return after borrow/fee/slippage/spread stress, HK short-selling and capacity controls, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            IDEAS_HK_PAIRS_TRADING_PROFITABILITY_URL,
+            HKU_COINTEGRATION_PAIRS_TRADING_POWER_STATISTIC_URL,
+            SCIENCEDIRECT_COINTEGRATED_BASKET_TRADING_URL,
+            HKEX_REGULATED_SHORT_SELLING_URL,
+            HKEX_REVERSAL_EXECUTION_TRADING_MECHANISM_URL,
+            HKEX_REVERSAL_EXECUTION_TRANSACTION_FEES_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_MACRO_LIQUIDITY_INFLATION_RATE_SENSITIVITY_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "macro_liquidity_inflation_rate_sensitivity_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "macro_snapshot_overlay",
+        "research_thesis": (
+            "Test HK inflation, HIBOR, base-rate, aggregate-balance, and liquidity-regime sensitivity "
+            "as a risk / tilt overlay for existing quality, yield, value, low-volatility, and ETF-rotation "
+            "profiles, while avoiding standalone macro timing until point-in-time release-lag evidence exists."
+        ),
+        "required_new_data": (
+            "point_in_time_hk_cpi_inflation_base_rate_hibor_and_liquidity_condition_history",
+            "macro_release_timestamp_lag_revision_currency_peg_and_rate_regime_history",
+            "sector_industry_rate_beta_inflation_beta_property_financial_and_dividend_yield_sensitivity_history",
+            "same_universe_quality_yield_value_policy_value_low_vol_and_etf_rotation_macro_ablation_history",
+            "macro_overlay_return_drawdown_turnover_liquidity_cost_and_capacity_stress_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new macro snapshot overlay contract before adding CPI, HIBOR, base-rate, or liquidity fields.",
+            "Use as a risk / tilt overlay first; do not expose a live standalone macro-timing strategy.",
+            "Classify CPI release time, inflation surprise, HKMA base rate, overnight and one-month HIBOR, aggregate balance, HKD peg stress, and rate-regime history before ranking macro sensitivity.",
+            "Ablate macro overlay signals versus quality-yield, value, policy-value, low-volatility, momentum, and ETF-rotation profiles on the same universe.",
+            "Stress rate spikes, inflation surprises, HKD liquidity squeezes, property/financial concentration, stale macro prints, release delays, and higher-for-longer regimes.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, annual-return-to-drawdown ratio >= 0.50, positive benchmark excess return, HK cost/capacity controls, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            SCIEDU_HK_STOCK_RETURN_DRIVERS_URL,
+            SCIENCEDIRECT_HK_LIQUIDITY_ASSET_PRICING_URL,
+            HKMA_BASE_RATE_URL,
+            HKMA_INTERBANK_LIQUIDITY_API_DOC_URL,
+            HKAB_HKD_INTEREST_SETTLEMENT_RATES_URL,
+            CENSTATD_CONSUMER_PRICES_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_TURN_OF_MONTH_LUNAR_NEW_YEAR_CALENDAR_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "turn_of_month_lunar_new_year_calendar_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "calendar_snapshot_overlay",
+        "research_thesis": (
+            "Test HK turn-of-the-month and Chinese Lunar New Year calendar effects as a low-frequency "
+            "risk / timing overlay for existing ETF, quality/yield, value, and momentum sleeves, while "
+            "keeping it non-standalone because calendar anomalies are vulnerable to data mining and crowding."
+        ),
+        "required_new_data": (
+            "point_in_time_hkex_trading_calendar_month_end_month_start_and_clny_window_history",
+            "lunar_new_year_holiday_pre_three_post_one_trading_day_window_history",
+            "hkex_severe_weather_trading_calendar_settlement_and_stock_connect_holiday_history",
+            "calendar_window_short_selling_turnover_liquidity_spread_fee_slippage_and_capacity_history",
+            "same_universe_etf_rotation_quality_yield_momentum_value_and_special_event_ablation_history",
+            "post_calendar_window_return_decay_crowding_quarter_end_and_year_end_robustness_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new calendar snapshot overlay contract before adding calendar-window fields to any existing artifact.",
+            "Use as a risk / timing overlay first; do not expose a live standalone calendar-anomaly strategy.",
+            "Distinguish turn-of-month, quarter-end, year-end, pre-holiday, post-CLNY, and severe-weather trading days before ranking calendar exposure.",
+            "Ablate calendar overlay versus HK-listed ETF rotation, low-vol dividend, shareholder-yield, FCF, residual momentum, Southbound flow, and index-event profiles on the same universe.",
+            "Stress data-snooping risk, crowding, quarter-end null effects, short-sale turnover shifts, settlement/holiday gaps, Stock Connect holiday mismatch, severe-weather trading, low liquidity, and spread/slippage shocks.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive benchmark excess return, HK cost/capacity controls, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            IDEAS_HK_TOM_CLNY_CHINESE_MARKETS_URL,
+            SCIENCEDIRECT_TURN_OF_MONTH_INTERNATIONAL_URL,
+            TANDF_HK_HOLIDAY_EFFECT_URL,
+            HKEX_TRADING_HOURS_SEVERE_WEATHER_URL,
+            HKEX_SEVERE_WEATHER_OVERVIEW_URL,
+            HKEX_SHORT_SELLING_TURNOVER_TODAY_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_ETF_PREMIUM_DISCOUNT_TRACKING_QUALITY_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "etf_premium_discount_tracking_quality_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "etf_product_snapshot_overlay",
+        "research_thesis": (
+            "Test HK-listed ETF premium/discount, NAV/iNAV, tracking difference, and product-structure "
+            "quality as a risk / execution-quality overlay for existing HK-listed ETF rotation profiles, "
+            "while keeping it non-standalone because premium arbitrage and tracking-error chasing can be "
+            "dominated by liquidity, market-maker, and underlying-market timing frictions."
+        ),
+        "required_new_data": (
+            "point_in_time_hk_listed_etf_nav_inav_premium_discount_and_tracking_difference_history",
+            "etf_market_maker_spread_depth_adv_hidden_liquidity_and_underlying_liquidity_history",
+            "etf_creation_redemption_participating_dealer_issuer_fee_tax_and_distribution_history",
+            "etf_replication_physical_synthetic_leveraged_inverse_futures_roll_and_complex_product_history",
+            "etf_connect_stock_connect_eligible_sell_only_cross_boundary_settlement_and_holiday_history",
+            "same_universe_etf_rotation_product_quality_filter_ablation_and_capacity_stress_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new ETF product snapshot overlay contract before adding ETF NAV/iNAV or premium/discount fields to existing runtime artifacts.",
+            "Use as a product-quality, liquidity, and execution-risk overlay first; do not expose a live ETF premium-arbitrage strategy.",
+            "Classify NAV, iNAV, closing premium/discount, tracking difference, tracking error, market-maker presence, spread/depth, trading-hour mismatch, underlying-market close, distribution/currency, and creation/redemption mechanics before ranking ETF product quality.",
+            "Ablate ETF premium/discount and tracking-quality filters versus HK-listed global ETF rotation and high-dividend low-volatility trend on the same ETF universe.",
+            "Stress stale NAV/iNAV, overseas-underlying close gaps, synthetic replication, leveraged/inverse daily reset, futures-roll cost, market-maker withdrawal, Stock Connect sell-only status, holiday mismatch, wide spreads, odd-lot handling, and broker product-permission failures.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            SSRN_HK_ETF_TRACKING_ERROR_DETERMINANTS_URL,
+            HKBU_HK_ETF_PREMIUM_INTRADAY_PATTERNS_URL,
+            HKEX_ETF_HANDBOOK_URL,
+            SFC_LEVERAGED_INVERSE_PRODUCTS_CIRCULAR_URL,
+            HKMA_ETF_RISK_EDUCATION_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_ASSET_GROWTH_NET_ISSUANCE_QUALITY_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "asset_growth_net_issuance_quality_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "accounting_factor_snapshot_overlay",
+        "research_thesis": (
+            "Test asset-growth, net operating asset growth, and net share issuance as a low-turnover "
+            "quality / overinvestment / dilution-risk overlay for HK quality, value, FCF, and shareholder-yield "
+            "sleeves, while keeping it non-standalone because investability can be constrained by liquidity, "
+            "capacity, accounting lag, and sector composition."
+        ),
+        "required_new_data": (
+            "point_in_time_total_asset_growth_net_operating_asset_growth_capex_and_acquisition_history",
+            "net_share_issuance_buyback_share_count_equity_financing_and_dilution_history",
+            "hkexnews_annual_interim_results_reporting_date_restatement_and_auditor_change_history",
+            "sector_financial_real_estate_utility_insurance_and_negative_equity_exception_history",
+            "same_universe_fcf_value_quality_shareholder_yield_equity_financing_and_low_size_ablation_history",
+            "asset_growth_liquidity_capacity_turnover_cost_reporting_lag_and_crowding_stress_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new accounting-factor snapshot overlay contract before adding asset-growth or net-issuance fields to any existing artifact.",
+            "Use as a quality / overinvestment / dilution-risk overlay first; do not expose a standalone asset-growth anomaly strategy.",
+            "Classify total-asset growth, net operating asset growth, capex/acquisition growth, net share issuance, share-count change, buybacks, placements, rights offers, convertible issuance, reporting date, restatement, auditor change, and sector exceptions before ranking signals.",
+            "Ablate asset-growth and net-issuance signals versus FCF quality, value-quality, shareholder-yield, equity-financing event, low-size/liquidity, policy-value, and quality-growth profiles on the same survivorship-safe universe.",
+            "Stress financials and property-company balance-sheet comparability, acquisition-driven growth, debt-funded expansion, negative-equity or missing-fundamental cases, reporting lag, stale annual reports, restatements, low-liquidity small caps, capacity, and value-trap interactions.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            SSRN_ASSET_GROWTH_INVESTABILITY_URL,
+            HKU_ASSET_GROWTH_EFFECT_INTERNATIONAL_URL,
+            HKUST_MARKET_DEVELOPMENT_ASSET_GROWTH_URL,
+            SCIENCEDIRECT_LIMITS_TO_ARBITRAGE_ASSET_GROWTH_URL,
+            AQR_GLOBAL_ASSET_GROWTH_ANOMALY_URL,
+            HKEXNEWS_ADVANCED_SEARCH_URL,
+            HKEX_LISTED_ISSUER_EQUITY_SECURITIES_DISCLOSURE_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_ACCRUAL_QUALITY_EARNINGS_PERSISTENCE_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "accrual_quality_earnings_persistence_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "accounting_factor_snapshot_overlay",
+        "research_thesis": (
+            "Test operating accruals, working-capital accruals, cash conversion, and earnings persistence "
+            "as a low-turnover accounting-quality overlay for HK FCF, quality, value, and low-volatility "
+            "sleeves, while keeping it non-standalone because accrual anomalies can be driven by risk, "
+            "liquidity, transaction costs, and reporting-date frictions."
+        ),
+        "required_new_data": (
+            "point_in_time_operating_accruals_working_capital_accruals_cash_flow_and_earnings_history",
+            "earnings_persistence_cash_conversion_receivables_inventory_payables_and_depreciation_history",
+            "hkexnews_financial_statement_reporting_date_restatement_auditor_change_and_qualified_opinion_history",
+            "sector_financial_insurance_property_developer_and_negative_working_capital_exception_history",
+            "same_universe_fcf_quality_growth_low_vol_value_asset_growth_and_audit_opinion_ablation_history",
+            "accrual_quality_liquidity_turnover_transaction_cost_reporting_lag_and_crowding_stress_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new accounting-factor snapshot overlay contract before adding accrual or earnings-persistence fields to any existing artifact.",
+            "Use as an accounting-quality and earnings-persistence overlay first; do not expose a standalone accrual-anomaly strategy.",
+            "Classify operating accruals, working-capital accruals, total accruals, operating cash flow, earnings persistence, receivables, inventory, payables, depreciation/amortization, reporting date, restatement, auditor change, qualified opinion, and sector exceptions before ranking signals.",
+            "Ablate accrual-quality signals versus FCF quality, quality-growth, low-volatility dividend, value-quality, asset-growth, audit-opinion risk, and shareholder-yield profiles on the same survivorship-safe universe.",
+            "Stress liquidity and transaction-cost concentration, high idiosyncratic volatility, reporting lag, stale or restated accounts, financials/property-company comparability, negative working capital, seasonal working-capital swings, and crowding decay.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            AAA_ACCRUAL_RISK_VS_ANOMALY_URL,
+            AAA_INTERNATIONAL_ACCRUAL_ANOMALY_PDF_URL,
+            SCIENCEDIRECT_UK_ACCRUAL_ANOMALY_URL,
+            SCIENCEDIRECT_IDIOSYNCRATIC_RISK_ACCRUAL_URL,
+            POLYU_EARNINGS_QUALITY_CASH_FLOW_URL,
+            DOAJ_STOCK_LIQUIDITY_ACCRUAL_ANOMALY_URL,
+            HKEXNEWS_ADVANCED_SEARCH_URL,
+            HKEX_LISTED_ISSUER_EQUITY_SECURITIES_DISCLOSURE_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_FSCORE_GROSS_PROFITABILITY_QUALITY_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "fscore_gross_profitability_quality_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "accounting_factor_snapshot_overlay",
+        "research_thesis": (
+            "Test Piotroski FSCORE and gross profitability as a low-turnover accounting-quality overlay for "
+            "HK value, low-size, FCF, shareholder-yield, quality-growth, and momentum sleeves, using only "
+            "point-in-time public financial statements after reporting timestamps are available."
+        ),
+        "required_new_data": (
+            "point_in_time_piotroski_fscore_component_history",
+            "gross_profitability_roa_roe_cash_flow_to_assets_and_profit_margin_history",
+            "leverage_liquidity_share_issuance_gross_margin_asset_turnover_and_cash_conversion_history",
+            "financial_statement_reporting_date_restatement_delisting_and_sector_exception_history",
+            "same_universe_value_low_size_fcf_shareholder_yield_quality_growth_momentum_and_accrual_ablation_history",
+            "fscore_profitability_liquidity_spread_suspension_cost_capacity_and_stale_fundamental_stress_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new accounting-factor snapshot overlay contract before adding FSCORE or gross-profitability fields to any existing artifact.",
+            "Use as a quality/value-risk overlay first; do not expose a standalone high-conviction value or small-cap strategy without same-universe ablation.",
+            "Classify all nine FSCORE components, gross profitability, operating profitability, ROA/ROE, cash conversion, reporting date, restatement, delisting, financials/property sector exceptions, and stale-fundamental status before ranking signals.",
+            "Ablate FSCORE/gross-profitability signals versus FCF quality, quality-growth, low-volatility dividend, shareholder-yield, asset-growth, accrual-quality, low-size, momentum, and value-quality profiles on the same survivorship-safe universe.",
+            "Stress delayed HK financial-report publication, restatements, negative book equity, financials/property comparability, tiny illiquid names, small-cap crash, turnover spikes around annual results, factor crowding, stale statements, suspensions, and broker permission failures.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            POLYU_QUALITY_INVESTING_ASIAN_STOCK_MARKETS_URL,
+            SPRINGER_PIOTROSKI_FSCORE_INTERNATIONAL_URL,
+            SCIENCEDIRECT_PACIFIC_BASIN_FSCORE_URL,
+            MSCI_HK_QUALITY_INDEX_URL,
+            MSCI_QUALITY_INDEXES_METHODOLOGY_URL,
+            HKEXNEWS_ADVANCED_SEARCH_URL,
+            HKEX_LISTED_ISSUER_EQUITY_SECURITIES_DISCLOSURE_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_SHAREHOLDING_CONCENTRATION_FREE_FLOAT_RISK_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "shareholding_concentration_free_float_risk_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "ownership_liquidity_risk_snapshot_overlay",
+        "research_thesis": (
+            "Test SFC high-shareholding-concentration announcements, CCASS participant concentration, "
+            "free-float / public-float pressure, and ramp-and-dump red flags as a HK tail-risk exclusion "
+            "or downweight overlay for small-cap, low-liquidity, momentum, low-size, and event sleeves."
+        ),
+        "required_new_data": (
+            "point_in_time_sfc_high_shareholding_concentration_announcement_history",
+            "ccass_participant_concentration_top_holder_free_float_public_float_and_float_turnover_history",
+            "stock_connect_southbound_shareholding_ccass_position_and_disclosure_of_interests_reconciliation_history",
+            "thinly_traded_small_cap_unexplained_price_volume_ramp_dump_red_flag_and_halt_history",
+            "same_universe_low_size_momentum_lottery_director_dealing_ipo_lockup_and_equity_financing_ablation_history",
+            "shareholding_concentration_liquidity_spread_suspend_vcm_cas_cost_capacity_and_stale_notice_stress_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new ownership-liquidity risk snapshot overlay contract before adding concentration, free-float, or CCASS fields to any existing artifact.",
+            "Use as a risk-exclusion or downweight overlay first; do not expose a standalone short, pump-and-dump, or high-concentration trading strategy.",
+            "Classify SFC high-shareholding-concentration announcement date, relevant information date, stock code, concentration percentage, top-holder count, public float, CCASS participant concentration, Southbound CCASS holding, Disclosure of Interests overlap, suspension/halt, and stale-notice status before ranking signals.",
+            "Ablate concentration-risk signals versus low-size/liquidity, lottery-stock exclusion, short-selling-pressure, director-dealing, IPO lock-up, equity-financing dilution, connected-transaction, and momentum profiles on the same survivorship-safe universe.",
+            "Stress thinly traded small caps, unexplained price/turnover ramps, social-media ramp-and-dump red flags, nominee-account / participant concentration, stale SFC notices, stock-code reuse, public-float restoration, trading suspension/resumption, VCM/CAS, wide spreads, forced deleveraging, and broker permission failures.",
+            "Require walk-forward and event-study evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            SFC_HIGH_SHAREHOLDING_CONCENTRATION_ANNOUNCEMENTS_URL,
+            SFC_RAMP_DUMP_RED_FLAGS_CIRCULAR_URL,
+            SFC_RAMP_DUMP_RESTRICTION_NOTICE_URL,
+            HKEX_CCASS_SHAREHOLDING_SEARCH_URL,
+            HKEX_STOCK_CONNECT_SOUTHBOUND_SHAREHOLDING_SEARCH_URL,
+            HKEX_DISCLOSURE_OF_INTERESTS_SEARCH_URL,
+            HKU_OWNERSHIP_CONCENTRATION_PERFORMANCE_HK_URL,
+            POLYU_FREE_FLOAT_MARKET_LIQUIDITY_URL,
+            SCIENCEDIRECT_HK_OWNERSHIP_CONCENTRATION_DIVIDEND_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_AMIHUD_LIQUIDITY_RISK_CAPACITY_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "amihud_liquidity_risk_capacity_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "liquidity_risk_snapshot_overlay",
+        "research_thesis": (
+            "Test Amihud illiquidity, market-wide liquidity shocks, liquidity beta, zero-volume / turnover "
+            "measures, spread/depth, and capacity as a HK risk-premium and drawdown-control overlay for "
+            "value, low-size, momentum, quality, event, and ETF-rotation sleeves."
+        ),
+        "required_new_data": (
+            "point_in_time_amihud_illiquidity_turnover_zero_volume_spread_depth_and_adv_history",
+            "market_wide_liquidity_shock_liquidity_beta_size_value_and_return_factor_history",
+            "hkex_market_turnover_statistics_trading_mechanism_vcm_cas_and_session_history",
+            "capacity_board_lot_odd_lot_suspension_stale_quote_slippage_and_price_impact_history",
+            "same_universe_low_size_value_momentum_quality_event_etf_and_concentration_ablation_history",
+            "liquidity_crash_regime_holiday_stock_connect_suspension_broker_permission_and_forced_deleveraging_stress_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new liquidity-risk snapshot overlay contract before adding illiquidity, liquidity-beta, or capacity fields to any existing artifact.",
+            "Use as a liquidity-risk, capacity, and drawdown-control overlay first; do not expose a standalone strategy that deliberately buys illiquid stocks for a premium.",
+            "Classify Amihud illiquidity, turnover, zero-volume days, effective spread/depth proxies, market-wide liquidity shocks, liquidity beta, size/value controls, benchmark regime, HKEX session, VCM/CAS, suspension, and stale-quote status before ranking signals.",
+            "Ablate liquidity-risk signals versus low-size/liquidity, value-quality, FCF, shareholder-yield, momentum, ETF-rotation, shareholding-concentration, lottery-stock, and event overlays on the same survivorship-safe universe.",
+            "Stress 2008/2020-style liquidity crashes, market-wide turnover droughts, holiday and Stock Connect mismatches, forced deleveraging, opening/closing auction gaps, VCM/CAS price controls, odd-lot or board-lot failures, suspensions/resumptions, stale quotes, broker order-preview rejection, spread widening, and capacity crowding.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage/price-impact stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            IDEAS_HK_LIQUIDITY_ASSET_PRICING_URL,
+            SCIENCEDIRECT_HK_LIQUIDITY_ASSET_PRICING_URL,
+            SCIENCEDIRECT_GLOBAL_LIQUIDITY_RISK_URL,
+            HKEX_SECURITIES_MARKET_STATISTICS_URL,
+            HKEX_REVERSAL_EXECUTION_TRADING_MECHANISM_URL,
+            HKEX_VCM_FAQ_URL,
+            HKEX_REVERSAL_EXECUTION_TRANSACTION_FEES_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_ANALYST_DISPERSION_COVERAGE_RISK_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "analyst_dispersion_coverage_risk_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "analyst_consensus_risk_snapshot_overlay",
+        "research_thesis": (
+            "Test analyst forecast dispersion, target-price / recommendation disagreement, coverage staleness, "
+            "coverage drops, forecast-accuracy history, and policy-uncertainty context as a consensus-risk or "
+            "quality overlay for HK quality, value, momentum, yield, event, and liquidity sleeves."
+        ),
+        "required_new_data": (
+            "point_in_time_analyst_eps_forecast_dispersion_coverage_recommendation_and_target_price_history",
+            "analyst_forecast_accuracy_bias_staleness_coverage_drop_and_policy_uncertainty_history",
+            "target_price_upside_dispersion_recommendation_change_and_revision_timing_history",
+            "vendor_methodology_survivorship_entitlement_publication_lag_timezone_and_correction_history",
+            "same_universe_earnings_revision_momentum_value_quality_short_selling_liquidity_and_event_ablation_history",
+            "coverage_sparse_smallcap_sector_concentration_cost_capacity_and_crowding_stress_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new analyst-consensus risk snapshot overlay contract before adding analyst dispersion, target-price, recommendation, or coverage fields to any existing artifact.",
+            "Use only public or vendor point-in-time analyst data after publication timestamps; never ingest unpublished analyst reports or treat broker target prices as instructions.",
+            "Use as a consensus-risk and stale-coverage overlay first; do not promote a standalone target-price-following or recommendation-following strategy.",
+            "Classify forecast dispersion, coverage count, coverage drops, target-price upside dispersion, recommendation changes, estimate staleness, forecast-accuracy bias, publication lag, correction history, broker/vendor methodology, and policy-uncertainty regime before ranking signals.",
+            "Ablate analyst-dispersion risk versus earnings-revision, momentum, quality/value/yield, low-size, short-selling, liquidity, and event overlays on the same survivorship-safe universe.",
+            "Stress coverage droughts, broker self-censorship or optimism bias, stale or corrected reports, China/HK policy-uncertainty shocks, sector crowding, small-cap sparse coverage, vendor entitlement gaps, costs, capacity, and liquidity-crash windows.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            SCIENCEDIRECT_HK_ANALYST_EPU_BEHAVIOR_URL,
+            HKU_ANALYST_FORECAST_DISPERSION_HK_URL,
+            HKBU_ANALYST_DISPERSION_INSTITUTIONAL_OWNERSHIP_URL,
+            SSRN_DISAGREEMENT_RETURN_PREDICTABILITY_URL,
+            SP_EARNINGS_REVISION_OVERLAY_ASIA_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_FINANCIAL_DISTRESS_DELEVERAGING_RISK_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "financial_distress_deleveraging_risk_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "financial_distress_risk_snapshot_overlay",
+        "research_thesis": (
+            "Test financial-distress, refinancing, deleveraging, and default-risk signals as a HK drawdown-control "
+            "or exclusion overlay for value, yield, quality, momentum, event, and liquidity sleeves, especially "
+            "during property downturns and rate / liquidity shocks."
+        ),
+        "required_new_data": (
+            "point_in_time_financial_statement_leverage_liquidity_profitability_cash_flow_and_zscore_history",
+            "debt_maturity_interest_coverage_distance_to_default_credit_event_default_and_refinancing_history",
+            "property_developer_inventory_investment_property_revaluation_and_mainland_exposure_history",
+            "going_concern_audit_opinion_long_suspension_delisting_and_trading_status_history",
+            "macro_hibor_base_rate_property_price_credit_spread_and_liquidity_regime_history",
+            "same_universe_quality_yield_value_momentum_liquidity_audit_opinion_and_shareholding_concentration_ablation_history",
+            "distress_regime_liquidity_shock_cost_capacity_stale_financials_and_turnaround_false_positive_stress_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new financial-distress risk snapshot overlay contract before adding distress, debt, refinancing, or default-risk fields to any existing artifact.",
+            "Use as a downside-risk exclusion or downweight overlay first; do not promote a distressed bottom-fishing or bankruptcy-event trading strategy.",
+            "Use point-in-time financial statements after reporting timestamps and restatement controls; never label a stock as distressed using future default, suspension, delisting, or restructuring events unavailable at the rebalance date.",
+            "Classify leverage, current ratio, interest coverage, cash burn, operating cash flow, debt maturity wall, distance-to-default proxy, Z-score, refinancing event, auditor going-concern signal, long suspension status, property exposure, HIBOR/base-rate regime, and stale-financial-statement status before ranking signals.",
+            "Ablate distress-risk signals versus audit-opinion suspension, accrual quality, asset growth, FSCORE/gross profitability, liquidity risk, shareholding concentration, quality/value/yield, momentum, and event overlays on the same survivorship-safe universe.",
+            "Stress China/HK property downturns, refinancing freezes, HIBOR/base-rate shocks, liquidity crashes, covenant-like debt maturity walls, stale or delayed results, qualified/adverse audit opinions, suspensions/resumptions, delistings, false positive turnarounds, costs, and capacity.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            IMF_HK_CORPORATE_SECTOR_VULNERABILITIES_URL,
+            MDPI_HK_GEM_FINANCIAL_DISTRESS_PREDICTION_URL,
+            HKUST_DISTRESSED_STOCKS_LIQUIDITY_SHOCK_URL,
+            SAGE_HK_ZSCORE_POORLY_PERFORMING_FIRMS_URL,
+            HKEX_LONG_SUSPENSION_GUIDANCE_GL95_URL,
+            HKEX_PROLONGED_SUSPENSION_STATUS_REPORT_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_DOWNSIDE_BETA_TAIL_RISK_VOLATILITY_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "downside_beta_tail_risk_volatility_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "downside_risk_volatility_snapshot_overlay",
+        "research_thesis": (
+            "Test downside beta, semivariance, realized-volatility regime, tail-loss contribution, VaR/CVaR, "
+            "and stress-beta signals as a HK drawdown-control or downweight overlay for quality, value, yield, "
+            "momentum, event, ETF, liquidity, and distress sleeves; it must reduce tail risk rather than become "
+            "a standalone volatility-timing strategy."
+        ),
+        "required_new_data": (
+            "point_in_time_downside_beta_semivariance_realized_volatility_and_stress_beta_history",
+            "var_cvar_tail_loss_contribution_drawdown_and_time_underwater_history",
+            "market_regime_realized_volatility_volatility_breakout_and_liquidity_shock_history",
+            "benchmark_relative_beta_upside_downside_beta_and_sector_neutral_volatility_history",
+            "same_universe_quality_value_yield_momentum_liquidity_lottery_distress_and_event_ablation_history",
+            "capacity_spread_vcm_cas_suspension_stale_quote_cost_and_turnover_stress_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new downside-risk volatility snapshot overlay contract before adding risk, volatility, beta, or tail-loss fields to any existing artifact.",
+            "Use point-in-time return, quote, liquidity, suspension, and corporate-action-adjusted price inputs only; never compute labels from full-sample drawdowns or future crash windows.",
+            "Use as an exposure-control, exclusion, or downweight overlay first; do not promote a standalone volatility timing, short-volatility, vol-arbitrage, leveraged de-risk/re-risk, or market-neutral short strategy.",
+            "Classify downside beta, realized volatility, semivariance, VaR/CVaR, drawdown/time-underwater, tail-loss contribution, stress beta, sector-neutral volatility, stale quote, suspension, VCM/CAS, and liquidity-shock regimes before ranking signals.",
+            "Ablate downside-risk signals versus low-vol dividend, quality growth low-volatility, lottery-stock exclusion, Amihud liquidity risk, financial distress, quality/value/yield, momentum, event, and ETF overlays on the same survivorship-safe universe.",
+            "Stress 2008/2015/2020/2022-style crash windows, volatility clustering, whipsaw de-risk/re-risk cycles, suspensions and stale prices, China policy/property shocks, forced deleveraging, HIBOR/base-rate shocks, costs, and capacity.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            LINGNAN_EXTREME_DOWNSIDE_RISK_URL,
+            SCIENCEDIRECT_HK_LOW_FREQUENCY_VOLATILITY_URL,
+            SCIENCEDIRECT_HK_VOLATILITY_EFFECT_URL,
+            HKMU_RISK_RETURN_RELATIONSHIPS_HK_URL,
+            HKEX_SECURITIES_MARKET_STATISTICS_URL,
+            HKEX_REVERSAL_EXECUTION_TRADING_MECHANISM_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_STRUCTURED_PRODUCT_WARRANT_CBBC_FLOW_RISK_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "structured_product_warrant_cbbc_flow_risk_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "structured_product_flow_risk_snapshot_overlay",
+        "research_thesis": (
+            "Test HKEX derivative-warrant and CBBC issuance, turnover, call/put or bull/bear imbalance, "
+            "maturity/strike clustering, mandatory-call-event proximity, and liquidity-provider hedging stress "
+            "as a HK-specific structured-product flow and tail-risk overlay for large-cap, tech, index, ETF, "
+            "momentum, liquidity, and event sleeves."
+        ),
+        "required_new_data": (
+            "point_in_time_derivative_warrant_cbbc_listing_issuance_expiry_underlying_and_turnover_history",
+            "call_put_bull_bear_ratio_maturity_strike_call_price_and_outstanding_notional_history",
+            "mandatory_call_event_distance_knockout_cluster_and_post_mce_underlying_return_history",
+            "structured_product_liquidity_provider_spread_quote_availability_and_hedging_stress_history",
+            "underlying_stock_turnover_short_sale_options_futures_vcm_cas_and_suspension_alignment_history",
+            "same_universe_largecap_tech_index_etf_momentum_liquidity_event_and_downside_risk_ablation_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new structured-product flow risk snapshot overlay contract before adding warrant, CBBC, MCE, or liquidity-provider fields to any existing artifact.",
+            "Use point-in-time HKEX listed structured-product data, issuance/listing/expiry timestamps, underlying mapping, turnover, call/put or bull/bear classification, call price, strike, maturity, and suspension status only; do not infer issuer hedging trades from unavailable internal books.",
+            "Use as a crowded-flow, hedging-stress, or tail-risk downweight overlay first; do not promote direct derivative-warrant, CBBC, knockout, market-making, or issuer-hedging-front-running strategies.",
+            "Classify derivative warrants versus CBBCs, issuer, underlying, call/put or bull/bear type, strike/call price, maturity, outstanding issue size where available, turnover share, MCE distance, post-MCE window, liquidity-provider quote availability, VCM/CAS, and underlying suspension before ranking signals.",
+            "Ablate structured-product flow versus downside-risk volatility, lottery-stock exclusion, liquidity risk, short-selling pressure, dual-listed reversal, ETF product-quality, momentum, and large-cap tech / index sleeves on the same survivorship-safe universe.",
+            "Stress issuer/product delisting, MCE clusters, holiday and overseas-underlying gaps, exceptional price moves, liquidity-provider quote withdrawal or wide spreads, high retail turnover, Tencent/Alibaba/Meituan-style concentration, HSI/HSTECH index underlyings, stale product data, costs, and capacity.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            HKEX_STRUCTURED_PRODUCTS_OVERVIEW_URL,
+            HKEX_STRUCTURED_PRODUCTS_TRADING_INFORMATION_URL,
+            HKEX_DERIVATIVE_WARRANT_FAQ_URL,
+            HKEX_CBBC_FAQ_URL,
+            SCIENCEDIRECT_HK_DERIVATIVE_WARRANT_ISSUANCE_URL,
+            SCIENCEDIRECT_HK_DERIVATIVE_WARRANT_INTRO_EXPIRATION_URL,
+            SCIENCEDIRECT_HK_CBBC_TRADING_STRATEGY_URL,
+            IDEAS_HK_CBBC_MCE_PRICE_VOLUME_EFFECTS_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_INDEX_DERIVATIVES_FUTURES_OPTIONS_SENTIMENT_BASIS_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "index_derivatives_futures_options_sentiment_basis_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "index_derivatives_sentiment_basis_snapshot_overlay",
+        "research_thesis": (
+            "Test HSI, HSTECH, HSCEI, and related HKEX index futures/options basis, calendar spread, "
+            "put-call open-interest ratio, implied-volatility skew, term structure, expiry-roll, and lead-lag "
+            "signals as a HK index sentiment and regime overlay for ETF rotation, large-cap, momentum, "
+            "downside-risk, macro, and structured-product sleeves."
+        ),
+        "required_new_data": (
+            "point_in_time_hsi_hstech_hscei_futures_options_price_volume_open_interest_basis_and_put_call_history",
+            "options_implied_volatility_skew_term_structure_futures_basis_calendar_spread_and_expiry_roll_history",
+            "spot_futures_options_lead_lag_price_discovery_basis_mispricing_and_parity_history",
+            "same_universe_index_etf_largecap_momentum_volatility_structured_product_and_macro_ablation_history",
+            "expiry_week_roll_holiday_night_session_margin_position_limit_and_liquidity_stress_history",
+            "underlying_index_constituent_etf_tracking_cash_close_futures_close_and_fx_alignment_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new index-derivatives sentiment/basis snapshot overlay contract before adding futures, options, basis, put-call, open-interest, skew, or expiry-roll fields to any existing artifact.",
+            "Use point-in-time HKEX futures/options prices, volume, open interest, contract metadata, expiry calendar, night-session, index/ETF close alignment, and official product specifications only; do not use future settlement or post-expiry labels at the rebalance date.",
+            "Use as an index sentiment, hedging-demand, regime, or risk-budget overlay first; do not promote a direct futures, options, spread, volatility, margin, or leverage trading strategy.",
+            "Classify HSI, HSTECH, HSCEI, mini contracts, options-on-futures, contract month, calendar spread, basis, put-call ratio, open-interest concentration, implied volatility, skew, term structure, expiry week, roll window, night-session gap, margin/position-limit, and cash/futures close alignment before ranking signals.",
+            "Ablate index-derivatives signals versus ETF regime rotation, HSI/HSTECH large-cap momentum, downside-risk volatility, structured-product flow, macro-liquidity, AH premium, and Stock Connect flow overlays on the same survivorship-safe universe.",
+            "Stress Asian crisis-style option-pricing regimes, 2008/2015/2020/2022 volatility shocks, expiry-week pinning, calendar-spread breakdown, night-session gaps, holiday mismatch, margin/position-limit changes, futures basis squeezes, cash-futures close mismatch, costs, and capacity.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            HKEX_FUTURES_OPTIONS_PRICES_URL,
+            HKEX_HSI_FUTURES_OPTIONS_INFO_SHEET_URL,
+            HSI_OPTIONS_PUT_CALL_CONTRARIAN_BLOG_URL,
+            HKMU_HSI_FUTURES_OPTIONS_MISPRICING_URL,
+            SCIENCEDIRECT_HSI_OPTIONS_GARCH_PRICING_URL,
+            SCIENCEDIRECT_HSI_FUTURES_ELECTRONIC_TRADING_URL,
+            SCIENCEDIRECT_HSI_SPOT_FUTURES_OPTIONS_LEAD_LAG_URL,
+            IDEAS_HSI_INDEX_FUTURES_PRICE_DISCOVERY_URL,
+            HKUST_HSI_FUTURES_OPTIONS_VOLATILITY_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_VCM_CAS_MICROSTRUCTURE_SHOCK_RISK_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "vcm_cas_microstructure_shock_risk_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "microstructure_shock_risk_snapshot_overlay",
+        "research_thesis": (
+            "Test HKEX securities/derivatives VCM triggers, cooling-off price bands, POS/CAS auction price "
+            "limits, closing-auction reference prices, and order-imbalance / volatility-interruption context "
+            "as a HK market-microstructure shock and execution-risk overlay for momentum, event, ETF, "
+            "liquidity, downside-risk, structured-product, and index-derivatives sleeves."
+        ),
+        "required_new_data": (
+            "point_in_time_vcm_security_eligibility_trigger_cooling_off_price_band_and_cas_price_limit_history",
+            "auction_session_pos_cas_reference_price_order_imbalance_close_auction_and_volatility_interruption_history",
+            "vcm_trigger_direction_magnitude_reversion_continuation_liquidity_spread_and_depth_history",
+            "derivatives_vcm_futures_contract_cooling_off_night_session_and_cash_market_alignment_history",
+            "same_universe_liquidity_volatility_derivatives_structured_product_momentum_event_and_execution_ablation_history",
+            "broker_order_preview_session_routing_vcm_cas_rejection_price_band_and_stale_quote_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new microstructure shock risk snapshot overlay contract before adding VCM, CAS, auction, cooling-off, price-band, or order-imbalance fields to any existing artifact.",
+            "Use point-in-time HKEX VCM securities list, trigger timestamp, reference price, cooling-off band, POS/CAS reference price, auction-session status, derivatives VCM contract coverage, and official trading-mechanism rules only; do not label reversals or continuations using future intraday outcomes.",
+            "Use as an execution-risk, microstructure-shock, or position-sizing overlay first; do not promote a high-frequency VCM trigger, auction-sniping, market-making, latency, or order-book trading strategy.",
+            "Classify VCM eligibility, large/mid/small-cap threshold, trigger direction and magnitude, cooling-off window, price band, POS/CAS phase, reference price, auction imbalance where available, derivatives VCM contract, night-session gap, VCM/CAS order rejection, and stale quote status before ranking signals.",
+            "Ablate VCM/CAS shock signals versus Amihud liquidity, downside-risk volatility, index derivatives, structured-product flow, momentum, event, ETF product-quality, and execution-capacity overlays on the same survivorship-safe universe.",
+            "Stress flash-crash-like moves, fat-finger/order-error windows, derivatives-cash interconnected shocks, closing-auction concentration, severe-weather and holiday mismatch, Southbound concentration, VCM/CAS price-band order rejections, stale quotes, spread widening, costs, and capacity.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            HKEX_VCM_FAQ_URL,
+            HKEX_VCM_ENHANCEMENTS_INITIATIVE_URL,
+            HKEX_VCM_CAS_CONSULTATION_CONCLUSIONS_URL,
+            HKEX_VCM_SECURITIES_MARKET_ROLLOUT_URL,
+            HKEX_REVERSAL_EXECUTION_TRADING_MECHANISM_URL,
+            SSRN_HKIMR_VCM_EVIDENCE_HK_URL,
+            HKU_MARKET_STRUCTURE_RETURN_VOLATILITY_HK_URL,
+            SAGE_HSI_FUTURES_SPOT_RESILIENCY_HK_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_REIT_DIVIDEND_SPREAD_RATE_SENSITIVITY_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "reit_dividend_spread_rate_sensitivity_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "reit_rate_income_snapshot_overlay",
+        "research_thesis": (
+            "Test HK-listed REIT dividend yield, distribution stability, gearing, property-sector mix, rental "
+            "growth, NAV / GAV, HIBOR / base-rate sensitivity, and yield-spread regimes as a low-turnover "
+            "income and rate-risk overlay for dividend, quality-yield, REIT ETF, macro, and defensive "
+            "rotation sleeves."
+        ),
+        "required_new_data": (
+            "point_in_time_hk_reit_universe_distribution_nav_gav_leverage_and_property_sector_history",
+            "reit_dividend_yield_hibor_base_rate_bond_yield_spread_and_rental_growth_expectation_history",
+            "reit_distribution_policy_payout_currency_tax_fee_and_corporate_action_adjustment_history",
+            "reit_property_sector_occupancy_rental_reversion_gearing_refinancing_and_debt_maturity_history",
+            "same_universe_reit_vs_property_dividend_quality_macro_rate_and_etf_ablation_history",
+            "broker_reit_product_permission_lot_size_spread_liquidity_stamp_duty_and_order_preview_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new REIT income / rate-risk snapshot overlay contract before adding REIT, distribution, NAV, gearing, rental, HIBOR, or yield-spread fields to any existing artifact.",
+            "Use official HKEX-listed REIT universe, SFC REIT Code / product records, point-in-time distributions, NAV / GAV, gearing, occupancy, property-sector mix, and HKD rate data only; do not use future distribution cuts or refinancing outcomes at the rebalance date.",
+            "Use as a low-turnover income, rate-risk, or defensive allocation overlay first; do not promote a leveraged REIT carry, margin, property-developer proxy, or dividend-capture strategy.",
+            "Classify REIT issuer, property sector, distribution currency and ex-date, payout stability, NAV discount/premium, gearing, debt maturity, refinancing spread, rental reversion, occupancy, sponsor/manager changes, HIBOR / base-rate regime, yield spread, liquidity, lot size, and broker product-permission status before ranking signals.",
+            "Ablate REIT dividend-spread signals versus low-vol dividend, shareholder-yield, FCF quality, macro-rate sensitivity, ETF rotation, property-sector exposure, and downside-risk volatility overlays on the same survivorship-safe universe.",
+            "Stress 2008/2020/2022-style property and rate-shock windows, HKD peg / HIBOR spikes, distribution cuts, refinancing walls, sponsor transactions, NAV markdowns, capital raisings, rights issues, low liquidity, spread widening, stamp duty / fee changes, and capacity.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            HKEX_REIT_PRODUCTS_URL,
+            HKEX_REIT_SECURITIES_PRICE_LIST_URL,
+            HKEX_REIT_FAQ_URL,
+            SFC_REIT_OVERVIEW_URL,
+            SFC_REIT_CODE_URL,
+            HSI_REIT_INDEX_FACTSHEET_URL,
+            HSI_REIT_INDEX_METHODOLOGY_URL,
+            HKMA_BASE_RATE_URL,
+            HKAB_HKD_INTEREST_SETTLEMENT_RATES_URL,
+            SCIENCEDIRECT_PACIFIC_RIM_REIT_RATE_SENSITIVITY_URL,
+            HKU_REIT_RENTAL_GROWTH_RETURN_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_REGULATORY_ENFORCEMENT_DISCIPLINARY_RISK_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "regulatory_enforcement_disciplinary_risk_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "regulatory_event_risk_snapshot_overlay",
+        "research_thesis": (
+            "Test HKEX disciplinary sanctions, enforcement bulletins, SFC enforcement actions, Market "
+            "Misconduct Tribunal outcomes, restriction notices, false-disclosure cases, director "
+            "unsuitability statements, and remedial-action evidence as a governance, disclosure, and "
+            "market-misconduct risk overlay for quality, value, yield, event, liquidity, and small-cap sleeves."
+        ),
+        "required_new_data": (
+            "point_in_time_hkex_disciplinary_sanction_enforcement_bulletin_and_remedial_action_history",
+            "sfc_enforcement_mmt_restriction_notice_false_disclosure_and_market_misconduct_history",
+            "issuer_director_senior_management_sanction_type_training_statement_follow_on_action_and_recurrence_history",
+            "regulatory_event_publication_timestamp_trading_halt_suspension_resumption_and_liquidity_history",
+            "same_universe_governance_audit_opinion_connected_transaction_concentration_and_liquidity_ablation_history",
+            "broker_order_preview_halt_suspension_short_sale_liquidity_price_gap_and_news_event_stress_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new regulatory-event risk snapshot overlay contract before adding HKEX/SFC enforcement, sanctions, MMT, restriction-notice, or misconduct fields to any existing artifact.",
+            "Use only public HKEX disciplinary sanctions / enforcement materials, SFC enforcement releases, MMT outcomes, and official issuer disclosures after their publication timestamps; do not use rumours, non-public investigations, leaked information, or future case outcomes.",
+            "Use as a governance, disclosure, compliance, or market-misconduct exclusion / downweight overlay first; do not promote an event-chasing, litigation-arbitrage, rumour-trading, or short-selling strategy.",
+            "Classify issuer, director / senior-management involvement, sanction type, censure, statement of prejudice to investors' interests, director-unsuitability statement, follow-on action, remedial training, disclosure breach, false / misleading information, market misconduct, restriction notice, trading halt, suspension / resumption, recurrence, and liquidity impact before ranking signals.",
+            "Ablate regulatory-enforcement signals versus connected-transaction governance risk, audit-opinion suspension risk, shareholding concentration, financial distress, analyst dispersion, lottery-stock exclusion, Amihud liquidity, and low-size overlays on the same survivorship-safe universe.",
+            "Stress late-publication, bilingual-title mismatch, issuer-code reuse, delisted issuers, trading halts, suspensions, resumption gaps, short-sale ineligibility, thin liquidity, ramp-and-dump clusters, policy enforcement cycles, false positives from minor technical breaches, costs, and capacity.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            HKEX_DISCIPLINARY_ENFORCEMENT_OVERVIEW_URL,
+            HKEX_DISCIPLINARY_SANCTIONS_URL,
+            HKEX_DISCIPLINARY_SANCTIONS_2001_2017_URL,
+            HKEX_LISTING_ENFORCEMENT_POLICY_URL,
+            SFC_ENFORCEMENT_URL,
+            SFC_DISCIPLINARY_PROCEEDINGS_URL,
+            SFC_MARKET_MISCONDUCT_MAGIC_DISCLOSURE_URL,
+            SSRN_HK_GOVERNANCE_SCANDALS_RETURNS_URL,
+            SCIENCEDIRECT_PCHIP_CORPORATE_MALFEASANCE_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_MARGIN_FINANCING_COLLATERAL_FORCED_SELLING_RISK_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "margin_financing_collateral_forced_selling_risk_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "margin_collateral_risk_snapshot_overlay",
+        "research_thesis": (
+            "Test securities margin financing, broker collateral concentration, marginable-security "
+            "eligibility, haircut / loan-to-value changes, controlling-shareholder share pledges, margin-call "
+            "pressure, and forced-selling liquidity gaps as a HK deleveraging and collateral-risk overlay for "
+            "low-size, liquidity, lottery, governance, distress, momentum, value, and event sleeves."
+        ),
+        "required_new_data": (
+            "point_in_time_marginable_security_broker_haircut_ltv_and_collateral_concentration_history",
+            "sfc_smf_guideline_broker_margin_loan_top_collateral_concentration_and_elc_stress_history",
+            "share_pledge_disclosure_margin_call_forced_selling_price_gap_and_liquidity_history",
+            "margin_financing_eligibility_change_haircut_cut_ltv_reduction_and_broker_notice_history",
+            "same_universe_liquidity_concentration_short_selling_distress_governance_and_lottery_ablation_history",
+            "broker_order_preview_margin_permission_lot_size_halt_suspension_and_forced_liquidation_stress_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new margin-collateral risk snapshot overlay contract before adding margin-financing, haircut, LTV, collateral-concentration, share-pledge, margin-call, or forced-selling fields to any existing artifact.",
+            "Use point-in-time public SFC SMF guidelines / circulars / review evidence, broker marginable-security lists or approved vendor data, official disclosure records, and post-publication issuer announcements only; do not use broker-internal client loan books or non-public margin-call information.",
+            "Use as a deleveraging, collateral concentration, liquidity-gap, or forced-selling risk downweight / exclusion overlay first; do not promote a leveraged margin-trading, forced-liquidation front-running, rumour-trading, or short-selling strategy.",
+            "Classify marginable status, haircut / LTV, broker concentration limit, ELC stress benchmark, top-collateral concentration where available, controlling-shareholder pledge disclosure, pledgee / lender type, margin-call trigger proxy, forced-sale announcement, trading halt, suspension / resumption, VCM/CAS, liquidity, short-sale eligibility, and broker product-permission status before ranking signals.",
+            "Ablate margin-collateral signals versus Amihud liquidity, shareholding concentration, short-selling pressure, financial distress, regulatory enforcement, lottery-stock exclusion, low-size, and connected-transaction governance overlays on the same survivorship-safe universe.",
+            "Stress small-cap crash, margin-haircut withdrawal, broker collateral-concentration breach, re-pledging / pooling-risk shock, controlling-shareholder forced sale, trading suspension, resumption gap, low liquidity, spread widening, VCM/CAS rejection, policy-cycle change, costs, and capacity.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            SFC_SECURITIES_MARGIN_FINANCE_TOPIC_URL,
+            SFC_SMF_GUIDELINES_FAQ_URL,
+            SFC_MARGIN_LENDING_POLICY_CONTROL_REQUIREMENTS_URL,
+            SFC_SMF_PRUDENT_RISK_MANAGEMENT_CIRCULAR_URL,
+            SFC_SMF_REVIEW_REPORT_URL,
+            SFC_POOLING_RISK_MARGIN_ACCOUNTS_URL,
+            SFC_DISCLOSURE_OF_INTERESTS_PART_XV_URL,
+            HKEX_DISCLOSURE_OF_INTERESTS_SEARCH_URL,
+            SCIENCEDIRECT_CONTROLLING_SHAREHOLDER_SHARE_PLEDGE_CRASH_RISK_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_LIQUID_LARGECAP_WEEKLY_REVERSAL_COST_AWARE_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "liquid_largecap_weekly_reversal_cost_aware_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "cost_aware_reversal_snapshot_overlay",
+        "research_thesis": (
+            "Test whether HK weekly extreme-return reversal / continuance evidence can be converted into a "
+            "low-turnover, liquid-large-cap, execution-aware overlay that only downweights crowded extremes "
+            "or cautiously mean-reverts recent large moves when fee, spread, slippage, VCM/CAS, and "
+            "suspension controls leave positive net excess return."
+        ),
+        "required_new_data": (
+            "point_in_time_weekly_extreme_return_reversal_continuance_liquidity_and_volume_history",
+            "largecap_liquid_universe_spread_fee_slippage_vcm_cas_and_bid_ask_bounce_history",
+            "winner_loser_decile_monthly_weekly_reversal_continuance_and_momentum_interaction_history",
+            "same_universe_momentum_dual_listing_liquidity_volatility_lottery_and_event_ablation_history",
+            "turnover_capacity_board_lot_odd_lot_suspension_resumption_and_order_preview_history",
+            "regime_crash_policy_shock_holiday_and_stock_connect_mismatch_stress_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new cost-aware reversal snapshot overlay contract before adding weekly reversal, extreme-return, winner/loser-decile, or overreaction fields to any existing artifact.",
+            "Use point-in-time weekly returns, adjusted corporate actions, liquidity, spread, fees, VCM/CAS, suspension / resumption, and benchmark data only; do not select reversal windows or thresholds from full-sample returns.",
+            "Use as a low-turnover liquid-large-cap overlay first; do not promote an intraday, high-turnover, penny-stock, microcap, opening-gap, or pure contrarian trading strategy without execution evidence.",
+            "Classify recent extreme move, weekly loser/winner decile, continuance versus reversal regime, liquidity, turnover, spread, board lot, odd lot, VCM/CAS, suspension, short-sale eligibility, dual-listing alignment, Stock Connect holiday mismatch, and transaction-cost estimate before ranking signals.",
+            "Ablate weekly reversal versus liquid momentum, residual momentum, dual-listed reversal, downside-risk volatility, Amihud liquidity, lottery-stock exclusion, event overlays, and ETF rotation on the same survivorship-safe universe.",
+            "Stress transaction-cost dominance, bid-ask bounce, stale quotes, low-turnover names, post-crash continuation, China policy shocks, property/tech drawdowns, 2008/2015/2020/2022 volatility windows, holidays, suspensions, VCM/CAS rejections, and capacity crowding.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            IDEAS_HK_STOCK_RETURN_REVERSAL_CONTINUANCE_URL,
+            TANDF_HK_SHORT_TERM_OVERREACTION_URL,
+            HKMU_HK_STOCK_MARKET_OVERREACT_URL,
+            SCIENCEDIRECT_HK_OVERREACTION_URL,
+            DOAJ_HK_SHORT_TERM_MOMENTUM_EFFECT_URL,
+            HKBU_HSI_FUTURES_INTRADAY_REVERSAL_URL,
+            HKEX_REVERSAL_EXECUTION_TRADING_MECHANISM_URL,
+            HKEX_REVERSAL_EXECUTION_TRANSACTION_FEES_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_US_ADR_HK_SECONDARY_LISTING_LEAD_LAG_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "us_adr_hk_secondary_listing_lead_lag_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "cross_market_lead_lag_snapshot_overlay",
+        "research_thesis": (
+            "Test whether US ADR overnight / day-session moves, HK secondary-listing close alignment, ADR "
+            "ratio, USD/HKD FX, after-hours / pre-market context, and cross-market price-discovery evidence "
+            "can be used as a low-turnover confirmation or de-risking overlay for HK-listed China tech, "
+            "large-cap momentum, ETF rotation, weekly reversal, and event sleeves."
+        ),
+        "required_new_data": (
+            "point_in_time_us_adr_hk_secondary_listing_mapping_adr_ratio_fx_close_and_corporate_action_history",
+            "adr_overnight_us_day_hk_open_lead_lag_premarket_afterhours_and_timezone_alignment_history",
+            "secondary_listing_primary_exchange_status_company_information_sheet_and_conversion_constraint_history",
+            "same_universe_secondary_listing_momentum_reversal_ah_premium_etf_and_execution_ablation_history",
+            "cross_market_holiday_delisting_risk_fx_rate_adr_fee_and_settlement_mismatch_history",
+            "broker_permission_order_preview_lot_size_spread_vcm_cas_suspension_and_halt_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new cross-market lead-lag snapshot overlay contract before adding ADR, secondary-listing, cross-market close, FX, pre-market, after-hours, or conversion fields to any existing artifact.",
+            "Use point-in-time HKEX secondary-listing records, issuer company information sheets, ADR ratio / depository data, adjusted HK and US closes, USD/HKD FX, corporate actions, and public market timestamps only; do not use future HK open returns or unavailable conversion inventory at the rebalance date.",
+            "Use as a confirmation, de-risking, or execution-timing overlay first; do not promote a cross-market arbitrage, conversion-arbitrage, pair-trading, short-selling, margin, or after-hours trading strategy.",
+            "Classify primary exchange, secondary versus dual-primary status, ADR ratio, fungibility / conversion constraint, US close, US after-hours, HK pre-open, HK open, FX source, corporate action, holiday mismatch, delisting risk, issuer disclosure, spread, lot size, VCM/CAS, suspension / halt, and broker permission before ranking signals.",
+            "Ablate ADR/HK lead-lag signals versus liquid momentum, weekly reversal, dually traded reversal, AH premium, Stock Connect flow, ETF rotation, index derivatives, downside-risk volatility, and event overlays on the same survivorship-safe universe.",
+            "Stress US-China policy shocks, ADR delisting / HFCAA-style windows, secondary-listing migration, conversion suspension, US holiday / HK holiday mismatches, FX shocks, pre-market gaps, low HK liquidity, HK open slippage, VCM/CAS rejections, stale quotes, costs, and capacity.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            HKEX_SECONDARY_LISTINGS_URL,
+            HKEX_OVERSEAS_ISSUERS_INVESTOR_RISK_GUIDE_URL,
+            SCIENCEDIRECT_CHINA_CROSSLISTED_PRICE_DISCOVERY_URL,
+            SCIENCEDIRECT_CHINESE_ADR_DAY_NIGHT_RETURNS_URL,
+            SSRN_ASYNCHRONOUS_ADR_OVERNIGHT_INTRADAY_URL,
+            DOAJ_CHINA_HK_NY_DUAL_LISTING_LAW_ONE_PRICE_URL,
+            SCIENCEDIRECT_HK_DUALLY_TRADED_CONTRARIAN_URL,
+            SCIENCEDIRECT_HK_ADR_EX_DIVIDEND_ADJUSTMENT_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_SMART_BETA_FACTOR_REGIME_ROTATION_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "smart_beta_factor_regime_rotation_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "factor_regime_rotation_snapshot_overlay",
+        "research_thesis": (
+            "Test whether HK factor sleeves can be dynamically tilted across value, dividend/yield, low "
+            "volatility, quality, momentum, and size exposures using market-cycle, volatility, investor "
+            "sentiment, and macro regime evidence, while keeping the overlay low-turnover, long-only, "
+            "cost-aware, and bounded by the existing <=30% drawdown live-enable policy."
+        ),
+        "required_new_data": (
+            "point_in_time_hk_smart_beta_factor_index_constituent_score_and_return_history",
+            "factor_regime_market_cycle_investor_sentiment_volatility_and_macro_state_history",
+            "hsi_hsci_factor_index_methodology_weight_cap_buffer_and_rebalance_history",
+            "same_universe_factor_regime_rotation_factor_mix_quality_yield_momentum_and_etf_ablation_history",
+            "factor_crowding_correlation_breakdown_turnover_cost_capacity_and_sector_concentration_history",
+            "walk_forward_regime_classifier_stability_oos_fold_drawdown_and_holdout_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new factor-regime rotation snapshot overlay contract before adding regime-state, factor-timing, or dynamic factor-weight fields to any existing artifact.",
+            "Use point-in-time factor index methodology versions, constituents, factor scores, rebalance buffers, weight caps, volatility / sentiment / macro-state labels, and benchmark returns only; do not train regime labels from full-sample future factor returns.",
+            "Use as a low-turnover factor tilt or de-risking overlay first; do not promote a black-box market-timing, high-turnover factor-chasing, leveraged, short, derivative, or intraday strategy.",
+            "Classify market cycle, volatility sentiment, macro/liquidity regime, factor sleeve, factor index source, constituent eligibility, sector concentration, rebalance buffer, turnover, capacity, and broker order-preview status before ranking factor allocations.",
+            "Ablate regime-tilted factor weights versus static factor mix, QVLM risk parity, quality-yield, quality-growth low-volatility, residual/liquid momentum, value-quality, ETF rotation, and cash/02800 defensive baselines on the same survivorship-safe universe.",
+            "Stress regime misclassification, whipsaw factor rotation, momentum crash, value trap, dividend trap, low-volatility crowding, factor correlation breakdown, sector concentration, Southbound eligibility changes, HK cost/slippage, VCM/CAS, suspension, and capacity.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            HSI_FACTOR_INDEXES_SOLUTIONS_URL,
+            HSI_SMART_BETA_BROCHURE_URL,
+            HSI_SMART_BETA_PRESS_RELEASE_URL,
+            HSI_SMART_BETA_RESEARCH_PAPER_URL,
+            SP_HK_SMART_BETA_STRATEGIES_RESEARCH_URL,
+            SSRN_HK_SMART_BETA_STRATEGIES_URL,
+            SCIENCEDIRECT_SMART_BETA_REGIME_SWITCHING_URL,
+            HSI_LOW_SIZE_INDEX_METHODOLOGY_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_ESG_DOWNSIDE_RISK_QUALITY_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "esg_downside_risk_quality_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "esg_risk_quality_snapshot_overlay",
+        "research_thesis": (
+            "Test whether HK ESG risk-rating, UNGC, controversial-product, sustainability-data quality, "
+            "and ESG tilt evidence can reduce downside risk or volatility-spike exposure when applied as a "
+            "low-turnover quality / governance / de-risking overlay to existing HK quality, yield, low-volatility, "
+            "smart-beta, ETF, and event sleeves. It must improve drawdown control rather than become ESG label-chasing."
+        ),
+        "required_new_data": (
+            "point_in_time_esg_risk_rating_ungc_controversial_product_and_provider_version_history",
+            "hsi_esg_enhanced_constituent_exclusion_tilt_factor_industry_weight_cap_and_rebalance_history",
+            "esg_data_provider_coverage_missing_rating_name_change_and_methodology_change_history",
+            "esg_downside_risk_volatility_spike_news_sentiment_and_institutional_flow_history",
+            "same_universe_esg_quality_yield_low_vol_governance_smart_beta_and_etf_ablation_history",
+            "greenwashing_controversy_reversal_sector_concentration_liquidity_cost_and_capacity_stress_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new ESG downside-risk quality snapshot overlay contract before adding ESG ratings, UNGC, controversy, tilt-factor, or provider-version fields to any existing artifact.",
+            "Use point-in-time HSI ESG methodology versions, ESG Risk Rating history, UNGC ratings, controversial-product involvement, provider coverage, missing-rating handling, constituent exclusions, tilt factors, industry-weight caps, and rebalance dates only; do not use later ESG controversies or post-review labels at the rebalance date.",
+            "Use as a low-turnover downside-risk, quality, governance, or de-risking overlay first; do not promote ESG label-chasing, greenwashing-sensitive marketing, high-turnover controversy trading, short-selling, derivative, or standalone ESG timing strategies.",
+            "Classify ESG risk rating, UNGC non-compliance, controversial-product involvement, missing rating, provider/version source, Z-score / tilt factor, exclusion buffer, industry cap, sector concentration, news-sentiment context, institutional flow where available, liquidity, and broker order-preview status before ranking signals.",
+            "Ablate ESG downside-risk signals versus quality-yield, quality-growth low-volatility, regulatory enforcement, connected-transaction governance, smart-beta factor-regime, downside-risk volatility, ETF rotation, and cash/02800 defensive baselines on the same survivorship-safe universe.",
+            "Stress volatility spikes, China policy/property drawdowns, ESG data-provider methodology changes, missing coverage, rating lag, greenwashing / controversy reversals, sector and financials concentration, crowded defensive tilts, Southbound eligibility changes, HK cost/slippage, VCM/CAS, suspension, and capacity.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            HSI_ESG_ENHANCED_INDEX_FACTSHEET_URL,
+            HSI_ESG_ENHANCED_INDEX_METHODOLOGY_URL,
+            HSI_ESG_INDEX_PAGE_URL,
+            HSI_ESG_PERFORMANCE_ASSESSMENT_URL,
+            MDPI_HSI_ESG_DOWNSIDE_RISK_URL,
+            SSRN_HKIMR_ESG_RISK_RETURN_URL,
+        ),
+    },
+)
+
+
+@dataclass(frozen=True)
+class SnapshotPromotionCandidate:
+    profile: str
+    priority: int
+    promotion_bucket: str
+    snapshot_type: str
+    style_family: str
+    research_thesis: str
+    production_data_dependencies: tuple[str, ...]
+    research_evidence_urls: tuple[str, ...]
+    profile_specific_next_evidence: tuple[str, ...]
+
+
+_CANDIDATES: dict[str, SnapshotPromotionCandidate] = {
+    HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE: SnapshotPromotionCandidate(
+        profile=HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,
+        priority=1,
+        promotion_bucket="first_snapshot_candidate",
+        snapshot_type="factor_snapshot",
+        style_family="defensive_yield_quality",
+        research_thesis="Low-volatility plus sustainable dividend quality is a natural HK low-turnover style.",
+        production_data_dependencies=(
+            "dividend_history",
+            "forecast_dividend_yield_estimate_history",
+            "forecast_dividend_yield_vs_trailing_yield_benchmark_history",
+            "southbound_eligibility_history",
+            "three_year_cash_dividend_record",
+            "earnings_positive_flags",
+            "payout_ratio",
+            "large_mid_cap_market_value_shortlist",
+            "one_year_high_volatility_exclusion",
+            "high_dividend_financial_soundness_screen",
+            "sp_access_hk_low_vol_high_div_methodology",
+            "hsi_vs_sp_low_vol_high_div_constituent_and_capping_history",
+            "price_crash_bottom_decile_screen",
+            "realized_volatility_beta_drawdown",
+            "corporate_actions_and_suspensions",
+        ),
+        research_evidence_urls=(
+            "https://www.spglobal.com/market-intelligence/en/news-insights/research/forecast-dividend-yield-strategy-outperforms-hong-kong-sar",
+            "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/factsheets/hslvie.pdf",
+            "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/factsheets/hshdyie.pdf",
+            HSI_SCHK_HIGH_DIV_LOW_VOL_INDEX_URL,
+            HSI_SCHK_HIGH_DIV_LOW_VOL_FACTSHEET_URL,
+            HSI_SCHK_HIGH_DIV_LOW_VOL_METHODOLOGY_URL,
+            HSI_SCHK_HIGH_DIV_SCREENED_INDEX_URL,
+            HSI_SCHK_HIGH_DIV_SCREENED_FACTSHEET_URL,
+            HSI_SCHK_HIGH_DIV_SCREENED_METHODOLOGY_URL,
+            HSI_HIGH_DIVIDEND_RESEARCH_PAPER_URL,
+            SP_ACCESS_HK_LOW_VOL_HIGH_DIV_URL,
+            SP_LOW_VOL_HIGH_DIV_METHODOLOGY_URL,
+            SP_ETF_CONNECT_HK_US_LOW_VOL_HIGH_DIV_URL,
+            "https://www.indexologyblog.com/2017/10/19/does-low-volatility-enhance-dividend-investing-in-the-hong-kong-market/",
+            "https://www.spglobal.com/spdji/en/education/article/navigating-dividend-yield-in-the-hong-kong-market-the-sp-access-hong-kong-low-volatility-high-dividend-index",
+        ),
+        profile_specific_next_evidence=(
+            "Run low-vol dividend versus shareholder-yield versus FCF ablation on the same survivorship-safe universe.",
+            "Ablate forecast dividend yield versus trailing dividend yield and require point-in-time estimate history before accepting forward yield as a live signal.",
+            "Reconcile HSI HSHYLV/HSSCHYS style signals against S&P Access HK Low Volatility High Dividend methodology and constituent history.",
+            "Audit Southbound eligibility, three-year cash-dividend records, payout-ratio bounds, and price-crash screens.",
+            "Audit large/mid-cap shortlist, one-year high-volatility exclusion, and financial-soundness screens.",
+            "Validate dividend cash treatment against broker reporting.",
+            "Run yield-trap and sector-cap stress tests across financials, utilities, property, and telecom.",
+        ),
+    ),
+    HK_SHAREHOLDER_YIELD_QUALITY_PROFILE: SnapshotPromotionCandidate(
+        profile=HK_SHAREHOLDER_YIELD_QUALITY_PROFILE,
+        priority=2,
+        promotion_bucket="first_snapshot_candidate",
+        snapshot_type="factor_snapshot",
+        style_family="shareholder_yield_quality",
+        research_thesis="Actual buybacks are increasingly observable in HK; combine buyback yield with dividends, FCF quality, and dilution controls.",
+        production_data_dependencies=(
+            "hkex_share_repurchase_reports",
+            "hkex_next_day_share_repurchase_returns",
+            "dividend_history",
+            "forecast_dividend_yield_estimate_history",
+            "forecast_dividend_yield_vs_trailing_yield_benchmark_history",
+            "share_count_and_treasury_share_history",
+            "treasury_share_retention_cancellation_and_resale_history",
+            "share_buyback_mandate_and_program_waiver_history",
+            "free_cash_flow_and_roe",
+            "debt_and_dilution_controls",
+            "post_buyback_new_issue_convertible_and_public_float_review",
+        ),
+        research_evidence_urls=(
+            "https://www.hkex.com.hk/-/media/HKEX-Market/Listing/Rules-and-Guidance/Other-Resources/Listed-Issuers/LIR-Newsletter/newsletter_202506.pdf",
+            "https://www3.hkexnews.hk/reports/sharerepur/sbn.asp",
+            HKEX_REPURCHASE_TREASURY_SHARES_RULEBOOK_URL,
+            HKEX_SHARE_REPURCHASE_RULE_SECTION_URL,
+            HKEX_TREASURY_SHARES_CONCLUSIONS_URL,
+            HKEX_SHARE_REPURCHASE_ELEARNING_URL,
+            "https://www.spglobal.com/market-intelligence/en/news-insights/research/forecast-dividend-yield-strategy-outperforms-hong-kong-sar",
+            "https://www.spglobal.com/spdji/en/indices/dividends-factors/sp-access-hong-kong-dividend-free-cash-flow-index/",
+        ),
+        profile_specific_next_evidence=(
+            "Run low-vol dividend versus shareholder-yield versus FCF ablation on the same survivorship-safe universe.",
+            "Ablate forecast dividend yield versus trailing dividend yield and reject stale estimate revisions or sector-concentrated forward-yield exposure.",
+            "Reconcile buyback yield against actual share-count reduction, treasury-share resale, and dilution.",
+            "Audit HKEX next-day share-repurchase returns, treasury-share retention/cancellation, and CCASS/resale treatment.",
+            "Stress treasury-share moratorium, results blackout, connected-person restrictions, and post-buyback financing windows.",
+            "Audit HKEX disclosure ingestion latency and symbol mapping before any live enablement.",
+        ),
+    ),
+    HK_FREE_CASH_FLOW_QUALITY_PROFILE: SnapshotPromotionCandidate(
+        profile=HK_FREE_CASH_FLOW_QUALITY_PROFILE,
+        priority=3,
+        promotion_bucket="first_snapshot_candidate",
+        snapshot_type="factor_snapshot",
+        style_family="free_cash_flow_quality_value",
+        research_thesis="High free-cash-flow yield with profitability and risk controls is supported by HK/Southbound index products.",
+        production_data_dependencies=(
+            "free_cash_flow_history",
+            "enterprise_value_history",
+            "fcf_formula_cash_flow_statement_lineage_history",
+            "enterprise_value_market_cap_debt_cash_fx_history",
+            "roe_and_revenue_growth",
+            "reporting_date_availability",
+            "fundamental_restatement_and_reporting_date_asof_history",
+            "fcf_sector_normalization_and_concentration_history",
+            "negative_fcf_and_financial_sector_exceptions",
+            "financial_real_estate_and_negative_fcf_exception_policy",
+        ),
+        research_evidence_urls=(
+            HSI_SCHK_FREE_CASH_FLOW_INDEX_URL,
+            HSI_SCHK_FREE_CASH_FLOW_FACTSHEET_URL,
+            HSI_SCHK_FREE_CASH_FLOW_METHODOLOGY_URL,
+            SP_ACCESS_HK_FCF_50_INDEX_URL,
+            SP_ACCESS_HK_FCF_50_METHODOLOGY_URL,
+            "https://www.spglobal.com/spdji/en/indices/dividends-factors/sp-access-hong-kong-dividend-free-cash-flow-index/",
+        ),
+        profile_specific_next_evidence=(
+            "Run low-vol dividend versus shareholder-yield versus FCF ablation on the same survivorship-safe universe.",
+            "Audit FCF formula lineage from cash-flow statement fields and EV inputs from market cap, debt, cash, and FX history.",
+            "Audit restatements and stale-fundamental handling using point-in-time reporting dates and as-of snapshots.",
+            "Validate sector normalization and concentration caps so energy or telecom FCF does not dominate unintentionally.",
+            "Document negative-FCF and financial/real-estate sector exception policy before any platform selection.",
+        ),
+    ),
+    HK_QUALITY_GROWTH_LOW_VOLATILITY_PROFILE: SnapshotPromotionCandidate(
+        profile=HK_QUALITY_GROWTH_LOW_VOLATILITY_PROFILE,
+        priority=4,
+        promotion_bucket="quality_growth_snapshot_candidate",
+        snapshot_type="factor_snapshot",
+        style_family="quality_growth_low_volatility",
+        research_thesis=(
+            "Quality growth with low-volatility controls is a natural HK defensive growth style supported by "
+            "Hang Seng and MSCI quality / minimum-volatility index evidence."
+        ),
+        production_data_dependencies=(
+            "point_in_time_revenue_earnings_roa_growth_history",
+            "roe_accruals_cash_flow_debt_history",
+            "msci_quality_roe_earnings_stability_and_leverage_history",
+            "msci_quality_descriptor_return_on_equity_earnings_variability_leverage_history",
+            "hsi_quality_growth_low_vol_score_formula_lineage",
+            "hsi_qglv_roe_accruals_cash_flow_to_debt_growth_in_roa_pb_component_history",
+            "hsi_qglv_winsorized_zscore_and_component_weight_history",
+            "hsi_qglv_negative_equity_financials_and_missing_factor_policy_history",
+            "valuation_normalization_and_negative_equity_policy",
+            "growth_signal_reporting_date_and_restatement_asof_history",
+            "cash_conversion_accruals_and_quality_trap_controls",
+            "volatility_beta_drawdown_history",
+            "minimum_volatility_optimizer_constraint_history",
+            "low_volatility_factor_beta_residual_volatility_history",
+            "hsi_low_vol_quality_screen_roe_de_epsvar_and_12mvol_history",
+            "sector_weight_cap_and_concentration_history",
+            "sector_and_southbound_eligibility_history",
+        ),
+        research_evidence_urls=(
+            HSI_QUALITY_GROWTH_LOW_VOL_FACTSHEET_URL,
+            HSI_QUALITY_GROWTH_LOW_VOL_METHODOLOGY_URL,
+            HSI_LOW_VOLATILITY_METHODOLOGY_URL,
+            HSI_FACTOR_INDEXES_URL,
+            MSCI_QUALITY_INDEXES_URL,
+            MSCI_HK_QUALITY_INDEX_URL,
+            MSCI_HK_LISTED_SOUTHBOUND_QUALITY_FACTSHEET_URL,
+            MSCI_MINIMUM_VOLATILITY_INDEXES_URL,
+            MSCI_HK_LISTED_SOUTHBOUND_MIN_VOL_FACTSHEET_URL,
+        ),
+        profile_specific_next_evidence=(
+            "Run quality-growth versus quality-only, growth-only, and low-vol-only ablation on the same universe.",
+            "Trace HSI QGLV components: ROE, accruals ratio, cash-flow-to-debt, and Growth in ROA adjusted by P/B, including winsorized z-scores and component averaging.",
+            "Reconcile HSI QGLV score lineage with MSCI quality variables: ROE, stable earnings growth, and low leverage.",
+            "Validate HSI low-volatility quality screening and minimum-volatility optimizer constraints against a simple low-vol / beta / drawdown filter.",
+            "Audit reporting-date availability, missing-factor handling, negative-equity / financials-sector normalization, and valuation normalization before backtests.",
+            "Stress test growth deceleration, valuation compression, regulation, real-estate/financial concentration, and low-volatility crowding windows.",
+        ),
+    ),
+    HK_FACTOR_MIX_QVLM_RISK_PARITY_PROFILE: SnapshotPromotionCandidate(
+        profile=HK_FACTOR_MIX_QVLM_RISK_PARITY_PROFILE,
+        priority=5,
+        promotion_bucket="factor_mix_snapshot_candidate",
+        snapshot_type="factor_snapshot",
+        style_family="quality_value_low_vol_momentum_risk_parity",
+        research_thesis=(
+            "Risk-parity QVLM can diversify quality, value, low-volatility, and momentum factor sleeves while "
+            "reducing concentration in any single crowded HK style."
+        ),
+        production_data_dependencies=(
+            "point_in_time_quality_value_momentum_low_vol_factor_history",
+            "factor_volatility_and_risk_parity_weight_history",
+            "hsi_qvlm_component_index_and_methodology_version_history",
+            "hsi_qvlm_parent_large_mid_cap_investable_universe_history",
+            "hsi_qvlm_quality_value_low_vol_momentum_component_index_return_history",
+            "hsi_risk_parity_weight_formula_and_factor_vol_estimation_history",
+            "hsi_equal_weight_factor_mix_benchmark_history",
+            "msci_hk_factor_mix_a_series_equal_weight_qvl_history",
+            "msci_hk_factor_mix_component_index_equal_weight_and_capped_methodology_history",
+            "factor_covariance_correlation_and_rebalance_window_history",
+            "factor_score_formula_lineage_and_winsorization_history",
+            "qvlm_12pct_cap_and_component_overlap_history",
+            "component_index_overlap_sector_cap_and_single_name_cap_history",
+            "factor_leg_turnover_capacity_and_crowding_history",
+            "sector_and_southbound_eligibility_history",
+            "valuation_and_fundamental_reporting_date_history",
+            "liquidity_suspension_and_corporate_action_history",
+        ),
+        research_evidence_urls=(
+            HSI_RISK_PARITY_FACTOR_MIX_QVLM_FACTSHEET_URL,
+            HSI_RISK_PARITY_FACTOR_MIX_QVLM_METHODOLOGY_URL,
+            HSI_EQUAL_WEIGHT_FACTOR_MIX_INDEX_URL,
+            HSI_FACTOR_INDEXES_URL,
+            "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/methodologies/IM_hsscsqe.pdf",
+            MSCI_FACTOR_MIX_A_SERIES_INDEXES_URL,
+            MSCI_HK_FACTOR_MIX_A_SERIES_URL,
+            MSCI_HK_FACTOR_MIX_A_SERIES_FACTSHEET_URL,
+            MSCI_FACTOR_MIX_A_SERIES_METHODOLOGY_URL,
+            MSCI_QUALITY_MIX_INDEXES_PAPER_URL,
+        ),
+        profile_specific_next_evidence=(
+            "Run QVLM risk-parity versus equal-weight factor mix and composite QVM ablation on the same universe.",
+            "Reconcile HSI QVLM parent universe, Quality/Value/Low Volatility/Momentum component-index returns, risk-parity weight, and 12% capping lineage against MSCI equal-weight Q/V/L factor-mix controls.",
+            "Audit MSCI HK Factor Mix A-Series component-index equal weighting and capped-methodology history before accepting it as the external Q/V/L benchmark.",
+            "Audit factor covariance/correlation history, component overlap, cap-induced turnover, and rebalance-window sensitivity before accepting risk-parity weights.",
+            "Audit factor-volatility history and weighting-window sensitivity before any dry-run promotion.",
+            "Stress factor crowding, factor-correlation breakdowns, momentum crashes, value traps, low-volatility reversals, and sector/single-name concentration.",
+        ),
+    ),
+    HK_CENTRAL_SOE_VALUE_QUALITY_SELECT_PROFILE: SnapshotPromotionCandidate(
+        profile=HK_CENTRAL_SOE_VALUE_QUALITY_SELECT_PROFILE,
+        priority=6,
+        promotion_bucket="policy_value_quality_candidate",
+        snapshot_type="factor_snapshot",
+        style_family="central_soe_value_quality_select",
+        research_thesis=(
+            "Southbound-eligible central-SOE factor indexes support a HK-specific policy/value sleeve, but it "
+            "must prove ownership classification, concentration, and policy-event controls before promotion."
+        ),
+        production_data_dependencies=(
+            "government_shareholder_classification_history",
+            "largest_shareholder_and_ownership_pct_history",
+            "central_soe_flag_methodology_version_history",
+            "sasac_central_soe_parent_list_effective_date_history",
+            "mof_central_financial_soe_list_effective_date_history",
+            "largest_shareholder_look_through_chain_and_source_uri_history",
+            "hsi_central_soe_value_quality_factor_index_constituent_history",
+            "hsi_factor_score_zscore_industry_standardization_history",
+            "hsi_factor_score_missing_measure_average_policy_history",
+            "hsi_40pct_factor_screening_and_buffer_rule_history",
+            "hsi_factor_index_5pct_cap_and_base_index_10pct_cap_history",
+            "quality_value_low_vol_momentum_factor_history",
+            "hkex_southbound_eligible_security_point_in_time_history",
+            "southbound_eligibility_liquidity_and_suspension_history",
+            "central_soe_largest_shareholder_source_list_effective_date_drift_history",
+            "public_float_parent_support_connected_transaction_and_dividend_policy_history",
+            "policy_event_sector_concentration_and_governance_risk_history",
+        ),
+        research_evidence_urls=(
+            HSI_SCHK_CENTRAL_SOES_FACTOR_METHODOLOGY_URL,
+            HSI_SCHK_CENTRAL_SOES_METHODOLOGY_URL,
+            HSI_SCHK_CENTRAL_SOES_FACTSHEET_URL,
+            HSI_SCHK_CENTRAL_SOES_VALUE_FACTSHEET_URL,
+            HSI_SCHK_CENTRAL_SOES_QUALITY_FACTSHEET_URL,
+            HSI_FACTOR_INDEXES_URL,
+            HKEX_STOCK_CONNECT_ELIGIBLE_SECURITIES_URL,
+            SASAC_CENTRAL_SOE_DIRECTORY_URL,
+            "https://en.sasac.gov.cn/directorynames.html",
+            MOF_CENTRAL_FINANCIAL_SOE_DIRECTORY_RULES_URL,
+        ),
+        profile_specific_next_evidence=(
+            "Audit point-in-time central-SOE largest-shareholder classification, look-through ownership chain, and SASAC/MOF list effective dates.",
+            "Reconcile HSI Central SOEs value/quality factor-index constituents, Z-score standardisation, missing-measure averaging, 40% factor screening, buffer rules, and 5%/10% capping lineage.",
+            "Audit SASAC/MOF source-list effective-date drift for central-SOE parent mergers, splits, and reclassifications before accepting largest-shareholder flags.",
+            "Run central-SOE value-quality versus broad value-quality, HSI value/quality factor indexes, and existing quality/yield profiles on one universe.",
+            "Stress SASAC/MOF reclassifications, parent restructurings, factor-screen/cap turnover spikes, sector concentration, Southbound eligibility removals, connected transactions, public-float pressure, sanctions, and dividend cuts.",
+        ),
+    ),
+    HK_RESIDUAL_MOMENTUM_QUALITY_PROFILE: SnapshotPromotionCandidate(
+        profile=HK_RESIDUAL_MOMENTUM_QUALITY_PROFILE,
+        priority=7,
+        promotion_bucket="momentum_snapshot_candidate",
+        snapshot_type="factor_snapshot",
+        style_family="residual_industry_neutral_momentum",
+        research_thesis="HK momentum exists, but a residual / industry-neutral implementation is safer than high-turnover raw price momentum.",
+        production_data_dependencies=(
+            "adjusted_price_history",
+            "point_in_time_industry_classification",
+            "market_and_industry_residual_model",
+            "momentum_6m_12m_one_month_skip_history",
+            "risk_adjusted_momentum_volatility_normalization_history",
+            "hsi_close_to_high_momentum_descriptor_history",
+            "beta_and_volatility_estimates",
+            "momentum_turnover_buffer_and_capacity_history",
+            "suspension_and_stale_price_handling",
+        ),
+        research_evidence_urls=(
+            HSI_MOMENTUM_METHODOLOGY_URL,
+            HSI_SMART_BETA_MOMENTUM_INDEX_URL,
+            HSI_MOMENTUM_RESEARCH_PAPER_URL,
+            MSCI_MOMENTUM_INDEXES_URL,
+            MSCI_HK_MOMENTUM_INDEX_URL,
+            MSCI_MOMENTUM_METHODOLOGY_URL,
+            MSCI_HK_LISTED_SOUTHBOUND_MOMENTUM_FACTSHEET_URL,
+            "https://www.hsi.com.hk/static/uploads/contents/zh_hk/dl_centre/methodologies/IM_hssbismc.pdf",
+        ),
+        profile_specific_next_evidence=(
+            "Prove residual momentum is reproducible from raw adjusted history without look-ahead bias.",
+            "Reconcile residual 12-1 momentum with MSCI-style 6/12-month one-month-skip risk-adjusted momentum and HSI close-to-high descriptors.",
+            "Audit volatility normalization, winsorization, industry neutralization, and sector/capacity concentration before platform selection.",
+            "Validate annualized turnover below the profile cap after HK stamp duty and slippage.",
+        ),
+    ),
+    HK_LIQUID_MOMENTUM_QUALITY_PROFILE: SnapshotPromotionCandidate(
+        profile=HK_LIQUID_MOMENTUM_QUALITY_PROFILE,
+        priority=8,
+        promotion_bucket="momentum_snapshot_candidate",
+        snapshot_type="feature_snapshot",
+        style_family="liquid_price_momentum_quality",
+        research_thesis="Liquid price momentum with 52-week-high proximity and trend/risk filters is a simpler HK momentum scaffold.",
+        production_data_dependencies=(
+            "adjusted_price_history",
+            "benchmark_relative_momentum",
+            "momentum_6m_12m_one_month_skip_history",
+            "risk_adjusted_momentum_volatility_normalization_history",
+            "hsi_close_to_high_momentum_descriptor_history",
+            "liquidity_and_market_cap_history",
+            "momentum_turnover_buffer_and_capacity_history",
+            "corporate_actions_and_suspensions",
+            "stale_price_detection",
+        ),
+        research_evidence_urls=(
+            HSI_MOMENTUM_METHODOLOGY_URL,
+            HSI_SMART_BETA_MOMENTUM_INDEX_URL,
+            HSI_MOMENTUM_RESEARCH_PAPER_URL,
+            MSCI_MOMENTUM_INDEXES_URL,
+            MSCI_HK_MOMENTUM_INDEX_URL,
+            MSCI_MOMENTUM_METHODOLOGY_URL,
+            MSCI_HK_LISTED_SOUTHBOUND_MOMENTUM_FACTSHEET_URL,
+            "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/methodologies/IM_hsscsqe.pdf",
+        ),
+        profile_specific_next_evidence=(
+            "Compare raw price momentum against residual momentum and composite factor variants.",
+            "Compare 52-week-high proximity, 12-1 price momentum, and MSCI-style 6/12-month one-month-skip risk-adjusted momentum.",
+            "Confirm hold buffers keep turnover compatible with HK single-name costs.",
+        ),
+    ),
+    HK_COMPOSITE_FACTOR_QUALITY_VALUE_MOMENTUM_PROFILE: SnapshotPromotionCandidate(
+        profile=HK_COMPOSITE_FACTOR_QUALITY_VALUE_MOMENTUM_PROFILE,
+        priority=9,
+        promotion_bucket="broad_multifactor_candidate",
+        snapshot_type="factor_snapshot",
+        style_family="quality_value_momentum_low_volatility",
+        research_thesis="A broader multi-factor model can diversify HK single-name signal risk but needs the widest data audit.",
+        production_data_dependencies=(
+            "quality_factor_history",
+            "value_factor_history",
+            "momentum_and_trend_history",
+            "momentum_6m_12m_one_month_skip_history",
+            "risk_adjusted_momentum_volatility_normalization_history",
+            "low_volatility_beta_drawdown_history",
+            "factor_score_winsorization_and_neutralization_history",
+            "factor_turnover_buffer_and_capacity_history",
+            "southbound_eligibility_history",
+        ),
+        research_evidence_urls=(
+            HSI_MOMENTUM_METHODOLOGY_URL,
+            HSI_SMART_BETA_MOMENTUM_INDEX_URL,
+            HSI_MOMENTUM_RESEARCH_PAPER_URL,
+            MSCI_MOMENTUM_INDEXES_URL,
+            MSCI_HK_MOMENTUM_INDEX_URL,
+            MSCI_MOMENTUM_METHODOLOGY_URL,
+            MSCI_HK_LISTED_SOUTHBOUND_MOMENTUM_FACTSHEET_URL,
+            "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/methodologies/IM_hsscsqe.pdf",
+            "https://www.hsi.com.hk/solutions/factor-indexes/",
+        ),
+        profile_specific_next_evidence=(
+            "Run factor ablation so live promotion is not driven by one overfit sleeve.",
+            "Show the momentum sleeve adds excess return beyond quality/value/low-volatility after MSCI/HSI descriptor reconciliation.",
+            "Validate profile annualized turnover below 120% with sector caps and hold buffers.",
+        ),
+    ),
+    HK_SOUTHBOUND_FLOW_MOMENTUM_PROFILE: SnapshotPromotionCandidate(
+        profile=HK_SOUTHBOUND_FLOW_MOMENTUM_PROFILE,
+        priority=10,
+        promotion_bucket="flow_overlay_candidate",
+        snapshot_type="flow_snapshot",
+        style_family="southbound_flow_momentum",
+        research_thesis="Southbound flows are large enough to matter but should be a smoothed snapshot overlay, not a daily trading trigger.",
+        production_data_dependencies=(
+            "stock_connect_daily_turnover",
+            "southbound_holding_history",
+            "hkex_southbound_top10_turnover_and_market_turnover_history",
+            "ccass_southbound_shareholding_percent_issued_history",
+            "holiday_aware_flow_windows",
+            "connect_eligibility_history",
+            "stock_connect_market_data_dissemination_change_history",
+            "missing_flow_day_handling",
+            "southbound_flow_raw_vs_vendor_reconciliation",
+        ),
+        research_evidence_urls=(
+            HKEX_STOCK_CONNECT_STATISTICS_URL,
+            HKEX_STOCK_CONNECT_HISTORICAL_DAILY_URL,
+            HKEX_SOUTHBOUND_CCASS_SHAREHOLDING_URL,
+            HKEX_STOCK_CONNECT_ELIGIBLE_SECURITIES_URL,
+            "https://www.hkex.com.hk/Mutual-Market/Connect-Hub/Stock-Connect-White-Paper?sc_lang=en",
+            HKEX_STOCK_CONNECT_DATA_DISSEMINATION_URL,
+            HKEX_ETF_CONNECT_FACTSHEET_URL,
+            SOUTHBOUND_FLOW_RETURN_PREDICTABILITY_SSRN_URL,
+        ),
+        profile_specific_next_evidence=(
+            "Build a production Stock Connect collector before any backtest is considered promotion-grade.",
+            "Reconcile HKEX historical daily market turnover and top-10 turnover against CCASS Southbound shareholding changes.",
+            "Validate point-in-time Stock Connect eligibility and flag names that appear in CCASS shareholding but are not eligible securities.",
+            "Stress test policy-event, data-dissemination-change, real-time-turnover-suppression, top-10-only, and holiday windows where flow data can be noisy.",
+            "Run flow signal-decay and holiday/calendar stress tests against the price-momentum baseline.",
+        ),
+    ),
+    HK_AH_PREMIUM_RELATIVE_VALUE_PROFILE: SnapshotPromotionCandidate(
+        profile=HK_AH_PREMIUM_RELATIVE_VALUE_PROFILE,
+        priority=11,
+        promotion_bucket="valuation_overlay_candidate",
+        snapshot_type="valuation_snapshot",
+        style_family="ah_premium_relative_value",
+        research_thesis="A/H premium is HK-specific; safest first use is a long-only H-share valuation overlay.",
+        production_data_dependencies=(
+            "ah_pair_mapping",
+            "a_share_and_h_share_close_alignment",
+            "cnyhkd_fx_history",
+            "northbound_and_southbound_eligibility_history",
+            "share_class_and_corporate_action_adjustments",
+            "ah_premium_index_constituent_and_price_ratio_history",
+            "ah_smart_share_class_switch_threshold_history",
+            "a_share_access_shorting_settlement_and_fx_constraint_review",
+            "ah_premium_extreme_level_and_false_reversal_controls",
+        ),
+        research_evidence_urls=(
+            HSI_AH_PREMIUM_INDEX_URL,
+            HSI_CHINA_AH_INDEX_SERIES_URL,
+            HSI_AH_PREMIUM_FACTSHEET_URL,
+            HSI_AH_PREMIUM_INDEX_FLASH_URL,
+            HSI_AH_SMART_INDEX_BLOG_URL,
+            "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/methodologies/index_operation_guide_e.pdf",
+            SSE_SH_HK_AH_PREMIUM_METHODOLOGY_URL,
+            AH_PREMIUM_SIAMESE_TWIN_SCIENCEDIRECT_URL,
+        ),
+        profile_specific_next_evidence=(
+            "Keep implementation long-only unless A-share access, shorting, settlement, and FX constraints are approved.",
+            "Audit close-time mismatch and exchange-holiday alignment before computing premium percentiles.",
+            "Recompute AH price ratio from A-share price, H-share price, FX, and freefloat-adjusted market-cap inputs.",
+            "Validate AH Smart-style share-class switch thresholds against the long-only H-share overlay before platform selection.",
+            "Stress extreme-premium false-reversal windows because HSI evidence treats 15-year AH-premium highs as possible trough signals, not guaranteed convergence.",
+            "Audit FX source, AH close alignment, premium-widening stress, and A-share access / shorting / settlement constraints before live use.",
+        ),
+    ),
+    HK_BLUE_CHIP_LEADER_ROTATION_PROFILE: SnapshotPromotionCandidate(
+        profile=HK_BLUE_CHIP_LEADER_ROTATION_PROFILE,
+        priority=12,
+        promotion_bucket="baseline_snapshot_candidate",
+        snapshot_type="feature_snapshot",
+        style_family="blue_chip_leader_rotation",
+        research_thesis="Baseline liquid blue-chip rotation is useful for platform wiring and feature contract validation.",
+        production_data_dependencies=(
+            "adjusted_price_history",
+            "hsi_constituent_history",
+            "hsi_methodology_and_review_history",
+            "universe_and_sector_history",
+            "benchmark_relative_momentum",
+            "current_price_to_52_week_high_history",
+            "liquidity_history",
+            "board_lot_vcm_and_trading_session_rule_history",
+            "corporate_actions_and_suspensions",
+        ),
+        research_evidence_urls=(
+            "https://www.hsi.com.hk/eng/indexes/all-indexes/hsi",
+            "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/methodologies/IM_hsie.pdf",
+            "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/methodologies/index_methodology_guide_e.pdf",
+            "https://www.hkex.com.hk/Services/Rules-and-Forms-and-Fees/Fees/Securities-%28Hong-Kong%29/Trading/Transaction?sc_lang=en",
+            "https://www.hkex.com.hk/Services/Trading/Securities/Overview/Trading-Mechanism?sc_lang=en",
+            "https://www.hkex.com.hk/Global/Exchange/FAQ/Securities-Market/Trading/VCM?sc_lang=en",
+        ),
+        profile_specific_next_evidence=(
+            "Use this as contract plumbing baseline, not as the first preferred single-name live strategy.",
+            "Replace sample price/universe files with audited production adjusted history.",
+            "Prove HSI constituent, review, sector, liquidity, board-lot, VCM, and trading-session provenance before platform dry-run removal.",
+            "Ablate benchmark-relative momentum against HSI tracker, liquid-momentum quality, 52-week-high, sector-neutral, and rebalance-buffer alternatives.",
+        ),
+    ),
+    HK_INDEX_REBALANCE_EVENT_PROFILE: SnapshotPromotionCandidate(
+        profile=HK_INDEX_REBALANCE_EVENT_PROFILE,
+        priority=13,
+        promotion_bucket="event_research_candidate",
+        snapshot_type="event_calendar_snapshot",
+        style_family="index_rebalance_event",
+        research_thesis="Official index reviews create repeatable event windows but have small samples and crowding/slippage risk.",
+        production_data_dependencies=(
+            "official_index_review_history",
+            "hsi_quarterly_review_schedule_and_cutoff_history",
+            "hsi_index_methodology_and_operation_guide_version_history",
+            "hsi_review_schedule_file_version_and_effective_date_history",
+            "hsi_next_review_notice_timestamp_and_scope_history",
+            "hsi_review_result_press_release_history",
+            "hsi_review_result_timestamp_constituent_weight_and_proforma_history",
+            "hsi_constituent_added_deleted_effective_date_history",
+            "announcement_and_effective_timestamps",
+            "event_side_labels",
+            "hsi_regular_fast_entry_deletion_buffer_and_suspension_rule_history",
+            "hsi_fast_entry_suspension_and_buffer_rule_exception_history",
+            "market_on_close_order_type_price_limit_and_random_close_policy",
+            "hkex_cas_order_type_random_close_price_limit_and_rejection_history",
+            "closing_auction_volume_spread_and_passive_flow_history",
+            "closing_auction_imbalance_passive_flow_and_spread_history",
+            "liquidity_and_slippage_estimates",
+            "crowding_and_capacity_controls",
+        ),
+        research_evidence_urls=(
+            HSI_INDEX_METHODOLOGY_GUIDE_URL,
+            HSI_INDEX_OPERATION_GUIDE_URL,
+            HSI_INDEX_REBALANCE_SCHEDULE_URL,
+            HSI_INDEX_NEXT_REVIEW_NOTICE_20260102_URL,
+            HSI_INDEX_REVIEW_RESULT_20260213_URL,
+            HSI_INDEX_REVIEW_RESULT_20260522_URL,
+            HKEX_CLOSING_AUCTION_SESSION_FAQ_URL,
+            HKEX_TRADING_MECHANISM_URL,
+        ),
+        profile_specific_next_evidence=(
+            "Treat as event study first; one event window is the minimum dry-run gate but not enough for capital scale-up.",
+            "Validate post-announcement order timing and effective-date slippage before promotion.",
+            "Validate announcement-to-effective-date crowding and slippage with official review history.",
+            "Ingest the HSI regular rebalancing schedule, next-review notices, and review-result press releases as immutable event-source records.",
+            "Split pre-announcement candidate probability, confirmed adds/removes, and effective-date execution windows to avoid look-ahead bias.",
+            "Reconcile official schedule files against press-release timestamps, constituent weights, and pro-forma records before treating an event as tradable.",
+            "Ablate market-on-close versus next-open execution and pro-forma-weighted add/delete trades versus equal-weight event trades.",
+            "Stress fast-entry, suspension, buffer-rule, and ad-hoc index-change exceptions before treating the event sample as repeatable.",
+            "Validate market-on-close / Closing Auction Session order type, random-close, two-stage price-limit, order rejection, passive-flow imbalance, and auction-liquidity controls.",
+        ),
+    ),
+}
+
+
+def _artifact_filenames(contract: SnapshotProfileContract) -> dict[str, str]:
+    return {
+        "snapshot": contract.snapshot_filename,
+        "manifest": contract.manifest_filename,
+        "ranking": contract.ranking_filename,
+        "release_summary": contract.release_summary_filename,
+    }
+
+
+def get_snapshot_promotion_candidate(profile: str) -> SnapshotPromotionCandidate:
+    contract = get_profile_contract(profile)
+    return _CANDIDATES[contract.profile]
+
+
+def list_snapshot_promotion_candidates() -> tuple[SnapshotPromotionCandidate, ...]:
+    contracts = {contract.profile for contract in list_profile_contracts()}
+    missing = contracts - set(_CANDIDATES)
+    extra = set(_CANDIDATES) - contracts
+    if missing or extra:
+        raise RuntimeError(
+            "Snapshot promotion matrix must match profile contracts; "
+            f"missing={sorted(missing)}, extra={sorted(extra)}"
+        )
+    return tuple(sorted(_CANDIDATES.values(), key=lambda item: (item.priority, item.profile)))
+
+
+def _build_momentum_comparison_row(profile: str) -> dict[str, Any]:
+    contract = get_profile_contract(profile)
+    info = MOMENTUM_COMPARISON_BY_PROFILE[contract.profile]
+    return {
+        "profile": contract.profile,
+        "display_name": contract.display_name,
+        "momentum_priority": int(info["momentum_priority"]),
+        "momentum_role": str(info["momentum_role"]),
+        "recommended_stage": str(info["recommended_stage"]),
+        "why": str(info["why"]),
+        "signal_inputs": list(info["signal_inputs"]),
+        "pre_live_comparison_evidence": list(info["pre_live_comparison_evidence"]),
+        "live_enablement_thresholds": build_live_enablement_thresholds(contract.profile),
+        "production_source_audit_policy": build_production_source_audit_policy(contract.profile),
+        "execution_capacity_policy": build_execution_capacity_policy(contract.profile),
+        "momentum_live_enablement_policy": build_momentum_live_enablement_policy(),
+    }
+
+
+def build_momentum_live_enablement_comparison() -> dict[str, Any]:
+    rows = [
+        _build_momentum_comparison_row(profile)
+        for profile in sorted(
+            MOMENTUM_STOCK_SELECTION_PROFILES,
+            key=lambda item: int(MOMENTUM_COMPARISON_BY_PROFILE[item]["momentum_priority"]),
+        )
+    ]
+    return {
+        "comparison_version": MOMENTUM_LIVE_ENABLEMENT_COMPARISON_VERSION,
+        "recommended_first_momentum_candidate": HK_RESIDUAL_MOMENTUM_QUALITY_PROFILE,
+        "live_enablement_gate": SNAPSHOT_PROMOTION_GATE,
+        "status": SNAPSHOT_STATUS,
+        "must_compare_before_live_enablement": True,
+        "momentum_live_enablement_policy": build_momentum_live_enablement_policy(),
+        "external_evidence_urls": list(MOMENTUM_LIVE_ENABLEMENT_SOURCE_URLS),
+        "common_pre_live_requirements": [
+            "Use one survivorship-safe HK universe and the same benchmark/cost/slippage model across residual, liquid, and composite momentum.",
+            "Keep every momentum profile blocked until production adjusted-history, factor-history, suspension, corporate-action, and liquidity evidence passes.",
+            "Require factor ablation across residual, liquid, and composite momentum plus quality/value/low-volatility sleeves before treating momentum as a live edge.",
+            "Require reversal, high-beta rebound, suspension/stale-price, Southbound holiday/policy-event, and fee/slippage/lot-size stress windows.",
+            "Require walk-forward evidence with positive annual return, positive excess return versus the profile benchmark, max drawdown <= 30%, and turnover within the profile cap.",
+            "Require snapshot artifact provenance, evidence freshness, execution capacity, dry-run order-preview artifact provenance, bilingual notification audit logs, rollout tripwires, and operator approval before dry-run removal.",
+        ],
+        "profiles": rows,
+    }
+
+
+def build_future_research_backlog() -> dict[str, Any]:
+    future_policy = build_future_research_live_enablement_policy()
+    return {
+        "backlog_version": FUTURE_RESEARCH_BACKLOG_VERSION,
+        "status": "research_only_not_scaffolded",
+        "live_enablement_gate": "requires_new_snapshot_contract_and_production_evidence",
+        "candidate_count": len(FUTURE_RESEARCH_BACKLOG),
+        "future_research_live_enablement_policy": future_policy,
+        "curated_candidate_count": len(future_policy["curated_candidate_order"]),
+        "deprioritized_candidate_count": len(future_policy["deprioritized_candidate_order"]),
+        "candidates": [
+            {
+                "profile_hint": str(item["profile_hint"]),
+                "candidate_bucket": str(item["candidate_bucket"]),
+                "scaffold_status": str(item["scaffold_status"]),
+                "suggested_contract_type": str(item["suggested_contract_type"]),
+                "research_thesis": str(item["research_thesis"]),
+                "required_new_data": list(item["required_new_data"]),
+                "live_enablement_blockers": list(item["live_enablement_blockers"]),
+                "source_reference_urls": list(item["source_reference_urls"]),
+            }
+            for item in FUTURE_RESEARCH_BACKLOG
+        ],
+    }
+
+
+def build_curated_snapshot_strategy_ranking() -> dict[str, Any]:
+    future_policy = build_future_research_live_enablement_policy()
+    return {
+        "ranking_version": CURATED_SNAPSHOT_STRATEGY_RANKING_VERSION,
+        "selection_scope": "snapshot_scaffolds_only",
+        "live_enablement_allowed_without_evidence": False,
+        "max_allowed_drawdown": 0.30,
+        "ranking": [dict(item) for item in CURATED_SNAPSHOT_STRATEGY_RANKING],
+        "deprioritized_profiles": [dict(item) for item in DEPRIORITIZED_SNAPSHOT_STRATEGY_PROFILES],
+        "future_research_curated_candidate_order": list(future_policy["curated_candidate_order"]),
+        "future_research_deprioritized_candidate_order": list(future_policy["deprioritized_candidate_order"]),
+        "notes": [
+            "This is the narrowed live-enable work queue; raw future-research ideas stay documented but excluded.",
+            "Every promoted snapshot still needs a new contract/evidence pack, walk-forward backtest, dry-run order preview, bilingual notification, and operator approval.",
+        ],
+    }
+
+
+def build_snapshot_promotion_row(profile: str) -> dict[str, Any]:
+    contract = get_profile_contract(profile)
+    candidate = get_snapshot_promotion_candidate(contract.profile)
+    row = {
+        "profile": contract.profile,
+        "display_name": contract.display_name,
+        "source_project": SOURCE_PROJECT,
+        "priority": candidate.priority,
+        "promotion_bucket": candidate.promotion_bucket,
+        "recommended_live_enablement_stage": LIVE_ENABLEMENT_STAGE_BY_BUCKET[candidate.promotion_bucket],
+        "next_live_enablement_action": NEXT_LIVE_ENABLEMENT_ACTION_BY_BUCKET[candidate.promotion_bucket],
+        "snapshot_type": candidate.snapshot_type,
+        "style_family": candidate.style_family,
+        "status": SNAPSHOT_STATUS,
+        "runtime_enabled": SNAPSHOT_RUNTIME_ENABLED,
+        "live_enablement_gate": SNAPSHOT_PROMOTION_GATE,
+        "contract_version": contract.contract_version,
+        "artifact_filenames": _artifact_filenames(contract),
+        "manifest_required_by_runtime": contract.manifest_required_by_runtime,
+        "live_enablement_thresholds": build_live_enablement_thresholds(contract.profile),
+        "production_source_audit_policy": build_production_source_audit_policy(contract.profile),
+        "artifact_provenance_policy": build_artifact_provenance_policy(),
+        "backtest_validation_policy": build_backtest_validation_policy(),
+        "execution_capacity_policy": build_execution_capacity_policy(contract.profile),
+        "dry_run_order_preview_policy": build_dry_run_order_preview_policy(),
+        "rollout_risk_policy": build_rollout_risk_policy(),
+        "notification_audit_policy": build_notification_audit_policy(SNAPSHOT_DRY_RUN_NOTIFICATION_EVENT_TYPE),
+        "research_thesis": candidate.research_thesis,
+        "production_data_dependencies": list(candidate.production_data_dependencies),
+        "research_evidence_urls": list(candidate.research_evidence_urls),
+        "evidence_uri_policy": EVIDENCE_URI_POLICY,
+        "evidence_freshness_policy": EVIDENCE_FRESHNESS_POLICY,
+        "required_next_evidence": list(GENERIC_REQUIRED_NEXT_EVIDENCE),
+        "profile_specific_next_evidence": list(candidate.profile_specific_next_evidence),
+    }
+    if contract.profile in MOMENTUM_COMPARISON_BY_PROFILE:
+        row["momentum_live_enablement_comparison"] = _build_momentum_comparison_row(contract.profile)
+    if contract.profile in BASELINE_ROTATION_PROFILES:
+        row["baseline_rotation_live_enablement_policy"] = build_baseline_rotation_live_enablement_policy()
+    if contract.profile in QUALITY_YIELD_STOCK_SELECTION_PROFILES:
+        row["quality_yield_live_enablement_policy"] = build_quality_yield_live_enablement_policy()
+    if contract.profile in QUALITY_GROWTH_STOCK_SELECTION_PROFILES:
+        row["quality_growth_live_enablement_policy"] = build_quality_growth_live_enablement_policy()
+    if contract.profile in FACTOR_MIX_STOCK_SELECTION_PROFILES:
+        row["factor_mix_live_enablement_policy"] = build_factor_mix_live_enablement_policy()
+    if contract.profile in POLICY_VALUE_STOCK_SELECTION_PROFILES:
+        row["policy_value_live_enablement_policy"] = build_policy_value_live_enablement_policy()
+    if contract.profile in SPECIAL_SITUATION_STOCK_SELECTION_PROFILES:
+        row["special_situation_live_enablement_policy"] = build_special_situation_live_enablement_policy()
+    return row
+
+
+def build_snapshot_promotion_matrix() -> dict[str, Any]:
+    rows = [build_snapshot_promotion_row(candidate.profile) for candidate in list_snapshot_promotion_candidates()]
+    first_snapshot_candidates = [
+        row["profile"] for row in rows if row["promotion_bucket"] == "first_snapshot_candidate"
+    ]
+    return {
+        "source_project": SOURCE_PROJECT,
+        "status": SNAPSHOT_STATUS,
+        "live_enablement_gate": SNAPSHOT_PROMOTION_GATE,
+        "runtime_enabled_count": sum(1 for row in rows if row["runtime_enabled"]),
+        "blocked_profile_count": sum(1 for row in rows if not row["runtime_enabled"]),
+        "profile_count": len(rows),
+        "first_snapshot_candidates": first_snapshot_candidates,
+        "recommended_live_enablement_sequence": [row["profile"] for row in rows],
+        "curated_snapshot_strategy_ranking": build_curated_snapshot_strategy_ranking(),
+        "generic_required_next_evidence": list(GENERIC_REQUIRED_NEXT_EVIDENCE),
+        "evidence_uri_policy": EVIDENCE_URI_POLICY,
+        "artifact_provenance_policy": build_artifact_provenance_policy(),
+        "backtest_validation_policy": build_backtest_validation_policy(),
+        "evidence_freshness_policy": EVIDENCE_FRESHNESS_POLICY,
+        "execution_capacity_policy": build_execution_capacity_policy(""),
+        "dry_run_order_preview_policy": build_dry_run_order_preview_policy(),
+        "rollout_risk_policy": build_rollout_risk_policy(),
+        "notification_audit_policy": build_notification_audit_policy(SNAPSHOT_DRY_RUN_NOTIFICATION_EVENT_TYPE),
+        "baseline_rotation_live_enablement_policy": build_baseline_rotation_live_enablement_policy(),
+        "quality_yield_live_enablement_policy": build_quality_yield_live_enablement_policy(),
+        "quality_growth_live_enablement_policy": build_quality_growth_live_enablement_policy(),
+        "factor_mix_live_enablement_policy": build_factor_mix_live_enablement_policy(),
+        "policy_value_live_enablement_policy": build_policy_value_live_enablement_policy(),
+        "momentum_live_enablement_policy": build_momentum_live_enablement_policy(),
+        "special_situation_live_enablement_policy": build_special_situation_live_enablement_policy(),
+        "momentum_live_enablement_comparison": build_momentum_live_enablement_comparison(),
+        "future_research_backlog": build_future_research_backlog(),
+        "profiles": rows,
+    }
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Print HK snapshot promotion/live-enable matrix.")
+    parser.add_argument("--profile", help="Print one profile row instead of the full matrix")
+    parser.add_argument("--json", action="store_true", help="Print JSON payload")
+    args = parser.parse_args(argv)
+
+    payload = build_snapshot_promotion_row(args.profile) if args.profile else build_snapshot_promotion_matrix()
+    if args.json:
+        print(json.dumps(payload, indent=2, sort_keys=True))
+        return 0
+    if args.profile:
+        print(f"profile={payload['profile']}")
+        print(f"priority={payload['priority']}")
+        print(f"promotion_bucket={payload['promotion_bucket']}")
+        print(f"recommended_live_enablement_stage={payload['recommended_live_enablement_stage']}")
+        print(f"next_live_enablement_action={payload['next_live_enablement_action']}")
+        print(f"live_enablement_gate={payload['live_enablement_gate']}")
+        return 0
+    print(f"source_project={payload['source_project']}")
+    print(f"status={payload['status']}")
+    print(f"live_enablement_gate={payload['live_enablement_gate']}")
+    print(f"profile_count={payload['profile_count']}")
+    print("first_snapshot_candidates=" + ",".join(payload["first_snapshot_candidates"]))
+    print("recommended_live_enablement_sequence=" + ",".join(payload["recommended_live_enablement_sequence"]))
+    for row in payload["profiles"]:
+        print(f"- {row['priority']}: {row['profile']} ({row['recommended_live_enablement_stage']})")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+
+__all__ = [
+    "BASELINE_ROTATION_LIVE_ENABLEMENT_POLICY_VERSION",
+    "BACKTEST_VALIDATION_POLICY_VERSION",
+    "BASELINE_ROTATION_PROFILES",
+    "EVIDENCE_URI_POLICY",
+    "FACTOR_MIX_LIVE_ENABLEMENT_POLICY_VERSION",
+    "FACTOR_MIX_STOCK_SELECTION_PROFILES",
+    "CURATED_SNAPSHOT_STRATEGY_RANKING_VERSION",
+    "FUTURE_RESEARCH_BACKLOG_VERSION",
+    "FUTURE_RESEARCH_LIVE_ENABLEMENT_POLICY_VERSION",
+    "GENERIC_REQUIRED_NEXT_EVIDENCE",
+    "HSI_MOMENTUM_METHODOLOGY_URL",
+    "HSI_QUALITY_GROWTH_LOW_VOL_FACTSHEET_URL",
+    "HSI_QUALITY_GROWTH_LOW_VOL_METHODOLOGY_URL",
+    "HSI_SCHK_HIGH_DIV_LOW_VOL_FACTSHEET_URL",
+    "HSI_SCHK_HIGH_DIV_LOW_VOL_INDEX_URL",
+    "HSI_SCHK_HIGH_DIV_LOW_VOL_METHODOLOGY_URL",
+    "HSI_HIGH_DIVIDEND_RESEARCH_PAPER_URL",
+    "HSI_SCHK_HIGH_DIV_SCREENED_FACTSHEET_URL",
+    "HSI_SCHK_HIGH_DIV_SCREENED_INDEX_URL",
+    "HSI_SCHK_HIGH_DIV_SCREENED_METHODOLOGY_URL",
+    "HKEX_REPURCHASE_TREASURY_SHARES_RULEBOOK_URL",
+    "HKEX_SHARE_REPURCHASE_ELEARNING_URL",
+    "HKEX_SHARE_REPURCHASE_RULE_SECTION_URL",
+    "HKEX_TREASURY_SHARES_CONCLUSIONS_URL",
+    "LIVE_ENABLEMENT_STAGE_BY_BUCKET",
+    "MOMENTUM_LIVE_ENABLEMENT_COMPARISON_VERSION",
+    "MOMENTUM_LIVE_ENABLEMENT_POLICY_VERSION",
+    "MOMENTUM_STOCK_SELECTION_PROFILES",
+    "POLICY_VALUE_LIVE_ENABLEMENT_POLICY_VERSION",
+    "POLICY_VALUE_STOCK_SELECTION_PROFILES",
+    "NEXT_LIVE_ENABLEMENT_ACTION_BY_BUCKET",
+    "QUALITY_YIELD_LIVE_ENABLEMENT_POLICY_VERSION",
+    "QUALITY_YIELD_STOCK_SELECTION_PROFILES",
+    "QUALITY_GROWTH_LIVE_ENABLEMENT_POLICY_VERSION",
+    "QUALITY_GROWTH_STOCK_SELECTION_PROFILES",
+    "SPECIAL_SITUATION_LIVE_ENABLEMENT_POLICY_VERSION",
+    "SPECIAL_SITUATION_STOCK_SELECTION_PROFILES",
+    "SNAPSHOT_PROMOTION_GATE",
+    "SnapshotPromotionCandidate",
+    "build_baseline_rotation_live_enablement_policy",
+    "build_curated_snapshot_strategy_ranking",
+    "build_future_research_backlog",
+    "build_future_research_live_enablement_policy",
+    "build_factor_mix_live_enablement_policy",
+    "build_momentum_live_enablement_comparison",
+    "build_momentum_live_enablement_policy",
+    "build_policy_value_live_enablement_policy",
+    "build_quality_yield_live_enablement_policy",
+    "build_quality_growth_live_enablement_policy",
+    "build_special_situation_live_enablement_policy",
+    "build_snapshot_promotion_matrix",
+    "build_snapshot_promotion_row",
+    "get_snapshot_promotion_candidate",
+    "list_snapshot_promotion_candidates",
+    "main",
+]
