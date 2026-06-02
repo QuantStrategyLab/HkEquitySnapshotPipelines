@@ -63,6 +63,7 @@ from .future_research_live_enablement_policy import (
     HK_VCM_CAS_MICROSTRUCTURE_SHOCK_RISK_OVERLAY_PROFILE_HINT,
     HK_REIT_DIVIDEND_SPREAD_RATE_SENSITIVITY_OVERLAY_PROFILE_HINT,
     HK_REGULATORY_ENFORCEMENT_DISCIPLINARY_RISK_OVERLAY_PROFILE_HINT,
+    HK_MARGIN_FINANCING_COLLATERAL_FORCED_SELLING_RISK_OVERLAY_PROFILE_HINT,
     HK_CONNECTED_TRANSACTION_GOVERNANCE_RISK_OVERLAY_PROFILE_HINT,
     HK_DIRECTOR_DEALING_DISCLOSURE_QUALITY_OVERLAY_PROFILE_HINT,
     HK_DISTRIBUTION_EX_DATE_ENTITLEMENT_OVERLAY_PROFILE_HINT,
@@ -245,6 +246,13 @@ from .future_research_live_enablement_policy import (
     SFC_MARKET_MISCONDUCT_MAGIC_DISCLOSURE_URL,
     SSRN_HK_GOVERNANCE_SCANDALS_RETURNS_URL,
     SCIENCEDIRECT_PCHIP_CORPORATE_MALFEASANCE_URL,
+    SFC_SECURITIES_MARGIN_FINANCE_TOPIC_URL,
+    SFC_SMF_GUIDELINES_FAQ_URL,
+    SFC_MARGIN_LENDING_POLICY_CONTROL_REQUIREMENTS_URL,
+    SFC_SMF_PRUDENT_RISK_MANAGEMENT_CIRCULAR_URL,
+    SFC_SMF_REVIEW_REPORT_URL,
+    SFC_POOLING_RISK_MARGIN_ACCOUNTS_URL,
+    SCIENCEDIRECT_CONTROLLING_SHAREHOLDER_SHARE_PLEDGE_CRASH_RISK_URL,
     TANDF_HK_SHORT_TERM_OVERREACTION_URL,
     TANDF_HK_HOLIDAY_EFFECT_URL,
     AQR_GLOBAL_ASSET_GROWTH_ANOMALY_URL,
@@ -1736,6 +1744,46 @@ FUTURE_RESEARCH_BACKLOG: tuple[dict[str, object], ...] = (
             SFC_MARKET_MISCONDUCT_MAGIC_DISCLOSURE_URL,
             SSRN_HK_GOVERNANCE_SCANDALS_RETURNS_URL,
             SCIENCEDIRECT_PCHIP_CORPORATE_MALFEASANCE_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_MARGIN_FINANCING_COLLATERAL_FORCED_SELLING_RISK_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "margin_financing_collateral_forced_selling_risk_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "margin_collateral_risk_snapshot_overlay",
+        "research_thesis": (
+            "Test securities margin financing, broker collateral concentration, marginable-security "
+            "eligibility, haircut / loan-to-value changes, controlling-shareholder share pledges, margin-call "
+            "pressure, and forced-selling liquidity gaps as a HK deleveraging and collateral-risk overlay for "
+            "low-size, liquidity, lottery, governance, distress, momentum, value, and event sleeves."
+        ),
+        "required_new_data": (
+            "point_in_time_marginable_security_broker_haircut_ltv_and_collateral_concentration_history",
+            "sfc_smf_guideline_broker_margin_loan_top_collateral_concentration_and_elc_stress_history",
+            "share_pledge_disclosure_margin_call_forced_selling_price_gap_and_liquidity_history",
+            "margin_financing_eligibility_change_haircut_cut_ltv_reduction_and_broker_notice_history",
+            "same_universe_liquidity_concentration_short_selling_distress_governance_and_lottery_ablation_history",
+            "broker_order_preview_margin_permission_lot_size_halt_suspension_and_forced_liquidation_stress_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new margin-collateral risk snapshot overlay contract before adding margin-financing, haircut, LTV, collateral-concentration, share-pledge, margin-call, or forced-selling fields to any existing artifact.",
+            "Use point-in-time public SFC SMF guidelines / circulars / review evidence, broker marginable-security lists or approved vendor data, official disclosure records, and post-publication issuer announcements only; do not use broker-internal client loan books or non-public margin-call information.",
+            "Use as a deleveraging, collateral concentration, liquidity-gap, or forced-selling risk downweight / exclusion overlay first; do not promote a leveraged margin-trading, forced-liquidation front-running, rumour-trading, or short-selling strategy.",
+            "Classify marginable status, haircut / LTV, broker concentration limit, ELC stress benchmark, top-collateral concentration where available, controlling-shareholder pledge disclosure, pledgee / lender type, margin-call trigger proxy, forced-sale announcement, trading halt, suspension / resumption, VCM/CAS, liquidity, short-sale eligibility, and broker product-permission status before ranking signals.",
+            "Ablate margin-collateral signals versus Amihud liquidity, shareholding concentration, short-selling pressure, financial distress, regulatory enforcement, lottery-stock exclusion, low-size, and connected-transaction governance overlays on the same survivorship-safe universe.",
+            "Stress small-cap crash, margin-haircut withdrawal, broker collateral-concentration breach, re-pledging / pooling-risk shock, controlling-shareholder forced sale, trading suspension, resumption gap, low liquidity, spread widening, VCM/CAS rejection, policy-cycle change, costs, and capacity.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            SFC_SECURITIES_MARGIN_FINANCE_TOPIC_URL,
+            SFC_SMF_GUIDELINES_FAQ_URL,
+            SFC_MARGIN_LENDING_POLICY_CONTROL_REQUIREMENTS_URL,
+            SFC_SMF_PRUDENT_RISK_MANAGEMENT_CIRCULAR_URL,
+            SFC_SMF_REVIEW_REPORT_URL,
+            SFC_POOLING_RISK_MARGIN_ACCOUNTS_URL,
+            SFC_DISCLOSURE_OF_INTERESTS_PART_XV_URL,
+            HKEX_DISCLOSURE_OF_INTERESTS_SEARCH_URL,
+            SCIENCEDIRECT_CONTROLLING_SHAREHOLDER_SHARE_PLEDGE_CRASH_RISK_URL,
         ),
     },
 )

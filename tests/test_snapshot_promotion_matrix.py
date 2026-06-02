@@ -640,7 +640,7 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert "new_snapshot_profile_name_and_contract_version" in (
         backlog["future_research_live_enablement_policy"]["required_pre_scaffold_gates"]
     )
-    assert backlog["candidate_count"] == 32
+    assert backlog["candidate_count"] == 33
     assert backlog["candidates"][0]["profile_hint"] == "hk_earnings_revision_quality_overlay"
     assert backlog["candidates"][0]["scaffold_status"] == "research_only_not_scaffolded"
     assert any("earnings-revision-overlay" in url for url in backlog["candidates"][0]["source_reference_urls"])
@@ -841,6 +841,15 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert any("1869454" in url for url in backlog["candidates"][31]["source_reference_urls"])
     assert any("disciplinary_sanction" in item for item in backlog["candidates"][31]["required_new_data"])
     assert any("market_misconduct" in item for item in backlog["candidates"][31]["required_new_data"])
+    assert backlog["candidates"][32]["profile_hint"] == (
+        "hk_margin_financing_collateral_forced_selling_risk_overlay"
+    )
+    assert backlog["candidates"][32]["suggested_contract_type"] == "margin_collateral_risk_snapshot_overlay"
+    assert any("Securities-Margin-Finance-SMF" in url for url in backlog["candidates"][32]["source_reference_urls"])
+    assert any("refNo=17EC67" in url for url in backlog["candidates"][32]["source_reference_urls"])
+    assert any("S1057521921001721" in url for url in backlog["candidates"][32]["source_reference_urls"])
+    assert any("marginable_security" in item for item in backlog["candidates"][32]["required_new_data"])
+    assert any("forced_selling" in item for item in backlog["candidates"][32]["required_new_data"])
 
 
 def test_future_research_live_enablement_policy_blocks_backlog_until_new_contract_and_evidence():
@@ -883,6 +892,7 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
         "hk_vcm_cas_microstructure_shock_risk_overlay",
         "hk_reit_dividend_spread_rate_sensitivity_overlay",
         "hk_regulatory_enforcement_disciplinary_risk_overlay",
+        "hk_margin_financing_collateral_forced_selling_risk_overlay",
     ]
     assert "same_universe_ablation_vs_existing_quality_yield_momentum_and_special_situation_profiles" in (
         policy["required_pre_scaffold_gates"]
@@ -1112,6 +1122,15 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert "same_universe_governance_audit_opinion_connected_transaction_concentration_and_liquidity_ablation_history" in (
         policy["required_data_provenance"]
     )
+    assert "point_in_time_marginable_security_broker_haircut_ltv_and_collateral_concentration_history" in (
+        policy["required_data_provenance"]
+    )
+    assert "sfc_smf_guideline_broker_margin_loan_top_collateral_concentration_and_elc_stress_history" in (
+        policy["required_data_provenance"]
+    )
+    assert "share_pledge_disclosure_margin_call_forced_selling_price_gap_and_liquidity_history" in (
+        policy["required_data_provenance"]
+    )
     assert "same_universe_liquidity_volatility_derivatives_structured_product_momentum_event_and_execution_ablation_history" in (
         policy["required_data_provenance"]
     )
@@ -1208,6 +1227,11 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert any("Regulatory-functions/Enforcement" in url for url in policy["source_reference_urls"])
     assert any("refNo=21PR27" in url for url in policy["source_reference_urls"])
     assert any("1869454" in url for url in policy["source_reference_urls"])
+    assert any("Securities-Margin-Finance-SMF" in url for url in policy["source_reference_urls"])
+    assert any("Guidelines-for-Securities-Margin-Financing-Activities" in url for url in policy["source_reference_urls"])
+    assert any("refNo=17EC67" in url for url in policy["source_reference_urls"])
+    assert any("Review-of-Securities-Margin-Financing-Activities" in url for url in policy["source_reference_urls"])
+    assert any("S1057521921001721" in url for url in policy["source_reference_urls"])
 
 
 

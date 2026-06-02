@@ -70,6 +70,9 @@ HK_REIT_DIVIDEND_SPREAD_RATE_SENSITIVITY_OVERLAY_PROFILE_HINT = (
 HK_REGULATORY_ENFORCEMENT_DISCIPLINARY_RISK_OVERLAY_PROFILE_HINT = (
     "hk_regulatory_enforcement_disciplinary_risk_overlay"
 )
+HK_MARGIN_FINANCING_COLLATERAL_FORCED_SELLING_RISK_OVERLAY_PROFILE_HINT = (
+    "hk_margin_financing_collateral_forced_selling_risk_overlay"
+)
 
 SP_EARNINGS_REVISION_OVERLAY_ASIA_URL = (
     "https://www.spglobal.com/spdji/en/research/article/"
@@ -498,6 +501,34 @@ SSRN_HK_GOVERNANCE_SCANDALS_RETURNS_URL = "https://papers.ssrn.com/sol3/papers.c
 SCIENCEDIRECT_PCHIP_CORPORATE_MALFEASANCE_URL = (
     "https://www.sciencedirect.com/science/article/abs/pii/S0929119916301808"
 )
+SFC_SECURITIES_MARGIN_FINANCE_TOPIC_URL = (
+    "https://www.sfc.hk/en/Regulatory-functions/Intermediaries/Supervision/"
+    "Search-regulations-by-topic/Securities-Margin-Finance-SMF"
+)
+SFC_SMF_GUIDELINES_FAQ_URL = (
+    "https://www.sfc.hk/en/faqs/intermediaries/supervision/"
+    "Guidelines-for-Securities-Margin-Financing-Activities/"
+    "Guidelines-for-Securities-Margin-Financing-Activities"
+)
+SFC_MARGIN_LENDING_POLICY_CONTROL_REQUIREMENTS_URL = (
+    "https://www.sfc.hk/en/faqs/intermediaries/supervision/"
+    "Margin-Lending-Policy-and-Control-Requirements/"
+    "Margin-Lending-Policy-and-Control-Requirements"
+)
+SFC_SMF_PRUDENT_RISK_MANAGEMENT_CIRCULAR_URL = (
+    "https://apps.sfc.hk/edistributionWeb/gateway/EN/circular/doc?refNo=17EC67"
+)
+SFC_SMF_REVIEW_REPORT_URL = (
+    "https://www.sfc.hk/en/Regulatory-functions/Intermediaries/Supervision/"
+    "Publications-and-statistics/Reports-on-findings-of-thematic-inspection-or-review/"
+    "Report-on-Review-of-Securities-Margin-Financing-Activities"
+)
+SFC_POOLING_RISK_MARGIN_ACCOUNTS_URL = (
+    "https://apps.sfc.hk/edistributionWeb/gateway/EN/news-and-announcements/news/doc?refNo=06PR146"
+)
+SCIENCEDIRECT_CONTROLLING_SHAREHOLDER_SHARE_PLEDGE_CRASH_RISK_URL = (
+    "https://www.sciencedirect.com/science/article/pii/S1057521921001721"
+)
 
 FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_EARNINGS_REVISION_QUALITY_OVERLAY_PROFILE_HINT,
@@ -532,6 +563,7 @@ FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_VCM_CAS_MICROSTRUCTURE_SHOCK_RISK_OVERLAY_PROFILE_HINT,
     HK_REIT_DIVIDEND_SPREAD_RATE_SENSITIVITY_OVERLAY_PROFILE_HINT,
     HK_REGULATORY_ENFORCEMENT_DISCIPLINARY_RISK_OVERLAY_PROFILE_HINT,
+    HK_MARGIN_FINANCING_COLLATERAL_FORCED_SELLING_RISK_OVERLAY_PROFILE_HINT,
 )
 
 FUTURE_RESEARCH_REQUIRED_PRE_SCAFFOLD_GATES: tuple[str, ...] = (
@@ -656,6 +688,9 @@ FUTURE_RESEARCH_REQUIRED_DATA_PROVENANCE: tuple[str, ...] = (
     "point_in_time_hkex_disciplinary_sanction_enforcement_bulletin_and_remedial_action_history",
     "sfc_enforcement_mmt_restriction_notice_false_disclosure_and_market_misconduct_history",
     "same_universe_governance_audit_opinion_connected_transaction_concentration_and_liquidity_ablation_history",
+    "point_in_time_marginable_security_broker_haircut_ltv_and_collateral_concentration_history",
+    "sfc_smf_guideline_broker_margin_loan_top_collateral_concentration_and_elc_stress_history",
+    "share_pledge_disclosure_margin_call_forced_selling_price_gap_and_liquidity_history",
 )
 
 FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
@@ -842,6 +877,13 @@ FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
     SFC_MARKET_MISCONDUCT_MAGIC_DISCLOSURE_URL,
     SSRN_HK_GOVERNANCE_SCANDALS_RETURNS_URL,
     SCIENCEDIRECT_PCHIP_CORPORATE_MALFEASANCE_URL,
+    SFC_SECURITIES_MARGIN_FINANCE_TOPIC_URL,
+    SFC_SMF_GUIDELINES_FAQ_URL,
+    SFC_MARGIN_LENDING_POLICY_CONTROL_REQUIREMENTS_URL,
+    SFC_SMF_PRUDENT_RISK_MANAGEMENT_CIRCULAR_URL,
+    SFC_SMF_REVIEW_REPORT_URL,
+    SFC_POOLING_RISK_MARGIN_ACCOUNTS_URL,
+    SCIENCEDIRECT_CONTROLLING_SHAREHOLDER_SHARE_PLEDGE_CRASH_RISK_URL,
 )
 
 
@@ -902,6 +944,7 @@ __all__ = [
     "HK_VCM_CAS_MICROSTRUCTURE_SHOCK_RISK_OVERLAY_PROFILE_HINT",
     "HK_REIT_DIVIDEND_SPREAD_RATE_SENSITIVITY_OVERLAY_PROFILE_HINT",
     "HK_REGULATORY_ENFORCEMENT_DISCIPLINARY_RISK_OVERLAY_PROFILE_HINT",
+    "HK_MARGIN_FINANCING_COLLATERAL_FORCED_SELLING_RISK_OVERLAY_PROFILE_HINT",
     "HK_TAKEOVER_PRIVATIZATION_EVENT_SPREAD_OVERLAY_PROFILE_HINT",
     "HK_LOTTERY_STOCK_RISK_EXCLUSION_OVERLAY_PROFILE_HINT",
     "HK_LOW_SIZE_QUALITY_LIQUIDITY_PREMIUM_PROFILE_HINT",
@@ -1086,5 +1129,12 @@ __all__ = [
     "SFC_MARKET_MISCONDUCT_MAGIC_DISCLOSURE_URL",
     "SSRN_HK_GOVERNANCE_SCANDALS_RETURNS_URL",
     "SCIENCEDIRECT_PCHIP_CORPORATE_MALFEASANCE_URL",
+    "SFC_SECURITIES_MARGIN_FINANCE_TOPIC_URL",
+    "SFC_SMF_GUIDELINES_FAQ_URL",
+    "SFC_MARGIN_LENDING_POLICY_CONTROL_REQUIREMENTS_URL",
+    "SFC_SMF_PRUDENT_RISK_MANAGEMENT_CIRCULAR_URL",
+    "SFC_SMF_REVIEW_REPORT_URL",
+    "SFC_POOLING_RISK_MARGIN_ACCOUNTS_URL",
+    "SCIENCEDIRECT_CONTROLLING_SHAREHOLDER_SHARE_PLEDGE_CRASH_RISK_URL",
     "build_future_research_live_enablement_policy",
 ]
