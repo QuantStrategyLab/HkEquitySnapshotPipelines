@@ -2,7 +2,7 @@
 
 [中文版本](./first_snapshot_evidence_tools.zh-CN.md)
 
-This document describes the shared evidence tooling for the first three HK snapshot candidates:
+This document describes the shared evidence tooling for the active and deferred HK quality/yield snapshot candidates:
 
 1. `hk_low_vol_dividend_quality`
 2. `hk_shareholder_yield_quality`
@@ -12,18 +12,18 @@ These tools are intentionally evidence-gated. They do not enable live trading, d
 
 ## Scope
 
-The tools generate the same live-enable scaffolding for all first-three profiles:
+The tools generate the same evidence scaffolding for the active profile by default and still support explicit deferred-profile retests:
 
 - live-enable evidence packages;
 - production evidence template bundles;
 - production source audit drafts;
 - walk-forward backtest evidence drafts.
 
-The existing low-vol dividend-specific commands remain available for backward compatibility. Prefer the shared first-snapshot commands when preparing the first-three candidate evidence set.
+The existing low-vol dividend-specific commands remain available for backward compatibility. Prefer the shared first-snapshot commands for `hk_low_vol_dividend_quality`; use explicit `--profile` only when a deferred profile is intentionally reopened for retest.
 
 ## Generate live-enable evidence packages
 
-Generate packages for all first-three profiles:
+Generate packages for the active profile:
 
 ```bash
 PYTHONPATH=src python scripts/build_first_snapshot_live_enablement_packages.py
@@ -54,7 +54,7 @@ Every package explicitly keeps:
 
 ## Generate evidence template bundles
 
-Generate template bundles for all first-three profiles:
+Generate template bundles for the active profile:
 
 ```bash
 PYTHONPATH=src python scripts/build_first_snapshot_evidence_bundles.py
@@ -127,7 +127,7 @@ The generated evidence draft remains `status: pending` until the full walk-forwa
 
 ## Promotion gates
 
-Before any live-enable change, each first-three profile still needs:
+Before any live-enable change, the active profile and any explicitly reopened deferred profile still need:
 
 - point-in-time production source audit;
 - no future functions and no survivorship bias;

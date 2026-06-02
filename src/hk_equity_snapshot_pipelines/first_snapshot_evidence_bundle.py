@@ -11,7 +11,11 @@ from .first_snapshot_evidence_profiles import (
     iter_first_snapshot_evidence_profiles,
     normalize_first_snapshot_profile,
 )
-from .first_snapshot_promotion_plan import DEFAULT_PLATFORMS, FIRST_SNAPSHOT_PROFILE_ORDER
+from .first_snapshot_promotion_plan import (
+    DEFAULT_PLATFORMS,
+    FIRST_SNAPSHOT_PROFILE_ORDER,
+    SUPPORTED_FIRST_SNAPSHOT_EVIDENCE_PROFILE_ORDER,
+)
 from .live_enablement_evidence import STRATEGY_POLICY_EVIDENCE_SECTION, build_live_enablement_evidence_template
 from .quality_yield_live_enablement_policy import build_quality_yield_live_enablement_policy
 from .snapshot_readiness import SUPPORTED_SNAPSHOT_PLATFORMS
@@ -240,8 +244,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--profile",
         action="append",
-        choices=FIRST_SNAPSHOT_PROFILE_ORDER,
-        help="Profile to include; may be repeated. Defaults to the first three snapshot candidates.",
+        choices=SUPPORTED_FIRST_SNAPSHOT_EVIDENCE_PROFILE_ORDER,
+        help="Profile to include; may be repeated. Defaults to the active first snapshot candidate.",
     )
     parser.add_argument(
         "--platform",

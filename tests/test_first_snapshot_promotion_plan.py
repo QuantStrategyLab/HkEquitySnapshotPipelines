@@ -22,6 +22,9 @@ def test_first_snapshot_promotion_plan_scopes_only_first_candidates():
     assert plan["live_enablement_allowed_without_evidence"] is False
     assert plan["profiles_in_scope"] == list(FIRST_SNAPSHOT_PROFILE_ORDER)
     assert [profile["profile"] for profile in plan["profiles"]] == list(FIRST_SNAPSHOT_PROFILE_ORDER)
+    assert plan["profiles_in_scope"] == ["hk_low_vol_dividend_quality"]
+    assert "hk_shareholder_yield_quality" in plan["excluded_from_scope"]
+    assert "hk_free_cash_flow_quality" in plan["excluded_from_scope"]
     assert "hk_residual_momentum_quality" in plan["excluded_from_scope"]
     assert "hk_index_rebalance_event" in plan["excluded_from_scope"]
     assert all(profile["runtime_enabled"] is False for profile in plan["profiles"])

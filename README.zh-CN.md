@@ -32,23 +32,23 @@
 本仓库全部 profile 都还是 `architecture_scaffold` / evidence-gated 候选，本身不是平台 live profile。
 只有在补齐 production 数据、point-in-time 回测、artifact-pack 校验、券商 dry-run 证据、双语通知证据和人工审批后，才允许推动 promotion。
 
-当前首批 snapshot 候选：
+当前 active snapshot live-enable 工作队列：
 
 1. `hk_low_vol_dividend_quality`
-2. `hk_shareholder_yield_quality`
-3. `hk_free_cash_flow_quality`
 
-这些只是工作优先级，不是 live 开关。
+保留但仅用于重新回测的 quality/yield scaffold：`hk_shareholder_yield_quality` 和 `hk_free_cash_flow_quality`。
+它们在 proxy 周期回测里长周期回撤超过 30%，因此不进入默认 live-enable 工作队列。
+这些只是工作状态，不是 live 开关。
 
 ## Snapshot profile 索引
 
-只有首批 3 个 profile 进入当前 active live-enable 工作队列。其他已 scaffold 的 profile 保留为 research-only 资产：保留 sample builder 和基础测试，但除非明确重新打开，不要求现在补完整 walk-forward 回测或 live-enable evidence package。
+当前只有 `hk_low_vol_dividend_quality` 进入 active live-enable 工作队列。其他已 scaffold 的 profile 保留为 research-only 资产：保留 sample builder 和基础测试，但除非明确重新打开，不要求现在补完整 walk-forward 回测或 live-enable evidence package。
 
 | Profile | Snapshot 类型 | Builder 命令 | 工作范围 | 状态 |
 | --- | --- | --- | --- | --- |
-| `hk_low_vol_dividend_quality` | `factor_snapshot` | `hkeq-build-low-vol-dividend-quality-snapshot` | first snapshot candidate | `architecture_scaffold` |
-| `hk_shareholder_yield_quality` | `factor_snapshot` | `hkeq-build-shareholder-yield-quality-snapshot` | first snapshot candidate | `architecture_scaffold` |
-| `hk_free_cash_flow_quality` | `factor_snapshot` | `hkeq-build-free-cash-flow-quality-snapshot` | first snapshot candidate | `architecture_scaffold` |
+| `hk_low_vol_dividend_quality` | `factor_snapshot` | `hkeq-build-low-vol-dividend-quality-snapshot` | active first snapshot candidate | `architecture_scaffold` |
+| `hk_shareholder_yield_quality` | `factor_snapshot` | `hkeq-build-shareholder-yield-quality-snapshot` | deferred proxy retest scaffold | `architecture_scaffold` |
+| `hk_free_cash_flow_quality` | `factor_snapshot` | `hkeq-build-free-cash-flow-quality-snapshot` | deferred proxy retest scaffold | `architecture_scaffold` |
 | `hk_quality_growth_low_volatility` | `factor_snapshot` | `hkeq-build-quality-growth-low-volatility-snapshot` | research-only scaffold | `architecture_scaffold` |
 | `hk_factor_mix_qvlm_risk_parity` | `factor_snapshot` | `hkeq-build-factor-mix-qvlm-risk-parity-snapshot` | research-only scaffold | `architecture_scaffold` |
 | `hk_central_soe_value_quality_select` | `factor_snapshot` | `hkeq-build-central-soe-value-quality-select-snapshot` | research-only scaffold | `architecture_scaffold` |
@@ -137,7 +137,7 @@ hkeq-validate-live-enable-evidence \
 
 Validator 要求稳定 evidence URI、不能带 token/password/signature 等 secret-like query 参数、point-in-time 数据证明、样本外回测、港股成本/滑点/lot-size/容量检查、dry-run order-preview provenance、双语通知证据、上线控制和人工审批引用。
 
-首批 3 个 snapshot 候选使用共用 evidence 草稿命令：
+active 和 deferred quality/yield snapshot 候选可以继续使用共用 evidence 草稿命令。Deferred profile 在真实 point-in-time walk-forward 证据通过 30% 回撤门槛前，不进入默认 live-enable 队列：
 
 ```bash
 PYTHONPATH=src python scripts/draft_first_snapshot_production_source_audit.py \
@@ -154,6 +154,19 @@ PYTHONPATH=src python scripts/draft_first_snapshot_backtest_evidence.py \
 
 这些 draft 命令会保持所有 evidence `status: pending`，不会批准实盘交易。
 
+## 研究用 proxy 周期回测
+
+在投入完整生产数据源证据前，可以先用 research-only proxy 回测对 snapshot scaffold 做长、中、短周期比较：
+
+```bash
+PYTHONPATH=src python scripts/research_hk_snapshot_proxy_cycle_backtest.py \
+  --start 2016-01-01 \
+  --end 2026-06-03 \
+  --output-dir data/output/research_snapshot_proxy_backtest
+```
+
+该命令优先下载公开 Yahoo chart 价格；只有显式指定 synthetic 或公开价格拉取失败时才回退到确定性模拟价格。缺失的 fundamentals、buyback、FCF、南向资金、政策、估值和事件字段都是确定性 proxy 模拟，因此输出只用于研究收口，不属于 live-enable 证据。30% 最大回撤门槛会分别应用到长、中、短三个周期。
+
 ## 月度 AI 审计
 
 定时 workflow [`monthly_snapshot_audit.yml`](./.github/workflows/monthly_snapshot_audit.yml) 会创建月度 GitHub issue，并以 `monthly_snapshot_audit` 任务派发到 `QuantStrategyLab/CodexAuditBridge`。
@@ -166,7 +179,7 @@ PYTHONPATH=src python scripts/draft_first_snapshot_backtest_evidence.py \
 - `monthly_snapshot_audit_issue.json`：issue metadata 和 artifact name
 
 它不会发布 artifact、不会部署 Cloud Run、不会修改券商配置，也不会下单。
-首批审计范围只包含 `hk_low_vol_dividend_quality`、`hk_shareholder_yield_quality`、`hk_free_cash_flow_quality`；未入选的 snapshot scaffold 继续保持 research-only / deprioritized，除非后续补齐已验证证据。
+默认月度审计范围只包含 `hk_low_vol_dividend_quality`；未入选或 deferred 的 snapshot scaffold 继续保持 research-only / deprioritized，除非后续补齐已验证证据并明确重新打开。
 
 本地手动生成审计包：
 
@@ -198,8 +211,8 @@ python -m pytest -q
 ## 文档
 
 - [`docs/artifact_contract.md`](./docs/artifact_contract.md)：snapshot artifact schema 和 manifest contract。
-- [`docs/first_snapshot_promotion_runbook.md`](./docs/first_snapshot_promotion_runbook.md)：首批 3 个港股 snapshot 候选的 promotion runbook。
-- [`docs/first_snapshot_evidence_tools.zh-CN.md`](./docs/first_snapshot_evidence_tools.zh-CN.md)：首批 3 个港股 snapshot 候选共用的 evidence package、bundle、source-audit 和 backtest draft 工具。
+- [`docs/first_snapshot_promotion_runbook.md`](./docs/first_snapshot_promotion_runbook.md)：当前 active 港股 snapshot 候选的 promotion runbook。
+- [`docs/first_snapshot_evidence_tools.zh-CN.md`](./docs/first_snapshot_evidence_tools.zh-CN.md)：active/deferred quality-yield 候选共用的 evidence package、bundle、source-audit 和 backtest draft 工具。
 - [`docs/low_vol_dividend_live_enablement_package.zh-CN.md`](./docs/low_vol_dividend_live_enablement_package.zh-CN.md)：`hk_low_vol_dividend_quality` 首个候选 evidence package。
 - [`docs/low_vol_dividend_evidence_bundle.zh-CN.md`](./docs/low_vol_dividend_evidence_bundle.zh-CN.md)：`hk_low_vol_dividend_quality` 的生产数据源和 walk-forward 回测证据模板。
 - [`docs/low_vol_dividend_production_source_audit.zh-CN.md`](./docs/low_vol_dividend_production_source_audit.zh-CN.md)：`hk_low_vol_dividend_quality` 的生产数据源审计草稿工具。

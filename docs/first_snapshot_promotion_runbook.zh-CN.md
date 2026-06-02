@@ -2,11 +2,10 @@
 
 [English version](./first_snapshot_promotion_runbook.md)
 
-本 runbook 将港股 snapshot promotion 工作收口到首批 3 个 evidence-gated 候选：
+本 runbook 将港股 snapshot promotion 工作收口到 1 个 active evidence-gated 候选：
 
 1. `hk_low_vol_dividend_quality`
-2. `hk_shareholder_yield_quality`
-3. `hk_free_cash_flow_quality`
+Deferred 重新回测 profile：`hk_shareholder_yield_quality` 和 `hk_free_cash_flow_quality`。
 
 这些 profile 仍然是 `architecture_scaffold` 候选。本 runbook 不会 live-enable、不发布 production artifact、不部署 Cloud Run，也不会下券商订单。
 

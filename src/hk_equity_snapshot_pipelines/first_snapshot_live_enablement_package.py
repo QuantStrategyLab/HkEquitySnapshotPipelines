@@ -11,7 +11,12 @@ from .first_snapshot_evidence_profiles import (
     iter_first_snapshot_evidence_profiles,
     normalize_first_snapshot_profile,
 )
-from .first_snapshot_promotion_plan import DEFAULT_PLATFORMS, FIRST_SNAPSHOT_PROFILE_ORDER, build_first_snapshot_promotion_plan
+from .first_snapshot_promotion_plan import (
+    DEFAULT_PLATFORMS,
+    FIRST_SNAPSHOT_PROFILE_ORDER,
+    SUPPORTED_FIRST_SNAPSHOT_EVIDENCE_PROFILE_ORDER,
+    build_first_snapshot_promotion_plan,
+)
 from .live_enablement_evidence import REQUIRED_SECTIONS, STRATEGY_POLICY_EVIDENCE_SECTION
 from .snapshot_readiness import SUPPORTED_SNAPSHOT_PLATFORMS, build_snapshot_readiness
 
@@ -229,7 +234,7 @@ def _markdown(payload: dict[str, Any]) -> str:
         [
             f"# {payload['display_name']} Live-Enable Evidence Package",
             "",
-            "This package defines the evidence architecture for one of the first three HK snapshot candidates.",
+            "This package defines the evidence architecture for an active or deferred HK snapshot candidate.",
             "It does not enable live trading, deploy Cloud Run, or remove platform dry-run controls.",
             "",
             "## Status",
@@ -309,8 +314,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--profile",
         action="append",
-        choices=FIRST_SNAPSHOT_PROFILE_ORDER,
-        help="Profile to include; may be repeated. Defaults to the first three snapshot candidates.",
+        choices=SUPPORTED_FIRST_SNAPSHOT_EVIDENCE_PROFILE_ORDER,
+        help="Profile to include; may be repeated. Defaults to the active first snapshot candidate.",
     )
     parser.add_argument(
         "--platform",

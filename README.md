@@ -32,23 +32,23 @@ Non-snapshot HK runtime profiles stay in [`../HkEquityStrategies`](../HkEquitySt
 All profiles in this repository are `architecture_scaffold` / evidence-gated candidates. They are not platform live profiles by themselves.
 A profile can only be promoted after production data, point-in-time backtests, artifact-pack validation, broker dry-run evidence, bilingual notification evidence, and operator approval are complete.
 
-Current first snapshot candidates:
+Current active snapshot live-enable work queue:
 
 1. `hk_low_vol_dividend_quality`
-2. `hk_shareholder_yield_quality`
-3. `hk_free_cash_flow_quality`
 
-These are work-priority candidates, not live switches.
+Deferred quality/yield scaffolds retained for retest only: `hk_shareholder_yield_quality` and `hk_free_cash_flow_quality`.
+They are not in the default live-enable work queue after the proxy cycle backtest because their long-cycle proxy drawdowns exceeded 30%.
+All of these are work-priority states, not live switches.
 
 ## Snapshot profile index
 
-Only the first three profiles are in the active live-enable work queue. The remaining scaffolded profiles are retained as research-only assets: keep their sample builders and basic tests, but do not require full walk-forward backtests or live-enable evidence packages unless they are explicitly reopened.
+Only `hk_low_vol_dividend_quality` is in the active live-enable work queue. The remaining scaffolded profiles are retained as research-only assets: keep their sample builders and basic tests, but do not require full walk-forward backtests or live-enable evidence packages unless they are explicitly reopened.
 
 | Profile | Snapshot type | Builder command | Work scope | Status |
 | --- | --- | --- | --- | --- |
-| `hk_low_vol_dividend_quality` | `factor_snapshot` | `hkeq-build-low-vol-dividend-quality-snapshot` | first snapshot candidate | `architecture_scaffold` |
-| `hk_shareholder_yield_quality` | `factor_snapshot` | `hkeq-build-shareholder-yield-quality-snapshot` | first snapshot candidate | `architecture_scaffold` |
-| `hk_free_cash_flow_quality` | `factor_snapshot` | `hkeq-build-free-cash-flow-quality-snapshot` | first snapshot candidate | `architecture_scaffold` |
+| `hk_low_vol_dividend_quality` | `factor_snapshot` | `hkeq-build-low-vol-dividend-quality-snapshot` | active first snapshot candidate | `architecture_scaffold` |
+| `hk_shareholder_yield_quality` | `factor_snapshot` | `hkeq-build-shareholder-yield-quality-snapshot` | deferred proxy retest scaffold | `architecture_scaffold` |
+| `hk_free_cash_flow_quality` | `factor_snapshot` | `hkeq-build-free-cash-flow-quality-snapshot` | deferred proxy retest scaffold | `architecture_scaffold` |
 | `hk_quality_growth_low_volatility` | `factor_snapshot` | `hkeq-build-quality-growth-low-volatility-snapshot` | research-only scaffold | `architecture_scaffold` |
 | `hk_factor_mix_qvlm_risk_parity` | `factor_snapshot` | `hkeq-build-factor-mix-qvlm-risk-parity-snapshot` | research-only scaffold | `architecture_scaffold` |
 | `hk_central_soe_value_quality_select` | `factor_snapshot` | `hkeq-build-central-soe-value-quality-select-snapshot` | research-only scaffold | `architecture_scaffold` |
@@ -138,7 +138,7 @@ hkeq-validate-live-enable-evidence \
 
 The validators require stable evidence URIs, no secret-like query parameters, point-in-time data proof, out-of-sample backtests, HK cost/slippage/lot-size/capacity checks, dry-run order-preview provenance, bilingual notification evidence, rollout controls, and operator approval references.
 
-For the first three snapshot candidates, use the shared evidence draft commands:
+For the active and deferred quality/yield snapshot candidates, use the shared evidence draft commands. Deferred profiles should stay out of the default live-enable queue until real point-in-time walk-forward evidence passes the 30% drawdown gate:
 
 ```bash
 PYTHONPATH=src python scripts/draft_first_snapshot_production_source_audit.py \
@@ -155,6 +155,19 @@ PYTHONPATH=src python scripts/draft_first_snapshot_backtest_evidence.py \
 
 These draft commands keep all evidence `status: pending` and do not approve live trading.
 
+## Research proxy cycle backtest
+
+Use the research-only proxy backtest to compare snapshot scaffolds across long, medium, and short windows before spending time on full production-source evidence:
+
+```bash
+PYTHONPATH=src python scripts/research_hk_snapshot_proxy_cycle_backtest.py \
+  --start 2016-01-01 \
+  --end 2026-06-03 \
+  --output-dir data/output/research_snapshot_proxy_backtest
+```
+
+The command downloads public Yahoo chart prices when available and falls back to deterministic synthetic prices only when requested or when public price retrieval fails. Missing fundamentals, buyback, FCF, Southbound-flow, policy, valuation, and event fields are deterministic simulated proxies, so the output is for research triage only and is not live-enable evidence. The 30% max-drawdown gate is applied separately to long, medium, and short windows.
+
 ## Monthly AI audit
 
 The scheduled [`monthly_snapshot_audit.yml`](./.github/workflows/monthly_snapshot_audit.yml) workflow creates a monthly GitHub issue and dispatches `QuantStrategyLab/CodexAuditBridge` with task `monthly_snapshot_audit`.
@@ -167,7 +180,7 @@ The workflow only builds an audit bundle under `data/output/monthly_snapshot_aud
 - `monthly_snapshot_audit_issue.json`: issue metadata and artifact name
 
 It does **not** publish artifacts, deploy Cloud Run, change broker configuration, or place orders.
-The first audit scope is limited to `hk_low_vol_dividend_quality`, `hk_shareholder_yield_quality`, and `hk_free_cash_flow_quality`; non-selected snapshot scaffolds remain research-only / deprioritized unless validated evidence is added.
+The default monthly audit scope is limited to `hk_low_vol_dividend_quality`; non-selected and deferred snapshot scaffolds remain research-only / deprioritized unless validated evidence explicitly reopens them.
 
 Manual local bundle generation:
 
@@ -199,8 +212,8 @@ python -m pytest -q
 ## Documentation
 
 - [`docs/artifact_contract.md`](./docs/artifact_contract.md): snapshot artifact schema and manifest contract.
-- [`docs/first_snapshot_promotion_runbook.md`](./docs/first_snapshot_promotion_runbook.md): promotion runbook for the first three HK snapshot candidates.
-- [`docs/first_snapshot_evidence_tools.md`](./docs/first_snapshot_evidence_tools.md): shared evidence package, bundle, source-audit, and backtest draft tools for the first three HK snapshot candidates.
+- [`docs/first_snapshot_promotion_runbook.md`](./docs/first_snapshot_promotion_runbook.md): promotion runbook for the active HK snapshot candidate.
+- [`docs/first_snapshot_evidence_tools.md`](./docs/first_snapshot_evidence_tools.md): shared evidence package, bundle, source-audit, and backtest draft tools for active/deferred quality-yield candidates.
 - [`docs/low_vol_dividend_live_enablement_package.md`](./docs/low_vol_dividend_live_enablement_package.md): first-candidate evidence package for `hk_low_vol_dividend_quality`.
 - [`docs/low_vol_dividend_evidence_bundle.md`](./docs/low_vol_dividend_evidence_bundle.md): production source and walk-forward evidence templates for `hk_low_vol_dividend_quality`.
 - [`docs/low_vol_dividend_production_source_audit.md`](./docs/low_vol_dividend_production_source_audit.md): production source audit draft tool for `hk_low_vol_dividend_quality`.

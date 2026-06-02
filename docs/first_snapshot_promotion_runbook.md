@@ -2,17 +2,16 @@
 
 [Chinese version](./first_snapshot_promotion_runbook.zh-CN.md)
 
-This runbook narrows HK snapshot promotion work to the first three evidence-gated candidates:
+This runbook narrows HK snapshot promotion work to one active evidence-gated candidate:
 
 1. `hk_low_vol_dividend_quality`
-2. `hk_shareholder_yield_quality`
-3. `hk_free_cash_flow_quality`
+Deferred retest profiles: `hk_shareholder_yield_quality` and `hk_free_cash_flow_quality`.
 
 These profiles are still `architecture_scaffold` candidates. This runbook does not live-enable them, publish production artifacts, deploy Cloud Run, or place broker orders.
 
-## Why these three profiles first
+## Why this profile first
 
-They are lower-turnover quality/yield candidates that fit the current HK risk objective better than event, flow, AH-premium, or high-turnover momentum scaffolds. They must still prove max drawdown `<= 30%`, at least three independent out-of-sample folds, net-of-cost performance, HK liquidity/capacity, artifact provenance, dry-run order preview, bilingual notification evidence, and operator approval.
+`hk_low_vol_dividend_quality` is a lower-turnover quality/yield candidate that fits the current HK risk objective better than event, flow, AH-premium, or high-turnover momentum scaffolds, and it passed the proxy long/medium/short 30% drawdown gate. It must still prove max drawdown `<= 30%`, at least three independent out-of-sample folds, net-of-cost performance, HK liquidity/capacity, artifact provenance, dry-run order preview, bilingual notification evidence, and operator approval with real point-in-time data.
 
 ## Print the promotion plan
 
@@ -66,7 +65,7 @@ Run survivorship-safe walk-forward backtests before any platform dry-run promoti
 - max drawdown `<= 30%`, or stricter profile threshold if configured
 - annual return / max drawdown ratio `>= 0.50`
 - max single-period return contribution `<= 60%`
-- annualized turnover `<= 100%` for the first three candidates
+- annualized turnover `<= 100%` for the active quality/yield candidate
 - HK fees, levies, slippage, bid/ask spread, lot-size, suspension, VCM, CAS, and capacity stress
 - same-universe ablation across low-vol dividend, shareholder yield, and FCF quality
 

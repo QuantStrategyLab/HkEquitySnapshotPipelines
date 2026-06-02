@@ -324,9 +324,18 @@ SNAPSHOT_PROMOTION_GATE = "blocked_until_production_evidence"
 SNAPSHOT_RUNTIME_ENABLED = False
 FIRST_SNAPSHOT_PROMOTION_SCOPE = "first_snapshot_live_enablement_candidate"
 RESEARCH_ONLY_SCAFFOLD_SCOPE = "research_only_scaffold"
+ACTIVE_SNAPSHOT_LIVE_ENABLEMENT_PROFILES = (HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,)
+DEFERRED_PROXY_RETEST_PROFILES = (
+    HK_SHAREHOLDER_YIELD_QUALITY_PROFILE,
+    HK_FREE_CASH_FLOW_QUALITY_PROFILE,
+)
 RESEARCH_ONLY_NEXT_ACTION = (
     "Retain the scaffold, sample builder, and basic tests for research only; do not build a full "
     "walk-forward/live-enable evidence package unless this profile is explicitly reopened."
+)
+DEFERRED_PROXY_RETEST_NEXT_ACTION = (
+    "Keep this profile out of the active live-enable queue; rerun a real point-in-time factor walk-forward "
+    "backtest and reopen only if long, medium, and short cycle max drawdowns all stay at or below 30%."
 )
 
 GENERIC_REQUIRED_NEXT_EVIDENCE: tuple[str, ...] = (
@@ -568,27 +577,32 @@ CURATED_SNAPSHOT_STRATEGY_RANKING: tuple[dict[str, object], ...] = (
     {
         "rank": 1,
         "profile": HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,
-        "decision": "first_snapshot_candidate",
-        "why": "Best single-name HK snapshot starting point: low-turnover high-dividend plus low-volatility evidence.",
+        "decision": "active_first_snapshot_candidate_after_proxy_cycle_backtest",
+        "why": (
+            "Best single-name HK snapshot starting point: low-turnover high-dividend plus low-volatility evidence, "
+            "and the only first-wave proxy profile that passed the 30% drawdown gate across long, medium, and short cycles."
+        ),
         "next_action": "Audit production dividend/fundamentals history and run same-universe walk-forward tests.",
-    },
-    {
-        "rank": 2,
-        "profile": HK_SHAREHOLDER_YIELD_QUALITY_PROFILE,
-        "decision": "first_snapshot_candidate",
-        "why": "Actual HKEX buybacks plus dividend/share-count quality can improve defensive yield selection.",
-        "next_action": "Audit repurchase execution, treasury-share treatment, dilution, blackout, and share-count data.",
-    },
-    {
-        "rank": 3,
-        "profile": HK_FREE_CASH_FLOW_QUALITY_PROFILE,
-        "decision": "first_snapshot_candidate",
-        "why": "FCF yield is a cleaner quality/value extension once point-in-time reporting-date lineage is proven.",
-        "next_action": "Build FCF/EV formula lineage, restatement controls, sector exceptions, and negative-FCF handling.",
     },
 )
 
 DEPRIORITIZED_SNAPSHOT_STRATEGY_PROFILES: tuple[dict[str, str], ...] = (
+    {
+        "profile": HK_SHAREHOLDER_YIELD_QUALITY_PROFILE,
+        "decision": "deferred_proxy_retest_candidate",
+        "reason": (
+            "Economic thesis remains plausible, but the proxy cycle backtest failed the long-cycle 30% drawdown gate; "
+            "reopen only after real buyback/share-count/fundamental history improves the drawdown evidence."
+        ),
+    },
+    {
+        "profile": HK_FREE_CASH_FLOW_QUALITY_PROFILE,
+        "decision": "deferred_proxy_retest_candidate",
+        "reason": (
+            "FCF quality remains a useful research scaffold, but the proxy cycle backtest failed the long-cycle 30% "
+            "drawdown gate; keep out of default live-enable evidence work until real point-in-time fundamentals pass."
+        ),
+    },
     {
         "profile": HK_RESIDUAL_MOMENTUM_QUALITY_PROFILE,
         "decision": "research_only_scaffold",
@@ -2708,7 +2722,7 @@ def build_curated_snapshot_strategy_ranking() -> dict[str, Any]:
     future_policy = build_future_research_live_enablement_policy()
     return {
         "ranking_version": CURATED_SNAPSHOT_STRATEGY_RANKING_VERSION,
-        "selection_scope": "first_three_live_enablement_candidates_only",
+        "selection_scope": "single_active_candidate_after_proxy_cycle_backtest",
         "live_enablement_allowed_without_evidence": False,
         "max_allowed_drawdown": 0.30,
         "ranking": [dict(item) for item in CURATED_SNAPSHOT_STRATEGY_RANKING],
@@ -2716,7 +2730,8 @@ def build_curated_snapshot_strategy_ranking() -> dict[str, Any]:
         "future_research_curated_candidate_order": list(future_policy["curated_candidate_order"]),
         "future_research_deprioritized_candidate_order": list(future_policy["deprioritized_candidate_order"]),
         "notes": [
-            "The active live-enable work queue is intentionally limited to the first three quality/yield profiles.",
+            "The active live-enable work queue is intentionally limited to hk_low_vol_dividend_quality after proxy cycle triage.",
+            "hk_shareholder_yield_quality and hk_free_cash_flow_quality are retained as deferred retest candidates, not default live-enable work.",
             "Other scaffolded profiles are retained as research-only artifacts; do not require full backtests or live-enable evidence packages unless explicitly reopened.",
             "Every promoted snapshot still needs production evidence, walk-forward backtest, dry-run order preview, bilingual notification, and operator approval.",
         ],
@@ -2726,7 +2741,8 @@ def build_curated_snapshot_strategy_ranking() -> dict[str, Any]:
 def build_snapshot_promotion_row(profile: str) -> dict[str, Any]:
     contract = get_profile_contract(profile)
     candidate = get_snapshot_promotion_candidate(contract.profile)
-    is_first_snapshot_candidate = candidate.promotion_bucket == "first_snapshot_candidate"
+    is_active_live_enablement_candidate = contract.profile in ACTIVE_SNAPSHOT_LIVE_ENABLEMENT_PROFILES
+    is_deferred_proxy_retest_candidate = contract.profile in DEFERRED_PROXY_RETEST_PROFILES
     row = {
         "profile": contract.profile,
         "display_name": contract.display_name,
@@ -2735,20 +2751,30 @@ def build_snapshot_promotion_row(profile: str) -> dict[str, Any]:
         "promotion_bucket": candidate.promotion_bucket,
         "promotion_scope": (
             FIRST_SNAPSHOT_PROMOTION_SCOPE
-            if is_first_snapshot_candidate
+            if is_active_live_enablement_candidate
             else RESEARCH_ONLY_SCAFFOLD_SCOPE
         ),
-        "live_enablement_work_queue": is_first_snapshot_candidate,
-        "requires_full_backtest_now": is_first_snapshot_candidate,
+        "live_enablement_work_queue": is_active_live_enablement_candidate,
+        "requires_full_backtest_now": is_active_live_enablement_candidate,
         "evidence_tooling_scope": (
-            "first_snapshot_shared_evidence_tools"
-            if is_first_snapshot_candidate
+            "active_first_snapshot_shared_evidence_tools"
+            if is_active_live_enablement_candidate
+            else "deferred_first_snapshot_evidence_supported_not_default"
+            if is_deferred_proxy_retest_candidate
             else "research_only_no_live_enablement_package"
         ),
-        "recommended_live_enablement_stage": LIVE_ENABLEMENT_STAGE_BY_BUCKET[candidate.promotion_bucket],
+        "recommended_live_enablement_stage": (
+            LIVE_ENABLEMENT_STAGE_BY_BUCKET[candidate.promotion_bucket]
+            if is_active_live_enablement_candidate
+            else "deferred_after_proxy_cycle_retest_with_real_factors"
+            if is_deferred_proxy_retest_candidate
+            else LIVE_ENABLEMENT_STAGE_BY_BUCKET[candidate.promotion_bucket]
+        ),
         "next_live_enablement_action": (
             NEXT_LIVE_ENABLEMENT_ACTION_BY_BUCKET[candidate.promotion_bucket]
-            if is_first_snapshot_candidate
+            if is_active_live_enablement_candidate
+            else DEFERRED_PROXY_RETEST_NEXT_ACTION
+            if is_deferred_proxy_retest_candidate
             else RESEARCH_ONLY_NEXT_ACTION
         ),
         "reopen_research_action": NEXT_LIVE_ENABLEMENT_ACTION_BY_BUCKET[candidate.promotion_bucket],
@@ -2796,7 +2822,10 @@ def build_snapshot_promotion_row(profile: str) -> dict[str, Any]:
 def build_snapshot_promotion_matrix() -> dict[str, Any]:
     rows = [build_snapshot_promotion_row(candidate.profile) for candidate in list_snapshot_promotion_candidates()]
     first_snapshot_candidates = [
-        row["profile"] for row in rows if row["promotion_bucket"] == "first_snapshot_candidate"
+        row["profile"] for row in rows if row["promotion_scope"] == FIRST_SNAPSHOT_PROMOTION_SCOPE
+    ]
+    deferred_proxy_retest_candidates = [
+        row["profile"] for row in rows if row["profile"] in DEFERRED_PROXY_RETEST_PROFILES
     ]
     research_only_scaffolds = [
         row["profile"] for row in rows if row["promotion_scope"] == RESEARCH_ONLY_SCAFFOLD_SCOPE
@@ -2809,8 +2838,10 @@ def build_snapshot_promotion_matrix() -> dict[str, Any]:
         "blocked_profile_count": sum(1 for row in rows if not row["runtime_enabled"]),
         "profile_count": len(rows),
         "active_live_enablement_candidate_count": len(first_snapshot_candidates),
+        "deferred_proxy_retest_candidate_count": len(deferred_proxy_retest_candidates),
         "research_only_scaffold_count": len(research_only_scaffolds),
         "first_snapshot_candidates": first_snapshot_candidates,
+        "deferred_proxy_retest_candidates": deferred_proxy_retest_candidates,
         "recommended_live_enablement_sequence": first_snapshot_candidates,
         "research_only_scaffold_sequence": research_only_scaffolds,
         "curated_snapshot_strategy_ranking": build_curated_snapshot_strategy_ranking(),
@@ -2875,12 +2906,14 @@ if __name__ == "__main__":
 
 __all__ = [
     "BASELINE_ROTATION_LIVE_ENABLEMENT_POLICY_VERSION",
+    "ACTIVE_SNAPSHOT_LIVE_ENABLEMENT_PROFILES",
     "BACKTEST_VALIDATION_POLICY_VERSION",
     "BASELINE_ROTATION_PROFILES",
     "EVIDENCE_URI_POLICY",
     "FACTOR_MIX_LIVE_ENABLEMENT_POLICY_VERSION",
     "FACTOR_MIX_STOCK_SELECTION_PROFILES",
     "CURATED_SNAPSHOT_STRATEGY_RANKING_VERSION",
+    "DEFERRED_PROXY_RETEST_PROFILES",
     "FUTURE_RESEARCH_BACKLOG_VERSION",
     "FUTURE_RESEARCH_LIVE_ENABLEMENT_POLICY_VERSION",
     "FIRST_SNAPSHOT_PROMOTION_SCOPE",
