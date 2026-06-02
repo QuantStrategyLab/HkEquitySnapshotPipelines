@@ -67,6 +67,13 @@ from .future_research_live_enablement_policy import (
     HK_LIQUID_LARGECAP_WEEKLY_REVERSAL_COST_AWARE_OVERLAY_PROFILE_HINT,
     HK_US_ADR_HK_SECONDARY_LISTING_LEAD_LAG_OVERLAY_PROFILE_HINT,
     HK_SMART_BETA_FACTOR_REGIME_ROTATION_OVERLAY_PROFILE_HINT,
+    HK_ESG_DOWNSIDE_RISK_QUALITY_OVERLAY_PROFILE_HINT,
+    HSI_ESG_ENHANCED_INDEX_FACTSHEET_URL,
+    HSI_ESG_ENHANCED_INDEX_METHODOLOGY_URL,
+    HSI_ESG_INDEX_PAGE_URL,
+    HSI_ESG_PERFORMANCE_ASSESSMENT_URL,
+    MDPI_HSI_ESG_DOWNSIDE_RISK_URL,
+    SSRN_HKIMR_ESG_RISK_RETURN_URL,
     HK_CONNECTED_TRANSACTION_GOVERNANCE_RISK_OVERLAY_PROFILE_HINT,
     HK_DIRECTOR_DEALING_DISCLOSURE_QUALITY_OVERLAY_PROFILE_HINT,
     HK_DISTRIBUTION_EX_DATE_ENTITLEMENT_OVERLAY_PROFILE_HINT,
@@ -1918,6 +1925,43 @@ FUTURE_RESEARCH_BACKLOG: tuple[dict[str, object], ...] = (
             SSRN_HK_SMART_BETA_STRATEGIES_URL,
             SCIENCEDIRECT_SMART_BETA_REGIME_SWITCHING_URL,
             HSI_LOW_SIZE_INDEX_METHODOLOGY_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_ESG_DOWNSIDE_RISK_QUALITY_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "esg_downside_risk_quality_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "esg_risk_quality_snapshot_overlay",
+        "research_thesis": (
+            "Test whether HK ESG risk-rating, UNGC, controversial-product, sustainability-data quality, "
+            "and ESG tilt evidence can reduce downside risk or volatility-spike exposure when applied as a "
+            "low-turnover quality / governance / de-risking overlay to existing HK quality, yield, low-volatility, "
+            "smart-beta, ETF, and event sleeves. It must improve drawdown control rather than become ESG label-chasing."
+        ),
+        "required_new_data": (
+            "point_in_time_esg_risk_rating_ungc_controversial_product_and_provider_version_history",
+            "hsi_esg_enhanced_constituent_exclusion_tilt_factor_industry_weight_cap_and_rebalance_history",
+            "esg_data_provider_coverage_missing_rating_name_change_and_methodology_change_history",
+            "esg_downside_risk_volatility_spike_news_sentiment_and_institutional_flow_history",
+            "same_universe_esg_quality_yield_low_vol_governance_smart_beta_and_etf_ablation_history",
+            "greenwashing_controversy_reversal_sector_concentration_liquidity_cost_and_capacity_stress_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new ESG downside-risk quality snapshot overlay contract before adding ESG ratings, UNGC, controversy, tilt-factor, or provider-version fields to any existing artifact.",
+            "Use point-in-time HSI ESG methodology versions, ESG Risk Rating history, UNGC ratings, controversial-product involvement, provider coverage, missing-rating handling, constituent exclusions, tilt factors, industry-weight caps, and rebalance dates only; do not use later ESG controversies or post-review labels at the rebalance date.",
+            "Use as a low-turnover downside-risk, quality, governance, or de-risking overlay first; do not promote ESG label-chasing, greenwashing-sensitive marketing, high-turnover controversy trading, short-selling, derivative, or standalone ESG timing strategies.",
+            "Classify ESG risk rating, UNGC non-compliance, controversial-product involvement, missing rating, provider/version source, Z-score / tilt factor, exclusion buffer, industry cap, sector concentration, news-sentiment context, institutional flow where available, liquidity, and broker order-preview status before ranking signals.",
+            "Ablate ESG downside-risk signals versus quality-yield, quality-growth low-volatility, regulatory enforcement, connected-transaction governance, smart-beta factor-regime, downside-risk volatility, ETF rotation, and cash/02800 defensive baselines on the same survivorship-safe universe.",
+            "Stress volatility spikes, China policy/property drawdowns, ESG data-provider methodology changes, missing coverage, rating lag, greenwashing / controversy reversals, sector and financials concentration, crowded defensive tilts, Southbound eligibility changes, HK cost/slippage, VCM/CAS, suspension, and capacity.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            HSI_ESG_ENHANCED_INDEX_FACTSHEET_URL,
+            HSI_ESG_ENHANCED_INDEX_METHODOLOGY_URL,
+            HSI_ESG_INDEX_PAGE_URL,
+            HSI_ESG_PERFORMANCE_ASSESSMENT_URL,
+            MDPI_HSI_ESG_DOWNSIDE_RISK_URL,
+            SSRN_HKIMR_ESG_RISK_RETURN_URL,
         ),
     },
 )

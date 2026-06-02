@@ -640,7 +640,7 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert "new_snapshot_profile_name_and_contract_version" in (
         backlog["future_research_live_enablement_policy"]["required_pre_scaffold_gates"]
     )
-    assert backlog["candidate_count"] == 36
+    assert backlog["candidate_count"] == 37
     assert backlog["candidates"][0]["profile_hint"] == "hk_earnings_revision_quality_overlay"
     assert backlog["candidates"][0]["scaffold_status"] == "research_only_not_scaffolded"
     assert any("earnings-revision-overlay" in url for url in backlog["candidates"][0]["source_reference_urls"])
@@ -871,6 +871,14 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert any("3054594" in url for url in backlog["candidates"][35]["source_reference_urls"])
     assert any("smart_beta_factor_index" in item for item in backlog["candidates"][35]["required_new_data"])
     assert any("regime_rotation" in item for item in backlog["candidates"][35]["required_new_data"])
+    assert backlog["candidates"][36]["profile_hint"] == "hk_esg_downside_risk_quality_overlay"
+    assert backlog["candidates"][36]["suggested_contract_type"] == "esg_risk_quality_snapshot_overlay"
+    assert any("hsiesgse.pdf" in url for url in backlog["candidates"][36]["source_reference_urls"])
+    assert any("IM_hsiesgse.pdf" in url for url in backlog["candidates"][36]["source_reference_urls"])
+    assert any("1911-8074/17/2/57" in url for url in backlog["candidates"][36]["source_reference_urls"])
+    assert any("4131043" in url for url in backlog["candidates"][36]["source_reference_urls"])
+    assert any("esg_risk_rating" in item for item in backlog["candidates"][36]["required_new_data"])
+    assert any("downside_risk" in item for item in backlog["candidates"][36]["required_new_data"])
 
 
 def test_future_research_live_enablement_policy_blocks_backlog_until_new_contract_and_evidence():
@@ -917,6 +925,7 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
         "hk_liquid_largecap_weekly_reversal_cost_aware_overlay",
         "hk_us_adr_hk_secondary_listing_lead_lag_overlay",
         "hk_smart_beta_factor_regime_rotation_overlay",
+        "hk_esg_downside_risk_quality_overlay",
     ]
     assert "same_universe_ablation_vs_existing_quality_yield_momentum_and_special_situation_profiles" in (
         policy["required_pre_scaffold_gates"]
@@ -1182,6 +1191,15 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert "same_universe_factor_regime_rotation_factor_mix_quality_yield_momentum_and_etf_ablation_history" in (
         policy["required_data_provenance"]
     )
+    assert "point_in_time_esg_risk_rating_ungc_controversial_product_and_provider_version_history" in (
+        policy["required_data_provenance"]
+    )
+    assert "hsi_esg_enhanced_constituent_tilt_factor_industry_weight_cap_and_rebalance_history" in (
+        policy["required_data_provenance"]
+    )
+    assert "same_universe_esg_quality_yield_low_vol_governance_and_smart_beta_ablation_history" in (
+        policy["required_data_provenance"]
+    )
     assert "same_universe_liquidity_volatility_derivatives_structured_product_momentum_event_and_execution_ablation_history" in (
         policy["required_data_provenance"]
     )
@@ -1295,6 +1313,10 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert any("HSIL_Smart_Beta_Brochure" in url for url in policy["source_reference_urls"])
     assert any("research-how-smart-beta-strategies-work" in url for url in policy["source_reference_urls"])
     assert any("3054594" in url for url in policy["source_reference_urls"])
+    assert any("hsiesgse.pdf" in url for url in policy["source_reference_urls"])
+    assert any("IM_hsiesgse.pdf" in url for url in policy["source_reference_urls"])
+    assert any("1911-8074/17/2/57" in url for url in policy["source_reference_urls"])
+    assert any("4131043" in url for url in policy["source_reference_urls"])
 
 
 

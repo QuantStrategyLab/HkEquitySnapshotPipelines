@@ -82,6 +82,7 @@ HK_US_ADR_HK_SECONDARY_LISTING_LEAD_LAG_OVERLAY_PROFILE_HINT = (
 HK_SMART_BETA_FACTOR_REGIME_ROTATION_OVERLAY_PROFILE_HINT = (
     "hk_smart_beta_factor_regime_rotation_overlay"
 )
+HK_ESG_DOWNSIDE_RISK_QUALITY_OVERLAY_PROFILE_HINT = "hk_esg_downside_risk_quality_overlay"
 
 SP_EARNINGS_REVISION_OVERLAY_ASIA_URL = (
     "https://www.spglobal.com/spdji/en/research/article/"
@@ -113,6 +114,18 @@ SSRN_HK_SMART_BETA_STRATEGIES_URL = "https://papers.ssrn.com/sol3/papers.cfm?abs
 SCIENCEDIRECT_SMART_BETA_REGIME_SWITCHING_URL = (
     "https://www.sciencedirect.com/science/article/pii/S0957417420305443"
 )
+HSI_ESG_ENHANCED_INDEX_FACTSHEET_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/factsheets/hsiesgse.pdf"
+)
+HSI_ESG_ENHANCED_INDEX_METHODOLOGY_URL = (
+    "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/methodologies/IM_hsiesgse.pdf"
+)
+HSI_ESG_INDEX_PAGE_URL = "https://www.hsi.com.hk/eng/indexes/all-indexes/hsiesg"
+HSI_ESG_PERFORMANCE_ASSESSMENT_URL = (
+    "https://www.hsi.com.hk/solutions/sustainability-indexes/esg-performance-assessment/"
+)
+MDPI_HSI_ESG_DOWNSIDE_RISK_URL = "https://www.mdpi.com/1911-8074/17/2/57"
+SSRN_HKIMR_ESG_RISK_RETURN_URL = "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4131043"
 HKEX_STOCK_CONNECT_ELIGIBLE_SECURITIES_URL = (
     "https://www.hkex.com.hk/Mutual-Market/Stock-Connect/Eligible-Stocks/"
     "View-All-Eligible-Securities?sc_lang=en"
@@ -612,6 +625,7 @@ FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_LIQUID_LARGECAP_WEEKLY_REVERSAL_COST_AWARE_OVERLAY_PROFILE_HINT,
     HK_US_ADR_HK_SECONDARY_LISTING_LEAD_LAG_OVERLAY_PROFILE_HINT,
     HK_SMART_BETA_FACTOR_REGIME_ROTATION_OVERLAY_PROFILE_HINT,
+    HK_ESG_DOWNSIDE_RISK_QUALITY_OVERLAY_PROFILE_HINT,
 )
 
 FUTURE_RESEARCH_REQUIRED_PRE_SCAFFOLD_GATES: tuple[str, ...] = (
@@ -748,6 +762,10 @@ FUTURE_RESEARCH_REQUIRED_DATA_PROVENANCE: tuple[str, ...] = (
     "point_in_time_hk_smart_beta_factor_index_constituent_score_and_return_history",
     "factor_regime_market_cycle_investor_sentiment_volatility_and_macro_state_history",
     "same_universe_factor_regime_rotation_factor_mix_quality_yield_momentum_and_etf_ablation_history",
+    "point_in_time_esg_risk_rating_ungc_controversial_product_and_provider_version_history",
+    "hsi_esg_enhanced_constituent_tilt_factor_industry_weight_cap_and_rebalance_history",
+    "esg_downside_risk_volatility_spike_news_sentiment_and_institutional_flow_history",
+    "same_universe_esg_quality_yield_low_vol_governance_and_smart_beta_ablation_history",
 )
 
 FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
@@ -763,6 +781,12 @@ FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
     SP_HK_SMART_BETA_STRATEGIES_RESEARCH_URL,
     SSRN_HK_SMART_BETA_STRATEGIES_URL,
     SCIENCEDIRECT_SMART_BETA_REGIME_SWITCHING_URL,
+    HSI_ESG_ENHANCED_INDEX_FACTSHEET_URL,
+    HSI_ESG_ENHANCED_INDEX_METHODOLOGY_URL,
+    HSI_ESG_INDEX_PAGE_URL,
+    HSI_ESG_PERFORMANCE_ASSESSMENT_URL,
+    MDPI_HSI_ESG_DOWNSIDE_RISK_URL,
+    SSRN_HKIMR_ESG_RISK_RETURN_URL,
     HKEX_STOCK_CONNECT_ELIGIBLE_SECURITIES_URL,
     HKEX_STOCK_CONNECT_EXPANSION_2023_URL,
     HKEX_STOCK_CONNECT_FAQ_URL,
@@ -1018,6 +1042,13 @@ __all__ = [
     "HK_LIQUID_LARGECAP_WEEKLY_REVERSAL_COST_AWARE_OVERLAY_PROFILE_HINT",
     "HK_US_ADR_HK_SECONDARY_LISTING_LEAD_LAG_OVERLAY_PROFILE_HINT",
     "HK_SMART_BETA_FACTOR_REGIME_ROTATION_OVERLAY_PROFILE_HINT",
+    "HK_ESG_DOWNSIDE_RISK_QUALITY_OVERLAY_PROFILE_HINT",
+    "HSI_ESG_ENHANCED_INDEX_FACTSHEET_URL",
+    "HSI_ESG_ENHANCED_INDEX_METHODOLOGY_URL",
+    "HSI_ESG_INDEX_PAGE_URL",
+    "HSI_ESG_PERFORMANCE_ASSESSMENT_URL",
+    "MDPI_HSI_ESG_DOWNSIDE_RISK_URL",
+    "SSRN_HKIMR_ESG_RISK_RETURN_URL",
     "HK_TAKEOVER_PRIVATIZATION_EVENT_SPREAD_OVERLAY_PROFILE_HINT",
     "HK_LOTTERY_STOCK_RISK_EXCLUSION_OVERLAY_PROFILE_HINT",
     "HK_LOW_SIZE_QUALITY_LIQUIDITY_PREMIUM_PROFILE_HINT",
