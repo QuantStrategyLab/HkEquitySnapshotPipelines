@@ -4,6 +4,7 @@
 
 This tool turns a platform dry-run runtime report into a draft `platform_dry_run_order_preview` evidence section for `hk_low_vol_dividend_quality`.
 It supports LongBridge and IBKR.
+For IBKR, the CLI uses `--platform ibkr` while accepting runtime reports whose top-level `platform` is either `ibkr` or the platform runtime ID `interactive_brokers`.
 
 The command does not deploy Cloud Run, place orders, upload artifacts, or approve live trading.
 It keeps the full evidence pack blocked until the production source, artifact, backtest, broker permission, rebalance window, rollout, risk approval, and strategy-policy sections are also complete.

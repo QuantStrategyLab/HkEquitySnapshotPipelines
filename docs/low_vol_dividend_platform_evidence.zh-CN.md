@@ -4,6 +4,7 @@
 
 该工具把平台 dry-run runtime report 转成 `hk_low_vol_dividend_quality` 的 `platform_dry_run_order_preview` evidence 草稿。
 支持 LongBridge 和 IBKR。
+IBKR 在 CLI 中使用 `--platform ibkr`，同时兼容 runtime report 顶层 `platform` 为 `ibkr` 或平台运行时 ID `interactive_brokers`。
 
 该命令不会部署 Cloud Run、不会下单、不会上传 artifact，也不会批准 live trading。
 在 production source、artifact、backtest、broker permission、rebalance window、rollout、risk approval 和 strategy-policy evidence 全部补齐前，完整 evidence pack 仍会保持 blocked。
