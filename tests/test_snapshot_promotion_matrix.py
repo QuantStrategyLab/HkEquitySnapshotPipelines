@@ -640,7 +640,7 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert "new_snapshot_profile_name_and_contract_version" in (
         backlog["future_research_live_enablement_policy"]["required_pre_scaffold_gates"]
     )
-    assert backlog["candidate_count"] == 19
+    assert backlog["candidate_count"] == 20
     assert backlog["candidates"][0]["profile_hint"] == "hk_earnings_revision_quality_overlay"
     assert backlog["candidates"][0]["scaffold_status"] == "research_only_not_scaffolded"
     assert any("earnings-revision-overlay" in url for url in backlog["candidates"][0]["source_reference_urls"])
@@ -749,6 +749,12 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert any("ETF-Handbook" in url for url in backlog["candidates"][18]["source_reference_urls"])
     assert any("nav_inav_premium_discount" in item for item in backlog["candidates"][18]["required_new_data"])
     assert any("complex_product" in item for item in backlog["candidates"][18]["required_new_data"])
+    assert backlog["candidates"][19]["profile_hint"] == "hk_asset_growth_net_issuance_quality_overlay"
+    assert backlog["candidates"][19]["suggested_contract_type"] == "accounting_factor_snapshot_overlay"
+    assert any("3043649" in url for url in backlog["candidates"][19]["source_reference_urls"])
+    assert any("188473" in url for url in backlog["candidates"][19]["source_reference_urls"])
+    assert any("total_asset_growth" in item for item in backlog["candidates"][19]["required_new_data"])
+    assert any("net_share_issuance" in item for item in backlog["candidates"][19]["required_new_data"])
 
 
 def test_future_research_live_enablement_policy_blocks_backlog_until_new_contract_and_evidence():
@@ -778,6 +784,7 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
         "hk_macro_liquidity_inflation_rate_sensitivity_overlay",
         "hk_turn_of_month_lunar_new_year_calendar_overlay",
         "hk_etf_premium_discount_tracking_quality_overlay",
+        "hk_asset_growth_net_issuance_quality_overlay",
     ]
     assert "same_universe_ablation_vs_existing_quality_yield_momentum_and_special_situation_profiles" in (
         policy["required_pre_scaffold_gates"]
@@ -905,6 +912,12 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert "etf_replication_synthetic_leveraged_inverse_complex_product_and_stock_connect_history" in (
         policy["required_data_provenance"]
     )
+    assert "point_in_time_total_asset_growth_net_operating_asset_growth_and_capex_history" in (
+        policy["required_data_provenance"]
+    )
+    assert "net_share_issuance_equity_financing_buyback_share_count_and_dilution_history" in (
+        policy["required_data_provenance"]
+    )
     assert "sector_rate_beta_inflation_beta_property_financial_and_dividend_yield_sensitivity_history" in (
         policy["required_data_provenance"]
     )
@@ -948,6 +961,9 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert any("2303600" in url for url in policy["source_reference_urls"])
     assert any("ETF-Handbook" in url for url in policy["source_reference_urls"])
     assert any("20110814" in url for url in policy["source_reference_urls"])
+    assert any("3043649" in url for url in policy["source_reference_urls"])
+    assert any("188473" in url for url in policy["source_reference_urls"])
+    assert any("S0304405X11000894" in url for url in policy["source_reference_urls"])
 
 
 
