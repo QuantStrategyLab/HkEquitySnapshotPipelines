@@ -31,6 +31,7 @@ hkeq-build-shareholder-yield-quality-snapshot = "hk_equity_snapshot_pipelines.sh
 hkeq-build-southbound-flow-momentum-snapshot = "hk_equity_snapshot_pipelines.southbound_flow_momentum:main"
 hkeq-print-snapshot-readiness = "hk_equity_snapshot_pipelines.snapshot_readiness:main"
 hkeq-print-snapshot-promotion-matrix = "hk_equity_snapshot_pipelines.snapshot_promotion_matrix:main"
+hkeq-print-first-snapshot-promotion-plan = "hk_equity_snapshot_pipelines.first_snapshot_promotion_plan:main"
 hkeq-validate-snapshot-artifact-pack = "hk_equity_snapshot_pipelines.snapshot_artifact_validation:main"
 hkeq-validate-live-enable-evidence = "hk_equity_snapshot_pipelines.live_enablement_evidence:main"
 
