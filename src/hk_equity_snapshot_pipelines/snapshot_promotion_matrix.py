@@ -65,6 +65,7 @@ from .future_research_live_enablement_policy import (
     HK_REGULATORY_ENFORCEMENT_DISCIPLINARY_RISK_OVERLAY_PROFILE_HINT,
     HK_MARGIN_FINANCING_COLLATERAL_FORCED_SELLING_RISK_OVERLAY_PROFILE_HINT,
     HK_LIQUID_LARGECAP_WEEKLY_REVERSAL_COST_AWARE_OVERLAY_PROFILE_HINT,
+    HK_US_ADR_HK_SECONDARY_LISTING_LEAD_LAG_OVERLAY_PROFILE_HINT,
     HK_CONNECTED_TRANSACTION_GOVERNANCE_RISK_OVERLAY_PROFILE_HINT,
     HK_DIRECTOR_DEALING_DISCLOSURE_QUALITY_OVERLAY_PROFILE_HINT,
     HK_DISTRIBUTION_EX_DATE_ENTITLEMENT_OVERLAY_PROFILE_HINT,
@@ -257,6 +258,12 @@ from .future_research_live_enablement_policy import (
     HKMU_HK_STOCK_MARKET_OVERREACT_URL,
     SCIENCEDIRECT_HK_OVERREACTION_URL,
     DOAJ_HK_SHORT_TERM_MOMENTUM_EFFECT_URL,
+    HKEX_SECONDARY_LISTINGS_URL,
+    HKEX_OVERSEAS_ISSUERS_INVESTOR_RISK_GUIDE_URL,
+    SCIENCEDIRECT_CHINA_CROSSLISTED_PRICE_DISCOVERY_URL,
+    SCIENCEDIRECT_CHINESE_ADR_DAY_NIGHT_RETURNS_URL,
+    SSRN_ASYNCHRONOUS_ADR_OVERNIGHT_INTRADAY_URL,
+    DOAJ_CHINA_HK_NY_DUAL_LISTING_LAW_ONE_PRICE_URL,
     TANDF_HK_SHORT_TERM_OVERREACTION_URL,
     TANDF_HK_HOLIDAY_EFFECT_URL,
     AQR_GLOBAL_ASSET_GROWTH_ANOMALY_URL,
@@ -1827,6 +1834,45 @@ FUTURE_RESEARCH_BACKLOG: tuple[dict[str, object], ...] = (
             HKBU_HSI_FUTURES_INTRADAY_REVERSAL_URL,
             HKEX_REVERSAL_EXECUTION_TRADING_MECHANISM_URL,
             HKEX_REVERSAL_EXECUTION_TRANSACTION_FEES_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_US_ADR_HK_SECONDARY_LISTING_LEAD_LAG_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "us_adr_hk_secondary_listing_lead_lag_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "cross_market_lead_lag_snapshot_overlay",
+        "research_thesis": (
+            "Test whether US ADR overnight / day-session moves, HK secondary-listing close alignment, ADR "
+            "ratio, USD/HKD FX, after-hours / pre-market context, and cross-market price-discovery evidence "
+            "can be used as a low-turnover confirmation or de-risking overlay for HK-listed China tech, "
+            "large-cap momentum, ETF rotation, weekly reversal, and event sleeves."
+        ),
+        "required_new_data": (
+            "point_in_time_us_adr_hk_secondary_listing_mapping_adr_ratio_fx_close_and_corporate_action_history",
+            "adr_overnight_us_day_hk_open_lead_lag_premarket_afterhours_and_timezone_alignment_history",
+            "secondary_listing_primary_exchange_status_company_information_sheet_and_conversion_constraint_history",
+            "same_universe_secondary_listing_momentum_reversal_ah_premium_etf_and_execution_ablation_history",
+            "cross_market_holiday_delisting_risk_fx_rate_adr_fee_and_settlement_mismatch_history",
+            "broker_permission_order_preview_lot_size_spread_vcm_cas_suspension_and_halt_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new cross-market lead-lag snapshot overlay contract before adding ADR, secondary-listing, cross-market close, FX, pre-market, after-hours, or conversion fields to any existing artifact.",
+            "Use point-in-time HKEX secondary-listing records, issuer company information sheets, ADR ratio / depository data, adjusted HK and US closes, USD/HKD FX, corporate actions, and public market timestamps only; do not use future HK open returns or unavailable conversion inventory at the rebalance date.",
+            "Use as a confirmation, de-risking, or execution-timing overlay first; do not promote a cross-market arbitrage, conversion-arbitrage, pair-trading, short-selling, margin, or after-hours trading strategy.",
+            "Classify primary exchange, secondary versus dual-primary status, ADR ratio, fungibility / conversion constraint, US close, US after-hours, HK pre-open, HK open, FX source, corporate action, holiday mismatch, delisting risk, issuer disclosure, spread, lot size, VCM/CAS, suspension / halt, and broker permission before ranking signals.",
+            "Ablate ADR/HK lead-lag signals versus liquid momentum, weekly reversal, dually traded reversal, AH premium, Stock Connect flow, ETF rotation, index derivatives, downside-risk volatility, and event overlays on the same survivorship-safe universe.",
+            "Stress US-China policy shocks, ADR delisting / HFCAA-style windows, secondary-listing migration, conversion suspension, US holiday / HK holiday mismatches, FX shocks, pre-market gaps, low HK liquidity, HK open slippage, VCM/CAS rejections, stale quotes, costs, and capacity.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            HKEX_SECONDARY_LISTINGS_URL,
+            HKEX_OVERSEAS_ISSUERS_INVESTOR_RISK_GUIDE_URL,
+            SCIENCEDIRECT_CHINA_CROSSLISTED_PRICE_DISCOVERY_URL,
+            SCIENCEDIRECT_CHINESE_ADR_DAY_NIGHT_RETURNS_URL,
+            SSRN_ASYNCHRONOUS_ADR_OVERNIGHT_INTRADAY_URL,
+            DOAJ_CHINA_HK_NY_DUAL_LISTING_LAW_ONE_PRICE_URL,
+            SCIENCEDIRECT_HK_DUALLY_TRADED_CONTRARIAN_URL,
+            SCIENCEDIRECT_HK_ADR_EX_DIVIDEND_ADJUSTMENT_URL,
         ),
     },
 )

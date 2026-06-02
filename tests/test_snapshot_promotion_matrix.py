@@ -640,7 +640,7 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert "new_snapshot_profile_name_and_contract_version" in (
         backlog["future_research_live_enablement_policy"]["required_pre_scaffold_gates"]
     )
-    assert backlog["candidate_count"] == 34
+    assert backlog["candidate_count"] == 35
     assert backlog["candidates"][0]["profile_hint"] == "hk_earnings_revision_quality_overlay"
     assert backlog["candidates"][0]["scaffold_status"] == "research_only_not_scaffolded"
     assert any("earnings-revision-overlay" in url for url in backlog["candidates"][0]["source_reference_urls"])
@@ -857,6 +857,13 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert any("Transaction" in url for url in backlog["candidates"][33]["source_reference_urls"])
     assert any("weekly_extreme_return" in item for item in backlog["candidates"][33]["required_new_data"])
     assert any("bid_ask_bounce" in item for item in backlog["candidates"][33]["required_new_data"])
+    assert backlog["candidates"][34]["profile_hint"] == "hk_us_adr_hk_secondary_listing_lead_lag_overlay"
+    assert backlog["candidates"][34]["suggested_contract_type"] == "cross_market_lead_lag_snapshot_overlay"
+    assert any("Secondary-Listings-in-Hong-Kong" in url for url in backlog["candidates"][34]["source_reference_urls"])
+    assert any("S0927538X06000643" in url for url in backlog["candidates"][34]["source_reference_urls"])
+    assert any("2858048" in url for url in backlog["candidates"][34]["source_reference_urls"])
+    assert any("secondary_listing_mapping" in item for item in backlog["candidates"][34]["required_new_data"])
+    assert any("timezone_alignment" in item for item in backlog["candidates"][34]["required_new_data"])
 
 
 def test_future_research_live_enablement_policy_blocks_backlog_until_new_contract_and_evidence():
@@ -901,6 +908,7 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
         "hk_regulatory_enforcement_disciplinary_risk_overlay",
         "hk_margin_financing_collateral_forced_selling_risk_overlay",
         "hk_liquid_largecap_weekly_reversal_cost_aware_overlay",
+        "hk_us_adr_hk_secondary_listing_lead_lag_overlay",
     ]
     assert "same_universe_ablation_vs_existing_quality_yield_momentum_and_special_situation_profiles" in (
         policy["required_pre_scaffold_gates"]
@@ -1148,6 +1156,15 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert "same_universe_momentum_dual_listing_liquidity_volatility_lottery_and_event_ablation_history" in (
         policy["required_data_provenance"]
     )
+    assert "point_in_time_us_adr_hk_secondary_listing_mapping_adr_ratio_fx_close_and_corporate_action_history" in (
+        policy["required_data_provenance"]
+    )
+    assert "adr_overnight_us_day_hk_open_lead_lag_premarket_afterhours_and_timezone_alignment_history" in (
+        policy["required_data_provenance"]
+    )
+    assert "same_universe_secondary_listing_momentum_reversal_ah_premium_etf_and_execution_ablation_history" in (
+        policy["required_data_provenance"]
+    )
     assert "same_universe_liquidity_volatility_derivatives_structured_product_momentum_event_and_execution_ablation_history" in (
         policy["required_data_provenance"]
     )
@@ -1253,6 +1270,11 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert any("does-the-hong-kong-stock-market-overreact" in url for url in policy["source_reference_urls"])
     assert any("S1044028399000162" in url for url in policy["source_reference_urls"])
     assert any("f9bc272223de4c26b1fb161ccaf76cfa" in url for url in policy["source_reference_urls"])
+    assert any("Secondary-Listings-in-Hong-Kong" in url for url in policy["source_reference_urls"])
+    assert any("jps_20180430.pdf" in url for url in policy["source_reference_urls"])
+    assert any("S0927538X06000643" in url for url in policy["source_reference_urls"])
+    assert any("S0378426612001689" in url for url in policy["source_reference_urls"])
+    assert any("2858048" in url for url in policy["source_reference_urls"])
 
 
 
