@@ -381,6 +381,14 @@ def _validate_backtest(errors: list[str], evidence: Mapping[str, Any], *, profil
             f"{section_name}.max_drawdown exceeds {MAX_ALLOWED_BACKTEST_DRAWDOWN:.0%}: "
             f"got {max_drawdown:.2%}"
         )
+    rolling_oos_fold_max_drawdown = _drawdown_abs(section.get("rolling_oos_fold_max_drawdown"))
+    if rolling_oos_fold_max_drawdown is None:
+        errors.append(f"{section_name}.rolling_oos_fold_max_drawdown is required")
+    elif rolling_oos_fold_max_drawdown > MAX_ALLOWED_BACKTEST_DRAWDOWN:
+        errors.append(
+            f"{section_name}.rolling_oos_fold_max_drawdown exceeds {MAX_ALLOWED_BACKTEST_DRAWDOWN:.0%}: "
+            f"got {rolling_oos_fold_max_drawdown:.2%}"
+        )
     max_turnover = get_max_allowed_annualized_turnover(profile)
     annualized_turnover = _number(section.get("annualized_turnover"))
     if annualized_turnover is None:
@@ -650,6 +658,7 @@ def build_live_enablement_evidence_template(profile: str, *, platform: str) -> d
             "period_end": "",
             "annual_return": None,
             "max_drawdown": None,
+            "rolling_oos_fold_max_drawdown": None,
             "annualized_turnover": None,
             "hk_fees_and_levies": False,
             "stamp_duty_or_exemption": False,
@@ -662,9 +671,13 @@ def build_live_enablement_evidence_template(profile: str, *, platform: str) -> d
             "rolling_oos_fold_drawdown_controls": False,
             "parameter_sensitivity_and_holdout_stability_controls": False,
             "regime_stress_and_liquidity_shock_controls": False,
+            "fee_slippage_spread_stress_sensitivity_controls": False,
             "net_return_after_costs_controls": False,
+            "data_vendor_reconciliation_and_missingness_controls": False,
             "corporate_action_delisting_and_stale_price_controls": False,
             "cash_leverage_short_borrow_and_margin_controls": False,
+            "tail_loss_time_underwater_and_recovery_controls": False,
+            "portfolio_correlation_and_aggregate_risk_budget_controls": False,
             "benchmark_symbol": get_required_benchmark_symbol(contract.profile),
             "benchmark_annual_return": None,
             "strategy_excess_return": None,

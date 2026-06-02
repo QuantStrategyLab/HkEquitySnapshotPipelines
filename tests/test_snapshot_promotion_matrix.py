@@ -68,10 +68,25 @@ def test_snapshot_promotion_matrix_covers_every_contract_profile():
     assert "cash_leverage_short_borrow_and_margin_constraints" in (
         matrix["backtest_validation_policy"]["required_risk_constraints"]
     )
+    assert "fee_slippage_spread_sensitivity_stays_profitable" in (
+        matrix["backtest_validation_policy"]["required_risk_constraints"]
+    )
+    assert "cross_strategy_correlation_and_aggregate_drawdown_budget_limits" in (
+        matrix["backtest_validation_policy"]["required_risk_constraints"]
+    )
+    assert "data_vendor_reconciliation_and_missingness_controls" in (
+        matrix["backtest_validation_policy"]["required_controls"]
+    )
+    assert "tail_loss_time_underwater_and_recovery_controls" in (
+        matrix["backtest_validation_policy"]["required_controls"]
+    )
     assert "using_future_financials_estimates_or_index_changes_before_effective_timestamp" in (
         matrix["backtest_validation_policy"]["reject_criteria"]
     )
     assert "rolling_or_oos_fold_drawdown_above_30_percent" in matrix["backtest_validation_policy"]["reject_criteria"]
+    assert "fee_slippage_spread_stress_turns_excess_return_non_positive" in (
+        matrix["backtest_validation_policy"]["reject_criteria"]
+    )
     assert "gross_return_only_backtest_without_net_cost_validation" in (
         matrix["backtest_validation_policy"]["reject_criteria"]
     )
@@ -601,7 +616,7 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert "new_snapshot_profile_name_and_contract_version" in (
         backlog["future_research_live_enablement_policy"]["required_pre_scaffold_gates"]
     )
-    assert backlog["candidate_count"] == 14
+    assert backlog["candidate_count"] == 15
     assert backlog["candidates"][0]["profile_hint"] == "hk_earnings_revision_quality_overlay"
     assert backlog["candidates"][0]["scaffold_status"] == "research_only_not_scaffolded"
     assert any("earnings-revision-overlay" in url for url in backlog["candidates"][0]["source_reference_urls"])
@@ -674,6 +689,13 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert any("0165410184900181" in url for url in backlog["candidates"][13]["source_reference_urls"])
     assert any("audit_opinion" in item for item in backlog["candidates"][13]["required_new_data"])
     assert any("resumption_guidance" in item for item in backlog["candidates"][13]["required_new_data"])
+    assert backlog["candidates"][14]["profile_hint"] == "hk_share_repurchase_execution_signal_overlay"
+    assert backlog["candidates"][14]["suggested_contract_type"] == "event_calendar_snapshot_overlay"
+    assert any("sharerepur" in url for url in backlog["candidates"][14]["source_reference_urls"])
+    assert any("newsletter_202506" in url for url in backlog["candidates"][14]["source_reference_urls"])
+    assert any("097265270500400301" in url for url in backlog["candidates"][14]["source_reference_urls"])
+    assert any("repurchase" in item for item in backlog["candidates"][14]["required_new_data"])
+    assert any("treasury_share" in item for item in backlog["candidates"][14]["required_new_data"])
 
 
 def test_future_research_live_enablement_policy_blocks_backlog_until_new_contract_and_evidence():
@@ -698,6 +720,7 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
         "hk_distribution_ex_date_entitlement_overlay",
         "hk_ipo_lockup_overhang_event_overlay",
         "hk_audit_opinion_suspension_risk_overlay",
+        "hk_share_repurchase_execution_signal_overlay",
     ]
     assert "same_universe_ablation_vs_existing_quality_yield_momentum_and_special_situation_profiles" in (
         policy["required_pre_scaffold_gates"]
@@ -789,6 +812,15 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert "post_audit_opinion_return_liquidity_resumption_restructuring_and_capacity_history" in (
         policy["required_data_provenance"]
     )
+    assert "point_in_time_share_repurchase_next_day_return_program_mandate_and_execution_history" in (
+        policy["required_data_provenance"]
+    )
+    assert "treasury_share_retention_cancellation_resale_blackout_moratorium_and_connected_person_history" in (
+        policy["required_data_provenance"]
+    )
+    assert "post_buyback_share_count_reduction_dilution_financing_and_undervaluation_ablation_history" in (
+        policy["required_data_provenance"]
+    )
     assert policy["dry_run_order_preview_policy"]["policy_version"] == "hk_dry_run_order_preview_provenance.v1"
     assert any("IM_hsscsqe.pdf" in url for url in policy["source_reference_urls"])
     assert any("factor-indexes" in url for url in policy["source_reference_urls"])
@@ -813,6 +845,9 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert any("190524news" in url for url in policy["source_reference_urls"])
     assert any("rulebook/1350a" in url for url in policy["source_reference_urls"])
     assert any("0165410184900181" in url for url in policy["source_reference_urls"])
+    assert any("sharerepur" in url for url in policy["source_reference_urls"])
+    assert any("newsletter_202506" in url for url in policy["source_reference_urls"])
+    assert any("097265270500400301" in url for url in policy["source_reference_urls"])
 
 
 

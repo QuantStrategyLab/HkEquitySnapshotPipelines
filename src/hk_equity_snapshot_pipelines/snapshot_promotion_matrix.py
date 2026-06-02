@@ -44,6 +44,7 @@ from .future_research_live_enablement_policy import (
     ECONPAPERS_STOCK_CONNECT_INCLUSION_EXCLUSION_URL,
     FUTURE_RESEARCH_LIVE_ENABLEMENT_POLICY_VERSION,
     HK_AUDIT_OPINION_SUSPENSION_RISK_OVERLAY_PROFILE_HINT,
+    HK_SHARE_REPURCHASE_EXECUTION_SIGNAL_OVERLAY_PROFILE_HINT,
     HK_CONNECTED_TRANSACTION_GOVERNANCE_RISK_OVERLAY_PROFILE_HINT,
     HK_DIRECTOR_DEALING_DISCLOSURE_QUALITY_OVERLAY_PROFILE_HINT,
     HK_DISTRIBUTION_EX_DATE_ENTITLEMENT_OVERLAY_PROFILE_HINT,
@@ -79,6 +80,9 @@ from .future_research_live_enablement_policy import (
     HKEX_ADVERSE_AUDIT_OPINION_CONCLUSIONS_URL,
     HKEX_LONG_SUSPENSION_GUIDANCE_GL95_URL,
     HKEX_PROLONGED_SUSPENSION_STATUS_REPORT_URL,
+    HKEX_LISTING_NEWSLETTER_BUYBACKS_2025_URL,
+    HKEX_SHARE_REPURCHASE_REPORTS_URL,
+    HKEX_TREASURY_SHARES_RULE_CHANGE_2024_URL,
     HKEX_PROFIT_WARNING_ALERT_FAQ_URL,
     HKEX_REGULATED_SHORT_SELLING_URL,
     HKEX_REVERSAL_EXECUTION_TRADING_MECHANISM_URL,
@@ -127,6 +131,7 @@ from .future_research_live_enablement_policy import (
     SP_EARNINGS_REVISION_OVERLAY_ASIA_URL,
     SPRINGER_HK_PROFIT_WARNING_MARKET_REACTION_URL,
     SSRN_SHORT_INTEREST_RETURN_PREDICTABILITY_URL,
+    SAGE_HK_SHARE_BUYBACKS_EMPIRICAL_URL,
     SSRN_HK_CORNERSTONE_INVESTORS_IPO_SURVIVAL_URL,
     SSRN_HK_CONNECTED_TRANSACTIONS_TUNNELING_URL,
     TANDF_HK_SHORT_TERM_OVERREACTION_URL,
@@ -944,6 +949,42 @@ FUTURE_RESEARCH_BACKLOG: tuple[dict[str, object], ...] = (
             HKEX_PROLONGED_SUSPENSION_STATUS_REPORT_URL,
             SCIENCEDIRECT_QUALIFIED_AUDIT_OPINIONS_STOCK_PRICES_URL,
             HKUST_GOING_CONCERN_BANKRUPTCY_REACTION_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_SHARE_REPURCHASE_EXECUTION_SIGNAL_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "share_repurchase_execution_signal_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "event_calendar_snapshot_overlay",
+        "research_thesis": (
+            "Test HK on-exchange share-repurchase execution intensity, first repurchase, and repeat buyback "
+            "windows as an undervaluation / capital-discipline overlay, while separating genuine share-count "
+            "reduction from treasury-share retention, resale, and post-buyback financing risk."
+        ),
+        "required_new_data": (
+            "point_in_time_hkex_share_repurchase_daily_report_next_day_return_and_execution_price_history",
+            "repurchase_mandate_program_waiver_first_buyback_repeat_buyback_and_prior_abnormal_return_history",
+            "treasury_share_retention_cancellation_resale_blackout_moratorium_and_connected_person_history",
+            "post_buyback_share_count_reduction_new_issue_convertible_financing_public_float_and_dilution_history",
+            "same_universe_shareholder_yield_director_dealing_value_quality_fcf_takeover_and_short_pressure_ablation_history",
+            "post_buyback_return_liquidity_spread_board_lot_suspension_vcm_cas_and_capacity_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new event-calendar overlay snapshot profile and contract version before adding any artifact fields.",
+            "Use as a buyback-execution / undervaluation overlay first; do not duplicate the existing shareholder-yield scaffold or expose a live buyback-chasing strategy without order-preview and impact evidence.",
+            "Classify first repurchase, repeat repurchase, daily executed shares, average price, consideration, mandate/program status, waiver/automatic program, treasury-retention versus cancellation, resale moratorium, blackout, connected-person restrictions, and post-buyback financing before ranking signals.",
+            "Ablate repurchase-execution intensity versus shareholder-yield, director-dealing, value, quality, FCF, takeover-vulnerability, short-selling-pressure, and liquidity overlays on the same universe.",
+            "Stress headline-only repurchase mandates with little execution, treasury-share resale dilution, concurrent convertible or placement financing, public-float pressure, low-liquidity buybacks, results blackout, market-stabilization optics, and crowded large-cap repurchase programs.",
+            "Require walk-forward event-study evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, positive benchmark excess return, HK buyback/liquidity/capacity controls, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            HKEX_LISTING_NEWSLETTER_BUYBACKS_2025_URL,
+            HKEX_SHARE_REPURCHASE_REPORTS_URL,
+            HKEX_REPURCHASE_TREASURY_SHARES_RULEBOOK_URL,
+            HKEX_TREASURY_SHARES_RULE_CHANGE_2024_URL,
+            HKEX_SHARE_REPURCHASE_ELEARNING_URL,
+            SAGE_HK_SHARE_BUYBACKS_EMPIRICAL_URL,
+            SCIENCEDIRECT_HK_DIRECTOR_DEALING_SHARE_REPURCHASE_URL,
         ),
     },
 )

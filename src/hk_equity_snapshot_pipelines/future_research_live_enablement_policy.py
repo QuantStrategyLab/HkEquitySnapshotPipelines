@@ -20,6 +20,7 @@ HK_TAKEOVER_PRIVATIZATION_EVENT_SPREAD_OVERLAY_PROFILE_HINT = "hk_takeover_priva
 HK_DISTRIBUTION_EX_DATE_ENTITLEMENT_OVERLAY_PROFILE_HINT = "hk_distribution_ex_date_entitlement_overlay"
 HK_IPO_LOCKUP_OVERHANG_EVENT_OVERLAY_PROFILE_HINT = "hk_ipo_lockup_overhang_event_overlay"
 HK_AUDIT_OPINION_SUSPENSION_RISK_OVERLAY_PROFILE_HINT = "hk_audit_opinion_suspension_risk_overlay"
+HK_SHARE_REPURCHASE_EXECUTION_SIGNAL_OVERLAY_PROFILE_HINT = "hk_share_repurchase_execution_signal_overlay"
 
 SP_EARNINGS_REVISION_OVERLAY_ASIA_URL = (
     "https://www.spglobal.com/spdji/en/research/article/"
@@ -220,6 +221,18 @@ HKUST_GOING_CONCERN_BANKRUPTCY_REACTION_URL = (
     "https://researchportal.hkust.edu.hk/en/publications/"
     "going-concern-opinions-and-the-markets-reaction-to-bankruptcy-fil/"
 )
+HKEX_LISTING_NEWSLETTER_BUYBACKS_2025_URL = (
+    "https://www.hkex.com.hk/-/media/HKEX-Market/Listing/Rules-and-Guidance/"
+    "Other-Resources/Listed-Issuers/LIR-Newsletter/newsletter_202506.pdf"
+)
+HKEX_SHARE_REPURCHASE_REPORTS_URL = "https://www3.hkexnews.hk/reports/sharerepur/sbn.asp"
+HKEX_REPURCHASE_TREASURY_SHARES_RULEBOOK_URL = (
+    "https://en-rules.hkex.com.hk/rulebook/9-repurchase-securities-and-treasury-shares"
+)
+HKEX_TREASURY_SHARES_RULE_CHANGE_2024_URL = (
+    "https://www.hkex.com.hk/News/Regulatory-Announcements/2024/240412news?sc_lang=en"
+)
+SAGE_HK_SHARE_BUYBACKS_EMPIRICAL_URL = "https://journals.sagepub.com/doi/10.1177/097265270500400301"
 
 FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_EARNINGS_REVISION_QUALITY_OVERLAY_PROFILE_HINT,
@@ -236,6 +249,7 @@ FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_DISTRIBUTION_EX_DATE_ENTITLEMENT_OVERLAY_PROFILE_HINT,
     HK_IPO_LOCKUP_OVERHANG_EVENT_OVERLAY_PROFILE_HINT,
     HK_AUDIT_OPINION_SUSPENSION_RISK_OVERLAY_PROFILE_HINT,
+    HK_SHARE_REPURCHASE_EXECUTION_SIGNAL_OVERLAY_PROFILE_HINT,
 )
 
 FUTURE_RESEARCH_REQUIRED_PRE_SCAFFOLD_GATES: tuple[str, ...] = (
@@ -306,6 +320,9 @@ FUTURE_RESEARCH_REQUIRED_DATA_PROVENANCE: tuple[str, ...] = (
     "point_in_time_audit_opinion_disclaimer_adverse_qualified_going_concern_and_results_history",
     "audit_issue_resolution_remedial_period_suspension_resumption_guidance_and_delisting_history",
     "post_audit_opinion_return_liquidity_resumption_restructuring_and_capacity_history",
+    "point_in_time_share_repurchase_next_day_return_program_mandate_and_execution_history",
+    "treasury_share_retention_cancellation_resale_blackout_moratorium_and_connected_person_history",
+    "post_buyback_share_count_reduction_dilution_financing_and_undervaluation_ablation_history",
 )
 
 FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
@@ -388,6 +405,11 @@ FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
     HKEX_PROLONGED_SUSPENSION_STATUS_REPORT_URL,
     SCIENCEDIRECT_QUALIFIED_AUDIT_OPINIONS_STOCK_PRICES_URL,
     HKUST_GOING_CONCERN_BANKRUPTCY_REACTION_URL,
+    HKEX_LISTING_NEWSLETTER_BUYBACKS_2025_URL,
+    HKEX_SHARE_REPURCHASE_REPORTS_URL,
+    HKEX_REPURCHASE_TREASURY_SHARES_RULEBOOK_URL,
+    HKEX_TREASURY_SHARES_RULE_CHANGE_2024_URL,
+    SAGE_HK_SHARE_BUYBACKS_EMPIRICAL_URL,
 )
 
 
@@ -430,6 +452,7 @@ __all__ = [
     "HK_EQUITY_FINANCING_DILUTION_RISK_OVERLAY_PROFILE_HINT",
     "HK_IPO_LOCKUP_OVERHANG_EVENT_OVERLAY_PROFILE_HINT",
     "HK_AUDIT_OPINION_SUSPENSION_RISK_OVERLAY_PROFILE_HINT",
+    "HK_SHARE_REPURCHASE_EXECUTION_SIGNAL_OVERLAY_PROFILE_HINT",
     "HK_TAKEOVER_PRIVATIZATION_EVENT_SPREAD_OVERLAY_PROFILE_HINT",
     "HK_LOTTERY_STOCK_RISK_EXCLUSION_OVERLAY_PROFILE_HINT",
     "HK_LOW_SIZE_QUALITY_LIQUIDITY_PREMIUM_PROFILE_HINT",
@@ -462,6 +485,10 @@ __all__ = [
     "HKEX_ADVERSE_AUDIT_OPINION_CONCLUSIONS_URL",
     "HKEX_LONG_SUSPENSION_GUIDANCE_GL95_URL",
     "HKEX_PROLONGED_SUSPENSION_STATUS_REPORT_URL",
+    "HKEX_LISTING_NEWSLETTER_BUYBACKS_2025_URL",
+    "HKEX_SHARE_REPURCHASE_REPORTS_URL",
+    "HKEX_REPURCHASE_TREASURY_SHARES_RULEBOOK_URL",
+    "HKEX_TREASURY_SHARES_RULE_CHANGE_2024_URL",
     "HKEX_PROFIT_WARNING_ALERT_FAQ_URL",
     "HKEXNEWS_ADVANCED_SEARCH_URL",
     "HKEX_STOCK_CONNECT_ELIGIBLE_SECURITIES_URL",
@@ -505,6 +532,7 @@ __all__ = [
     "SSRN_SHORT_INTEREST_RETURN_PREDICTABILITY_URL",
     "SSRN_HK_CONNECTED_TRANSACTIONS_TUNNELING_URL",
     "SSRN_HK_CORNERSTONE_INVESTORS_IPO_SURVIVAL_URL",
+    "SAGE_HK_SHARE_BUYBACKS_EMPIRICAL_URL",
     "SFC_TAKEOVERS_AND_MERGERS_URL",
     "SFC_TAKEOVER_OFFER_PERIODS_URL",
     "SFC_TAKEOVER_PAST_OFFER_PERIODS_URL",

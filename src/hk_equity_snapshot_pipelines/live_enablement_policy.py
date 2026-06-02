@@ -72,9 +72,13 @@ REQUIRED_BACKTEST_BIAS_CONTROL_FIELDS: tuple[str, ...] = (
     "rolling_oos_fold_drawdown_controls",
     "parameter_sensitivity_and_holdout_stability_controls",
     "regime_stress_and_liquidity_shock_controls",
+    "fee_slippage_spread_stress_sensitivity_controls",
     "net_return_after_costs_controls",
+    "data_vendor_reconciliation_and_missingness_controls",
     "corporate_action_delisting_and_stale_price_controls",
     "cash_leverage_short_borrow_and_margin_controls",
+    "tail_loss_time_underwater_and_recovery_controls",
+    "portfolio_correlation_and_aggregate_risk_budget_controls",
 )
 
 REQUIRED_EXECUTION_CAPACITY_FIELDS: tuple[str, ...] = (

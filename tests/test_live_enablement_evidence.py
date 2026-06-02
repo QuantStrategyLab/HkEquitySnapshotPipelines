@@ -170,6 +170,7 @@ def _evidence(**overrides):
             "period_end": "2026-01-01",
             "annual_return": 0.12,
             "max_drawdown": -0.18,
+            "rolling_oos_fold_max_drawdown": -0.22,
             "annualized_turnover": 0.60,
             "hk_fees_and_levies": True,
             "stamp_duty_or_exemption": True,
@@ -182,9 +183,13 @@ def _evidence(**overrides):
             "rolling_oos_fold_drawdown_controls": True,
             "parameter_sensitivity_and_holdout_stability_controls": True,
             "regime_stress_and_liquidity_shock_controls": True,
+            "fee_slippage_spread_stress_sensitivity_controls": True,
             "net_return_after_costs_controls": True,
+            "data_vendor_reconciliation_and_missingness_controls": True,
             "corporate_action_delisting_and_stale_price_controls": True,
             "cash_leverage_short_borrow_and_margin_controls": True,
+            "tail_loss_time_underwater_and_recovery_controls": True,
+            "portfolio_correlation_and_aggregate_risk_budget_controls": True,
             "benchmark_symbol": "02800",
             "benchmark_annual_return": 0.06,
             "strategy_excess_return": 0.06,
@@ -434,8 +439,13 @@ def test_build_live_enablement_evidence_template_is_fillable_but_not_preapproved
     assert template["production_snapshot_source_audit"]["survivorship_safe_universe"] is False
     assert template["production_snapshot_source_audit"]["evidence_generated_at"] == ""
     assert template["walk_forward_backtest"]["max_drawdown"] is None
+    assert template["walk_forward_backtest"]["rolling_oos_fold_max_drawdown"] is None
     assert template["walk_forward_backtest"]["annualized_turnover"] is None
     assert template["walk_forward_backtest"]["hk_fees_and_levies"] is False
+    assert template["walk_forward_backtest"]["fee_slippage_spread_stress_sensitivity_controls"] is False
+    assert template["walk_forward_backtest"]["data_vendor_reconciliation_and_missingness_controls"] is False
+    assert template["walk_forward_backtest"]["tail_loss_time_underwater_and_recovery_controls"] is False
+    assert template["walk_forward_backtest"]["portfolio_correlation_and_aggregate_risk_budget_controls"] is False
     assert template["walk_forward_backtest"]["benchmark_symbol"] == "02800"
     assert template["walk_forward_backtest"]["strategy_excess_return"] is None
     assert template["artifact_pack_validation"]["contract_version"] == "hk_low_vol_dividend_quality.factor_snapshot.v1"
@@ -854,6 +864,17 @@ def test_validate_live_enablement_evidence_rejects_drawdown_above_30_percent():
 
     assert result["live_enablement_allowed"] is False
     assert any("max_drawdown exceeds" in error for error in result["errors"])
+
+
+def test_validate_live_enablement_evidence_rejects_oos_fold_drawdown_above_30_percent():
+    payload = _evidence(
+        walk_forward_backtest={**_evidence()["walk_forward_backtest"], "rolling_oos_fold_max_drawdown": -0.35}
+    )
+
+    result = validate_live_enablement_evidence(payload)
+
+    assert result["live_enablement_allowed"] is False
+    assert any("rolling_oos_fold_max_drawdown exceeds" in error for error in result["errors"])
 
 
 def test_validate_live_enablement_evidence_rejects_excess_turnover():
