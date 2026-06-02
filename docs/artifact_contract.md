@@ -522,3 +522,9 @@ This validator requires production source audit, artifact-pack validation and pu
 `future_research_backlog` now also includes `hk_vcm_cas_microstructure_shock_risk_overlay`. Existing artifact contracts remain unchanged. If promoted later, this idea needs a new snapshot profile name, new contract version, candidate-specific source-audit fields, and point-in-time VCM securities-list, trigger, reference-price, cooling-off, price-band, POS/CAS reference-price, auction-session, derivatives-VCM, broker order-preview rejection, and same-universe ablation provenance.
 
 `future_research_backlog` 现在也包含 `hk_vcm_cas_microstructure_shock_risk_overlay`。现有 artifact contract 不做原地扩展；若后续提升，必须新建 snapshot profile 名称、contract version、候选专属 source-audit 字段，并补齐 point-in-time VCM securities-list、trigger、reference-price、cooling-off、price-band、POS/CAS reference-price、auction-session、derivatives-VCM、broker order-preview rejection 和同 universe ablation provenance。
+
+### 2026-06-02 REIT dividend-spread / rate-sensitivity future candidate
+
+`hk_reit_dividend_spread_rate_sensitivity_overlay` remains research-only and must not mutate existing artifact contracts. If promoted later, it needs a new `reit_rate_income_snapshot_overlay` contract with point-in-time HK-listed REIT universe, distribution, NAV / GAV, gearing, rental, refinancing, HIBOR / base-rate and yield-spread fields, plus source-audit booleans, bilingual notification metadata, dry-run order-preview provenance and rollout controls.
+
+`hk_reit_dividend_spread_rate_sensitivity_overlay` 目前保持 research-only，不能复用或改写已有 artifact contract。后续如要 promotion，必须新增 `reit_rate_income_snapshot_overlay` contract，并包含点时间 REIT universe、distribution、NAV / GAV、gearing、rental、refinancing、HIBOR / base-rate 与 yield-spread 字段，以及 source-audit booleans、双语通知 metadata、dry-run order-preview provenance 和 rollout controls。

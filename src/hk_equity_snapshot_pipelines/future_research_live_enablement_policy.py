@@ -64,6 +64,9 @@ HK_INDEX_DERIVATIVES_FUTURES_OPTIONS_SENTIMENT_BASIS_OVERLAY_PROFILE_HINT = (
 HK_VCM_CAS_MICROSTRUCTURE_SHOCK_RISK_OVERLAY_PROFILE_HINT = (
     "hk_vcm_cas_microstructure_shock_risk_overlay"
 )
+HK_REIT_DIVIDEND_SPREAD_RATE_SENSITIVITY_OVERLAY_PROFILE_HINT = (
+    "hk_reit_dividend_spread_rate_sensitivity_overlay"
+)
 
 SP_EARNINGS_REVISION_OVERLAY_ASIA_URL = (
     "https://www.spglobal.com/spdji/en/research/article/"
@@ -455,6 +458,17 @@ HKEX_VCM_SECURITIES_MARKET_ROLLOUT_URL = "https://www.hkex.com.hk/News/Market-Co
 SSRN_HKIMR_VCM_EVIDENCE_HK_URL = "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4209595"
 HKU_MARKET_STRUCTURE_RETURN_VOLATILITY_HK_URL = "https://hub.hku.hk/handle/10722/85627"
 SAGE_HSI_FUTURES_SPOT_RESILIENCY_HK_URL = "https://journals.sagepub.com/doi/10.1177/097265270400300303"
+HKEX_REIT_PRODUCTS_URL = "https://www.hkex.com.hk/Products/Securities/Real-Estate-Investment-Trusts?sc_lang=en"
+HKEX_REIT_SECURITIES_PRICE_LIST_URL = "https://www.hkex.com.hk/Market-Data/Securities-Prices/Real-Estate-Investment-Trusts"
+HKEX_REIT_FAQ_URL = "https://www.hkex.com.hk/Global/Exchange/FAQ/Products/Securities/REITS?sc_lang=en"
+SFC_REIT_OVERVIEW_URL = "https://www.sfc.hk/en/Regulatory-functions/Products/Real-estate-investment-trusts?id=1955&whole=1"
+SFC_REIT_CODE_URL = "https://www.sfc.hk/en/Rules-and-standards/Codes-and-guidelines/Codes/Code-on-Real-Estate-Investment-Trusts"
+HSI_REIT_INDEX_FACTSHEET_URL = "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/factsheets/reite.pdf"
+HSI_REIT_INDEX_METHODOLOGY_URL = "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/methodologies/IM_reite.pdf"
+SCIENCEDIRECT_PACIFIC_RIM_REIT_RATE_SENSITIVITY_URL = (
+    "https://www.sciencedirect.com/science/article/abs/pii/S1463578X21000190"
+)
+HKU_REIT_RENTAL_GROWTH_RETURN_URL = "https://hub.hku.hk/handle/10722/194611"
 
 FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_EARNINGS_REVISION_QUALITY_OVERLAY_PROFILE_HINT,
@@ -487,6 +501,7 @@ FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_STRUCTURED_PRODUCT_WARRANT_CBBC_FLOW_RISK_OVERLAY_PROFILE_HINT,
     HK_INDEX_DERIVATIVES_FUTURES_OPTIONS_SENTIMENT_BASIS_OVERLAY_PROFILE_HINT,
     HK_VCM_CAS_MICROSTRUCTURE_SHOCK_RISK_OVERLAY_PROFILE_HINT,
+    HK_REIT_DIVIDEND_SPREAD_RATE_SENSITIVITY_OVERLAY_PROFILE_HINT,
 )
 
 FUTURE_RESEARCH_REQUIRED_PRE_SCAFFOLD_GATES: tuple[str, ...] = (
@@ -605,6 +620,9 @@ FUTURE_RESEARCH_REQUIRED_DATA_PROVENANCE: tuple[str, ...] = (
     "point_in_time_vcm_security_eligibility_trigger_cooling_off_price_band_and_cas_price_limit_history",
     "auction_session_pos_cas_reference_price_order_imbalance_close_auction_and_volatility_interruption_history",
     "same_universe_liquidity_volatility_derivatives_structured_product_momentum_event_and_execution_ablation_history",
+    "point_in_time_hk_reit_universe_distribution_nav_gav_leverage_and_property_sector_history",
+    "reit_dividend_yield_hibor_base_rate_bond_yield_spread_and_rental_growth_expectation_history",
+    "same_universe_reit_vs_property_dividend_quality_macro_rate_and_etf_ablation_history",
 )
 
 FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
@@ -773,6 +791,15 @@ FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
     SSRN_HKIMR_VCM_EVIDENCE_HK_URL,
     HKU_MARKET_STRUCTURE_RETURN_VOLATILITY_HK_URL,
     SAGE_HSI_FUTURES_SPOT_RESILIENCY_HK_URL,
+    HKEX_REIT_PRODUCTS_URL,
+    HKEX_REIT_SECURITIES_PRICE_LIST_URL,
+    HKEX_REIT_FAQ_URL,
+    SFC_REIT_OVERVIEW_URL,
+    SFC_REIT_CODE_URL,
+    HSI_REIT_INDEX_FACTSHEET_URL,
+    HSI_REIT_INDEX_METHODOLOGY_URL,
+    SCIENCEDIRECT_PACIFIC_RIM_REIT_RATE_SENSITIVITY_URL,
+    HKU_REIT_RENTAL_GROWTH_RETURN_URL,
 )
 
 
@@ -831,6 +858,7 @@ __all__ = [
     "HK_STRUCTURED_PRODUCT_WARRANT_CBBC_FLOW_RISK_OVERLAY_PROFILE_HINT",
     "HK_INDEX_DERIVATIVES_FUTURES_OPTIONS_SENTIMENT_BASIS_OVERLAY_PROFILE_HINT",
     "HK_VCM_CAS_MICROSTRUCTURE_SHOCK_RISK_OVERLAY_PROFILE_HINT",
+    "HK_REIT_DIVIDEND_SPREAD_RATE_SENSITIVITY_OVERLAY_PROFILE_HINT",
     "HK_TAKEOVER_PRIVATIZATION_EVENT_SPREAD_OVERLAY_PROFILE_HINT",
     "HK_LOTTERY_STOCK_RISK_EXCLUSION_OVERLAY_PROFILE_HINT",
     "HK_LOW_SIZE_QUALITY_LIQUIDITY_PREMIUM_PROFILE_HINT",
@@ -997,5 +1025,14 @@ __all__ = [
     "SSRN_HKIMR_VCM_EVIDENCE_HK_URL",
     "HKU_MARKET_STRUCTURE_RETURN_VOLATILITY_HK_URL",
     "SAGE_HSI_FUTURES_SPOT_RESILIENCY_HK_URL",
+    "HKEX_REIT_PRODUCTS_URL",
+    "HKEX_REIT_SECURITIES_PRICE_LIST_URL",
+    "HKEX_REIT_FAQ_URL",
+    "SFC_REIT_OVERVIEW_URL",
+    "SFC_REIT_CODE_URL",
+    "HSI_REIT_INDEX_FACTSHEET_URL",
+    "HSI_REIT_INDEX_METHODOLOGY_URL",
+    "SCIENCEDIRECT_PACIFIC_RIM_REIT_RATE_SENSITIVITY_URL",
+    "HKU_REIT_RENTAL_GROWTH_RETURN_URL",
     "build_future_research_live_enablement_policy",
 ]
