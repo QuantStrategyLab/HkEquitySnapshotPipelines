@@ -37,6 +37,9 @@ HK_ASSET_GROWTH_NET_ISSUANCE_QUALITY_OVERLAY_PROFILE_HINT = (
 HK_ACCRUAL_QUALITY_EARNINGS_PERSISTENCE_OVERLAY_PROFILE_HINT = (
     "hk_accrual_quality_earnings_persistence_overlay"
 )
+HK_FSCORE_GROSS_PROFITABILITY_QUALITY_OVERLAY_PROFILE_HINT = (
+    "hk_fscore_gross_profitability_quality_overlay"
+)
 HK_SHAREHOLDING_CONCENTRATION_FREE_FLOAT_RISK_OVERLAY_PROFILE_HINT = (
     "hk_shareholding_concentration_free_float_risk_overlay"
 )
@@ -315,6 +318,15 @@ AAA_INTERNATIONAL_ACCRUAL_ANOMALY_PDF_URL = (
     "https://publications.aaahq.org/accounting-review/article-pdf/82/1/169/19391/accr_2007_82_1_169.pdf"
 )
 DOAJ_STOCK_LIQUIDITY_ACCRUAL_ANOMALY_URL = "https://doaj.org/article/dac5ab3e20884dbdace403e51280b7fe"
+POLYU_QUALITY_INVESTING_ASIAN_STOCK_MARKETS_URL = "https://ira.lib.polyu.edu.hk/handle/10397/81583"
+SPRINGER_PIOTROSKI_FSCORE_INTERNATIONAL_URL = "https://link.springer.com/article/10.1057/s41260-020-00157-2"
+SCIENCEDIRECT_PACIFIC_BASIN_FSCORE_URL = (
+    "https://www.sciencedirect.com/science/article/pii/S0927538X16300804"
+)
+MSCI_HK_QUALITY_INDEX_URL = "https://www.msci.com/indexes/index/721604"
+MSCI_QUALITY_INDEXES_METHODOLOGY_URL = (
+    "https://www.msci.com/eqb/methodology/meth_docs/MSCI_Quality_Indices_Methodology.pdf"
+)
 SFC_HIGH_SHAREHOLDING_CONCENTRATION_ANNOUNCEMENTS_URL = (
     "https://www.sfc.hk/en/News-and-announcements/High-shareholding-concentration-announcements"
 )
@@ -357,6 +369,7 @@ FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_ETF_PREMIUM_DISCOUNT_TRACKING_QUALITY_OVERLAY_PROFILE_HINT,
     HK_ASSET_GROWTH_NET_ISSUANCE_QUALITY_OVERLAY_PROFILE_HINT,
     HK_ACCRUAL_QUALITY_EARNINGS_PERSISTENCE_OVERLAY_PROFILE_HINT,
+    HK_FSCORE_GROSS_PROFITABILITY_QUALITY_OVERLAY_PROFILE_HINT,
     HK_SHAREHOLDING_CONCENTRATION_FREE_FLOAT_RISK_OVERLAY_PROFILE_HINT,
 )
 
@@ -449,6 +462,9 @@ FUTURE_RESEARCH_REQUIRED_DATA_PROVENANCE: tuple[str, ...] = (
     "point_in_time_operating_accruals_working_capital_accruals_cash_flow_and_earnings_history",
     "earnings_persistence_cash_conversion_receivables_inventory_payables_and_depreciation_history",
     "accrual_quality_reporting_date_restatement_auditor_change_and_sector_exception_history",
+    "point_in_time_piotroski_fscore_component_and_gross_profitability_history",
+    "fscore_profitability_leverage_liquidity_share_issuance_margin_turnover_and_reporting_lag_history",
+    "quality_value_size_profitability_investment_momentum_and_liquidity_ablation_history",
     "point_in_time_sfc_high_shareholding_concentration_announcement_history",
     "ccass_participant_concentration_free_float_public_float_and_liquidity_history",
     "shareholding_concentration_ramp_dump_red_flag_price_volume_and_halt_history",
@@ -569,6 +585,11 @@ FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
     POLYU_EARNINGS_QUALITY_CASH_FLOW_URL,
     AAA_INTERNATIONAL_ACCRUAL_ANOMALY_PDF_URL,
     DOAJ_STOCK_LIQUIDITY_ACCRUAL_ANOMALY_URL,
+    POLYU_QUALITY_INVESTING_ASIAN_STOCK_MARKETS_URL,
+    SPRINGER_PIOTROSKI_FSCORE_INTERNATIONAL_URL,
+    SCIENCEDIRECT_PACIFIC_BASIN_FSCORE_URL,
+    MSCI_HK_QUALITY_INDEX_URL,
+    MSCI_QUALITY_INDEXES_METHODOLOGY_URL,
     SFC_HIGH_SHAREHOLDING_CONCENTRATION_ANNOUNCEMENTS_URL,
     SFC_RAMP_DUMP_RED_FLAGS_CIRCULAR_URL,
     SFC_RAMP_DUMP_RESTRICTION_NOTICE_URL,
@@ -626,6 +647,7 @@ __all__ = [
     "HK_ETF_PREMIUM_DISCOUNT_TRACKING_QUALITY_OVERLAY_PROFILE_HINT",
     "HK_ASSET_GROWTH_NET_ISSUANCE_QUALITY_OVERLAY_PROFILE_HINT",
     "HK_ACCRUAL_QUALITY_EARNINGS_PERSISTENCE_OVERLAY_PROFILE_HINT",
+    "HK_FSCORE_GROSS_PROFITABILITY_QUALITY_OVERLAY_PROFILE_HINT",
     "HK_SHAREHOLDING_CONCENTRATION_FREE_FLOAT_RISK_OVERLAY_PROFILE_HINT",
     "HK_TAKEOVER_PRIVATIZATION_EVENT_SPREAD_OVERLAY_PROFILE_HINT",
     "HK_LOTTERY_STOCK_RISK_EXCLUSION_OVERLAY_PROFILE_HINT",
@@ -693,6 +715,7 @@ __all__ = [
     "POLYU_HK_GAMBLING_STOCK_MARKET_PDF_URL",
     "POLYU_HK_RIGHTS_ISSUE_REACTION_THESIS_URL",
     "POLYU_EARNINGS_QUALITY_CASH_FLOW_URL",
+    "POLYU_QUALITY_INVESTING_ASIAN_STOCK_MARKETS_URL",
     "SCIENCEDIRECT_HK_DIRECTOR_DEALING_SHARE_REPURCHASE_URL",
     "SCIENCEDIRECT_HK_DUALLY_TRADED_CONTRARIAN_URL",
     "SCIENCEDIRECT_HK_GAMBLING_STOCK_MARKET_URL",
@@ -711,6 +734,7 @@ __all__ = [
     "SCIENCEDIRECT_COINTEGRATED_BASKET_TRADING_URL",
     "SCIENCEDIRECT_HK_SHORT_SALE_BAN_PEAD_URL",
     "SCIENCEDIRECT_HK_VOLATILITY_EFFECT_URL",
+    "SCIENCEDIRECT_PACIFIC_BASIN_FSCORE_URL",
     "SCIENCEDIRECT_SHORT_SALES_PRICE_ADJUSTMENT_HK_URL",
     "TANDF_HK_SHORT_TERM_OVERREACTION_URL",
     "TANDF_HK_HOLIDAY_EFFECT_URL",
@@ -750,5 +774,8 @@ __all__ = [
     "HKEX_STOCK_CONNECT_SOUTHBOUND_SHAREHOLDING_SEARCH_URL",
     "HKU_OWNERSHIP_CONCENTRATION_PERFORMANCE_HK_URL",
     "POLYU_FREE_FLOAT_MARKET_LIQUIDITY_URL",
+    "MSCI_HK_QUALITY_INDEX_URL",
+    "MSCI_QUALITY_INDEXES_METHODOLOGY_URL",
+    "SPRINGER_PIOTROSKI_FSCORE_INTERNATIONAL_URL",
     "build_future_research_live_enablement_policy",
 ]

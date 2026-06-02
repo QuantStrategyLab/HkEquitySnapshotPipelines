@@ -640,7 +640,7 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert "new_snapshot_profile_name_and_contract_version" in (
         backlog["future_research_live_enablement_policy"]["required_pre_scaffold_gates"]
     )
-    assert backlog["candidate_count"] == 22
+    assert backlog["candidate_count"] == 23
     assert backlog["candidates"][0]["profile_hint"] == "hk_earnings_revision_quality_overlay"
     assert backlog["candidates"][0]["scaffold_status"] == "research_only_not_scaffolded"
     assert any("earnings-revision-overlay" in url for url in backlog["candidates"][0]["source_reference_urls"])
@@ -761,12 +761,19 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert any("S1042443114000808" in url for url in backlog["candidates"][20]["source_reference_urls"])
     assert any("operating_accruals" in item for item in backlog["candidates"][20]["required_new_data"])
     assert any("earnings_persistence" in item for item in backlog["candidates"][20]["required_new_data"])
-    assert backlog["candidates"][21]["profile_hint"] == "hk_shareholding_concentration_free_float_risk_overlay"
-    assert backlog["candidates"][21]["suggested_contract_type"] == "ownership_liquidity_risk_snapshot_overlay"
-    assert any("High-shareholding-concentration" in url for url in backlog["candidates"][21]["source_reference_urls"])
-    assert any("searchsdw" in url for url in backlog["candidates"][21]["source_reference_urls"])
-    assert any("sfc_high_shareholding" in item for item in backlog["candidates"][21]["required_new_data"])
-    assert any("ccass_participant_concentration" in item for item in backlog["candidates"][21]["required_new_data"])
+    assert backlog["candidates"][21]["profile_hint"] == "hk_fscore_gross_profitability_quality_overlay"
+    assert backlog["candidates"][21]["suggested_contract_type"] == "accounting_factor_snapshot_overlay"
+    assert any("10397/81583" in url for url in backlog["candidates"][21]["source_reference_urls"])
+    assert any("s41260-020-00157-2" in url for url in backlog["candidates"][21]["source_reference_urls"])
+    assert any("S0927538X16300804" in url for url in backlog["candidates"][21]["source_reference_urls"])
+    assert any("piotroski_fscore" in item for item in backlog["candidates"][21]["required_new_data"])
+    assert any("gross_profitability" in item for item in backlog["candidates"][21]["required_new_data"])
+    assert backlog["candidates"][22]["profile_hint"] == "hk_shareholding_concentration_free_float_risk_overlay"
+    assert backlog["candidates"][22]["suggested_contract_type"] == "ownership_liquidity_risk_snapshot_overlay"
+    assert any("High-shareholding-concentration" in url for url in backlog["candidates"][22]["source_reference_urls"])
+    assert any("searchsdw" in url for url in backlog["candidates"][22]["source_reference_urls"])
+    assert any("sfc_high_shareholding" in item for item in backlog["candidates"][22]["required_new_data"])
+    assert any("ccass_participant_concentration" in item for item in backlog["candidates"][22]["required_new_data"])
 
 
 def test_future_research_live_enablement_policy_blocks_backlog_until_new_contract_and_evidence():
@@ -798,6 +805,7 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
         "hk_etf_premium_discount_tracking_quality_overlay",
         "hk_asset_growth_net_issuance_quality_overlay",
         "hk_accrual_quality_earnings_persistence_overlay",
+        "hk_fscore_gross_profitability_quality_overlay",
         "hk_shareholding_concentration_free_float_risk_overlay",
     ]
     assert "same_universe_ablation_vs_existing_quality_yield_momentum_and_special_situation_profiles" in (
@@ -938,6 +946,12 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert "earnings_persistence_cash_conversion_receivables_inventory_payables_and_depreciation_history" in (
         policy["required_data_provenance"]
     )
+    assert "point_in_time_piotroski_fscore_component_and_gross_profitability_history" in (
+        policy["required_data_provenance"]
+    )
+    assert "fscore_profitability_leverage_liquidity_share_issuance_margin_turnover_and_reporting_lag_history" in (
+        policy["required_data_provenance"]
+    )
     assert "point_in_time_sfc_high_shareholding_concentration_announcement_history" in (
         policy["required_data_provenance"]
     )
@@ -996,6 +1010,10 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert any("2057/3638" in url for url in policy["source_reference_urls"])
     assert any("S1042443114000808" in url for url in policy["source_reference_urls"])
     assert any("dac5ab3e" in url for url in policy["source_reference_urls"])
+    assert any("10397/81583" in url for url in policy["source_reference_urls"])
+    assert any("s41260-020-00157-2" in url for url in policy["source_reference_urls"])
+    assert any("S0927538X16300804" in url for url in policy["source_reference_urls"])
+    assert any("indexes/index/721604" in url for url in policy["source_reference_urls"])
     assert any("High-shareholding-concentration" in url for url in policy["source_reference_urls"])
     assert any("refNo=21EC26" in url for url in policy["source_reference_urls"])
     assert any("searchsdw" in url for url in policy["source_reference_urls"])
