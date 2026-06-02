@@ -30,6 +30,7 @@ python scripts/draft_low_vol_dividend_artifact_evidence.py \
 只有满足以下条件，artifact section 才会标记为 `passed`：
 
 - 本地 artifact-pack validation 通过；
+- snapshot 至少包含 20 行，sample/smoke artifact 不能通过 production evidence；
 - 提供 immutable release id，且不能是 `latest`、`sample`、`dev` 或 `test`；
 - 提供稳定的 snapshot、manifest、ranking、release-summary 和 evidence URI；
 - operator 显式确认 immutable release identity、非 sample 发布、manifest sha256/row-count provenance 和 release-summary readiness。

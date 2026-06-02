@@ -30,6 +30,7 @@ python scripts/draft_low_vol_dividend_artifact_evidence.py \
 The artifact section is marked `passed` only when:
 
 - local artifact-pack validation passes;
+- the snapshot has at least 20 rows, so sample/smoke artifacts cannot pass production evidence;
 - an immutable release id is supplied and is not `latest`, `sample`, `dev`, or `test`;
 - stable published snapshot, manifest, ranking, release-summary, and evidence URIs are supplied;
 - the operator explicitly confirms immutable release identity, non-sample publication, manifest sha256/row-count provenance, and release-summary readiness.

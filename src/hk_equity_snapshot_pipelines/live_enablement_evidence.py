@@ -10,6 +10,7 @@ from urllib.parse import urlparse
 
 from .artifact_provenance_policy import (
     ARTIFACT_PROVENANCE_URI_FIELDS,
+    MIN_PRODUCTION_ARTIFACT_ROW_COUNT,
     REQUIRED_ARTIFACT_PROVENANCE_BOOLEAN_FIELDS,
     REQUIRED_ARTIFACT_PROVENANCE_FIELDS,
     build_artifact_provenance_policy,
@@ -343,6 +344,11 @@ def _validate_artifact_pack(errors: list[str], evidence: Mapping[str, Any], *, p
     row_count = _number(section.get("row_count"))
     if row_count is None or row_count <= 0:
         errors.append(f"{section_name}.row_count must be positive")
+    elif row_count < MIN_PRODUCTION_ARTIFACT_ROW_COUNT:
+        errors.append(
+            f"{section_name}.row_count must be >= {MIN_PRODUCTION_ARTIFACT_ROW_COUNT} "
+            f"for production live-enable evidence: got {row_count:.0f}"
+        )
     artifact_release_id = str(section.get("artifact_release_id", "")).strip().lower()
     if artifact_release_id in {"latest", "sample", "dev", "test"}:
         errors.append(f"{section_name}.artifact_release_id must be immutable and not a mutable alias")

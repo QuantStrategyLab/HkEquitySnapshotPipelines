@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from .artifact_provenance_policy import MIN_PRODUCTION_ARTIFACT_ROW_COUNT
 from .artifacts import write_json
 from .contracts import HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE, get_profile_contract
 from .live_enablement_evidence import build_live_enablement_evidence_template, validate_live_enablement_evidence
@@ -34,9 +35,11 @@ def _artifact_section_can_pass(
     confirm_release_summary_ready: bool,
 ) -> bool:
     normalized_release_id = artifact_release_id.strip().lower()
+    snapshot_row_count = int(validation.get("snapshot_row_count") or 0)
     return all(
         (
             validation.get("valid") is True,
+            snapshot_row_count >= MIN_PRODUCTION_ARTIFACT_ROW_COUNT,
             bool(artifact_release_id.strip()),
             normalized_release_id not in MUTABLE_RELEASE_IDS,
             bool(published_snapshot_uri.strip()),
@@ -129,6 +132,7 @@ def build_low_vol_dividend_artifact_evidence_draft(
         "contract_version": contract.contract_version,
         "artifact_dir": str(Path(artifact_dir)),
         "local_artifact_valid": local_valid,
+        "min_production_snapshot_row_count": MIN_PRODUCTION_ARTIFACT_ROW_COUNT,
         "artifact_section_status": "passed" if section_can_pass else "pending",
         "artifact_section_can_pass": section_can_pass,
         "artifact_section_errors_preview": artifact_errors[:30],
