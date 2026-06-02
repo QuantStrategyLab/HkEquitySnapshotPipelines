@@ -22,6 +22,9 @@ HK_IPO_LOCKUP_OVERHANG_EVENT_OVERLAY_PROFILE_HINT = "hk_ipo_lockup_overhang_even
 HK_AUDIT_OPINION_SUSPENSION_RISK_OVERLAY_PROFILE_HINT = "hk_audit_opinion_suspension_risk_overlay"
 HK_SHARE_REPURCHASE_EXECUTION_SIGNAL_OVERLAY_PROFILE_HINT = "hk_share_repurchase_execution_signal_overlay"
 HK_LIQUID_PAIRS_COINTEGRATION_STAT_ARB_OVERLAY_PROFILE_HINT = "hk_liquid_pairs_cointegration_stat_arb_overlay"
+HK_MACRO_LIQUIDITY_INFLATION_RATE_SENSITIVITY_OVERLAY_PROFILE_HINT = (
+    "hk_macro_liquidity_inflation_rate_sensitivity_overlay"
+)
 
 SP_EARNINGS_REVISION_OVERLAY_ASIA_URL = (
     "https://www.spglobal.com/spdji/en/research/article/"
@@ -239,6 +242,15 @@ HKU_COINTEGRATION_PAIRS_TRADING_POWER_STATISTIC_URL = "https://hub.hku.hk/handle
 SCIENCEDIRECT_COINTEGRATED_BASKET_TRADING_URL = (
     "https://www.sciencedirect.com/science/article/abs/pii/S1059056017300254"
 )
+SCIEDU_HK_STOCK_RETURN_DRIVERS_URL = "https://www.sciedu.ca/journal/index.php/afr/article/view/16166"
+SCIENCEDIRECT_HK_LIQUIDITY_ASSET_PRICING_URL = "https://www.sciencedirect.com/science/article/pii/S0378426611000367"
+HKMA_BASE_RATE_URL = "https://www.hkma.gov.hk/eng/key-functions/money/liquidity-facility-framework/base-rate/"
+HKMA_INTERBANK_LIQUIDITY_API_DOC_URL = (
+    "https://apidocs.hkma.gov.hk/documentation/market-data-and-statistics/"
+    "daily-monetary-statistics/daily-figures-interbank-liquidity/"
+)
+HKAB_HKD_INTEREST_SETTLEMENT_RATES_URL = "https://www.hkab.org.hk/en/rates/hibor"
+CENSTATD_CONSUMER_PRICES_URL = "https://www.censtatd.gov.hk/en/scode270.html?productCode=FA100024"
 
 FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_EARNINGS_REVISION_QUALITY_OVERLAY_PROFILE_HINT,
@@ -257,6 +269,7 @@ FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_AUDIT_OPINION_SUSPENSION_RISK_OVERLAY_PROFILE_HINT,
     HK_SHARE_REPURCHASE_EXECUTION_SIGNAL_OVERLAY_PROFILE_HINT,
     HK_LIQUID_PAIRS_COINTEGRATION_STAT_ARB_OVERLAY_PROFILE_HINT,
+    HK_MACRO_LIQUIDITY_INFLATION_RATE_SENSITIVITY_OVERLAY_PROFILE_HINT,
 )
 
 FUTURE_RESEARCH_REQUIRED_PRE_SCAFFOLD_GATES: tuple[str, ...] = (
@@ -333,6 +346,9 @@ FUTURE_RESEARCH_REQUIRED_DATA_PROVENANCE: tuple[str, ...] = (
     "point_in_time_pairs_universe_industry_beta_borrow_shortable_dual_listing_and_corporate_action_history",
     "cointegration_distance_correlation_spread_half_life_hurst_breakdown_and_rebalance_window_history",
     "pair_leg_quote_spread_lot_size_borrow_fee_tick_rule_vcm_cas_and_capacity_history",
+    "point_in_time_hk_cpi_inflation_base_rate_hibor_and_liquidity_condition_history",
+    "macro_release_timestamp_lag_revision_currency_peg_and_rate_regime_history",
+    "sector_rate_beta_inflation_beta_property_financial_and_dividend_yield_sensitivity_history",
 )
 
 FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
@@ -423,6 +439,12 @@ FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
     IDEAS_HK_PAIRS_TRADING_PROFITABILITY_URL,
     HKU_COINTEGRATION_PAIRS_TRADING_POWER_STATISTIC_URL,
     SCIENCEDIRECT_COINTEGRATED_BASKET_TRADING_URL,
+    SCIEDU_HK_STOCK_RETURN_DRIVERS_URL,
+    SCIENCEDIRECT_HK_LIQUIDITY_ASSET_PRICING_URL,
+    HKMA_BASE_RATE_URL,
+    HKMA_INTERBANK_LIQUIDITY_API_DOC_URL,
+    HKAB_HKD_INTEREST_SETTLEMENT_RATES_URL,
+    CENSTATD_CONSUMER_PRICES_URL,
 )
 
 
@@ -467,6 +489,7 @@ __all__ = [
     "HK_AUDIT_OPINION_SUSPENSION_RISK_OVERLAY_PROFILE_HINT",
     "HK_SHARE_REPURCHASE_EXECUTION_SIGNAL_OVERLAY_PROFILE_HINT",
     "HK_LIQUID_PAIRS_COINTEGRATION_STAT_ARB_OVERLAY_PROFILE_HINT",
+    "HK_MACRO_LIQUIDITY_INFLATION_RATE_SENSITIVITY_OVERLAY_PROFILE_HINT",
     "HK_TAKEOVER_PRIVATIZATION_EVENT_SPREAD_OVERLAY_PROFILE_HINT",
     "HK_LOTTERY_STOCK_RISK_EXCLUSION_OVERLAY_PROFILE_HINT",
     "HK_LOW_SIZE_QUALITY_LIQUIDITY_PREMIUM_PROFILE_HINT",
@@ -508,6 +531,9 @@ __all__ = [
     "HKEX_STOCK_CONNECT_ELIGIBLE_SECURITIES_URL",
     "HKEX_STOCK_CONNECT_EXPANSION_2023_URL",
     "HKEX_STOCK_CONNECT_FAQ_URL",
+    "HKAB_HKD_INTEREST_SETTLEMENT_RATES_URL",
+    "HKMA_BASE_RATE_URL",
+    "HKMA_INTERBANK_LIQUIDITY_API_DOC_URL",
     "HSI_LOW_SIZE_INDEX_METHODOLOGY_URL",
     "HSI_SMART_BETA_PRESS_RELEASE_URL",
     "HSI_SMART_BETA_RESEARCH_PAPER_URL",
@@ -550,10 +576,13 @@ __all__ = [
     "SSRN_HK_CONNECTED_TRANSACTIONS_TUNNELING_URL",
     "SSRN_HK_CORNERSTONE_INVESTORS_IPO_SURVIVAL_URL",
     "SAGE_HK_SHARE_BUYBACKS_EMPIRICAL_URL",
+    "SCIEDU_HK_STOCK_RETURN_DRIVERS_URL",
+    "CENSTATD_CONSUMER_PRICES_URL",
     "SFC_TAKEOVERS_AND_MERGERS_URL",
     "SFC_TAKEOVER_OFFER_PERIODS_URL",
     "SFC_TAKEOVER_PAST_OFFER_PERIODS_URL",
     "SFC_TAKEOVER_TRANSACTION_ANNOUNCEMENTS_URL",
+    "SCIENCEDIRECT_HK_LIQUIDITY_ASSET_PRICING_URL",
     "UNIBIRMINGHAM_IPO_LOCKUPS_LONG_RUN_PERFORMANCE_URL",
     "build_future_research_live_enablement_policy",
 ]

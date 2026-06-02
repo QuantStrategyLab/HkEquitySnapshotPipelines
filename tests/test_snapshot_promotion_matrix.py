@@ -624,7 +624,7 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert "new_snapshot_profile_name_and_contract_version" in (
         backlog["future_research_live_enablement_policy"]["required_pre_scaffold_gates"]
     )
-    assert backlog["candidate_count"] == 16
+    assert backlog["candidate_count"] == 17
     assert backlog["candidates"][0]["profile_hint"] == "hk_earnings_revision_quality_overlay"
     assert backlog["candidates"][0]["scaffold_status"] == "research_only_not_scaffolded"
     assert any("earnings-revision-overlay" in url for url in backlog["candidates"][0]["source_reference_urls"])
@@ -712,6 +712,15 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert any("cointegration" in item for item in backlog["candidates"][15]["required_new_data"])
     assert any("borrow_fee" in item for item in backlog["candidates"][15]["required_new_data"])
     assert any("tick_rule" in item for item in backlog["candidates"][15]["required_new_data"])
+    assert backlog["candidates"][16]["profile_hint"] == "hk_macro_liquidity_inflation_rate_sensitivity_overlay"
+    assert backlog["candidates"][16]["suggested_contract_type"] == "macro_snapshot_overlay"
+    assert any("sciedu.ca" in url for url in backlog["candidates"][16]["source_reference_urls"])
+    assert any("hkma.gov.hk" in url for url in backlog["candidates"][16]["source_reference_urls"])
+    assert any("hkab.org.hk" in url for url in backlog["candidates"][16]["source_reference_urls"])
+    assert any("censtatd.gov.hk" in url for url in backlog["candidates"][16]["source_reference_urls"])
+    assert any("base_rate_hibor" in item for item in backlog["candidates"][16]["required_new_data"])
+    assert any("release_timestamp_lag" in item for item in backlog["candidates"][16]["required_new_data"])
+    assert any("sector_industry_rate_beta" in item for item in backlog["candidates"][16]["required_new_data"])
 
 
 def test_future_research_live_enablement_policy_blocks_backlog_until_new_contract_and_evidence():
@@ -738,6 +747,7 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
         "hk_audit_opinion_suspension_risk_overlay",
         "hk_share_repurchase_execution_signal_overlay",
         "hk_liquid_pairs_cointegration_stat_arb_overlay",
+        "hk_macro_liquidity_inflation_rate_sensitivity_overlay",
     ]
     assert "same_universe_ablation_vs_existing_quality_yield_momentum_and_special_situation_profiles" in (
         policy["required_pre_scaffold_gates"]
@@ -847,6 +857,15 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert "pair_leg_quote_spread_lot_size_borrow_fee_tick_rule_vcm_cas_and_capacity_history" in (
         policy["required_data_provenance"]
     )
+    assert "point_in_time_hk_cpi_inflation_base_rate_hibor_and_liquidity_condition_history" in (
+        policy["required_data_provenance"]
+    )
+    assert "macro_release_timestamp_lag_revision_currency_peg_and_rate_regime_history" in (
+        policy["required_data_provenance"]
+    )
+    assert "sector_rate_beta_inflation_beta_property_financial_and_dividend_yield_sensitivity_history" in (
+        policy["required_data_provenance"]
+    )
     assert policy["dry_run_order_preview_policy"]["policy_version"] == "hk_dry_run_order_preview_provenance.v1"
     assert any("IM_hsscsqe.pdf" in url for url in policy["source_reference_urls"])
     assert any("factor-indexes" in url for url in policy["source_reference_urls"])
@@ -877,6 +896,10 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert any("2022-02" in url for url in policy["source_reference_urls"])
     assert any("261387" in url for url in policy["source_reference_urls"])
     assert any("S1059056017300254" in url for url in policy["source_reference_urls"])
+    assert any("afr/article/view/16166" in url for url in policy["source_reference_urls"])
+    assert any("daily-figures-interbank-liquidity" in url for url in policy["source_reference_urls"])
+    assert any("rates/hibor" in url for url in policy["source_reference_urls"])
+    assert any("scode270" in url for url in policy["source_reference_urls"])
 
 
 
