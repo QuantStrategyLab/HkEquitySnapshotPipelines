@@ -34,6 +34,9 @@ HK_ETF_PREMIUM_DISCOUNT_TRACKING_QUALITY_OVERLAY_PROFILE_HINT = (
 HK_ASSET_GROWTH_NET_ISSUANCE_QUALITY_OVERLAY_PROFILE_HINT = (
     "hk_asset_growth_net_issuance_quality_overlay"
 )
+HK_ACCRUAL_QUALITY_EARNINGS_PERSISTENCE_OVERLAY_PROFILE_HINT = (
+    "hk_accrual_quality_earnings_persistence_overlay"
+)
 
 SP_EARNINGS_REVISION_OVERLAY_ASIA_URL = (
     "https://www.spglobal.com/spdji/en/research/article/"
@@ -293,6 +296,22 @@ AQR_GLOBAL_ASSET_GROWTH_ANOMALY_URL = (
     "https://www.aqr.com/-/media/AQR/Documents/Insights/Journal-Article/"
     "Investing-in-the-Asset-Growth-Anomaly-Across-the-Globe.pdf"
 )
+AAA_ACCRUAL_RISK_VS_ANOMALY_URL = (
+    "https://publications.aaahq.org/accounting-review/article/90/5/2057/3638/"
+    "Risk-versus-Anomaly-A-New-Methodology-Applied-to"
+)
+SCIENCEDIRECT_UK_ACCRUAL_ANOMALY_URL = "https://www.sciencedirect.com/science/article/pii/S1042443114000808"
+SCIENCEDIRECT_IDIOSYNCRATIC_RISK_ACCRUAL_URL = (
+    "https://www.sciencedirect.com/science/article/pii/S0165410106000309"
+)
+POLYU_EARNINGS_QUALITY_CASH_FLOW_URL = (
+    "https://research.polyu.edu.hk/en/publications/"
+    "the-supplemental-role-of-operating-cash-flows-in-explaining-share"
+)
+AAA_INTERNATIONAL_ACCRUAL_ANOMALY_PDF_URL = (
+    "https://publications.aaahq.org/accounting-review/article-pdf/82/1/169/19391/accr_2007_82_1_169.pdf"
+)
+DOAJ_STOCK_LIQUIDITY_ACCRUAL_ANOMALY_URL = "https://doaj.org/article/dac5ab3e20884dbdace403e51280b7fe"
 
 FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_EARNINGS_REVISION_QUALITY_OVERLAY_PROFILE_HINT,
@@ -315,6 +334,7 @@ FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_TURN_OF_MONTH_LUNAR_NEW_YEAR_CALENDAR_OVERLAY_PROFILE_HINT,
     HK_ETF_PREMIUM_DISCOUNT_TRACKING_QUALITY_OVERLAY_PROFILE_HINT,
     HK_ASSET_GROWTH_NET_ISSUANCE_QUALITY_OVERLAY_PROFILE_HINT,
+    HK_ACCRUAL_QUALITY_EARNINGS_PERSISTENCE_OVERLAY_PROFILE_HINT,
 )
 
 FUTURE_RESEARCH_REQUIRED_PRE_SCAFFOLD_GATES: tuple[str, ...] = (
@@ -403,6 +423,9 @@ FUTURE_RESEARCH_REQUIRED_DATA_PROVENANCE: tuple[str, ...] = (
     "point_in_time_total_asset_growth_net_operating_asset_growth_and_capex_history",
     "net_share_issuance_equity_financing_buyback_share_count_and_dilution_history",
     "asset_growth_financial_statement_reporting_date_restatement_and_sector_exception_history",
+    "point_in_time_operating_accruals_working_capital_accruals_cash_flow_and_earnings_history",
+    "earnings_persistence_cash_conversion_receivables_inventory_payables_and_depreciation_history",
+    "accrual_quality_reporting_date_restatement_auditor_change_and_sector_exception_history",
 )
 
 FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
@@ -514,6 +537,12 @@ FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
     HKUST_MARKET_DEVELOPMENT_ASSET_GROWTH_URL,
     SCIENCEDIRECT_LIMITS_TO_ARBITRAGE_ASSET_GROWTH_URL,
     AQR_GLOBAL_ASSET_GROWTH_ANOMALY_URL,
+    AAA_ACCRUAL_RISK_VS_ANOMALY_URL,
+    SCIENCEDIRECT_UK_ACCRUAL_ANOMALY_URL,
+    SCIENCEDIRECT_IDIOSYNCRATIC_RISK_ACCRUAL_URL,
+    POLYU_EARNINGS_QUALITY_CASH_FLOW_URL,
+    AAA_INTERNATIONAL_ACCRUAL_ANOMALY_PDF_URL,
+    DOAJ_STOCK_LIQUIDITY_ACCRUAL_ANOMALY_URL,
 )
 
 
@@ -562,6 +591,7 @@ __all__ = [
     "HK_TURN_OF_MONTH_LUNAR_NEW_YEAR_CALENDAR_OVERLAY_PROFILE_HINT",
     "HK_ETF_PREMIUM_DISCOUNT_TRACKING_QUALITY_OVERLAY_PROFILE_HINT",
     "HK_ASSET_GROWTH_NET_ISSUANCE_QUALITY_OVERLAY_PROFILE_HINT",
+    "HK_ACCRUAL_QUALITY_EARNINGS_PERSISTENCE_OVERLAY_PROFILE_HINT",
     "HK_TAKEOVER_PRIVATIZATION_EVENT_SPREAD_OVERLAY_PROFILE_HINT",
     "HK_LOTTERY_STOCK_RISK_EXCLUSION_OVERLAY_PROFILE_HINT",
     "HK_LOW_SIZE_QUALITY_LIQUIDITY_PREMIUM_PROFILE_HINT",
@@ -627,6 +657,7 @@ __all__ = [
     "POLYU_HK_ACQUISITION_MERGER_WEALTH_THESIS_URL",
     "POLYU_HK_GAMBLING_STOCK_MARKET_PDF_URL",
     "POLYU_HK_RIGHTS_ISSUE_REACTION_THESIS_URL",
+    "POLYU_EARNINGS_QUALITY_CASH_FLOW_URL",
     "SCIENCEDIRECT_HK_DIRECTOR_DEALING_SHARE_REPURCHASE_URL",
     "SCIENCEDIRECT_HK_DUALLY_TRADED_CONTRARIAN_URL",
     "SCIENCEDIRECT_HK_GAMBLING_STOCK_MARKET_URL",
@@ -662,6 +693,7 @@ __all__ = [
     "SFC_LEVERAGED_INVERSE_PRODUCTS_CIRCULAR_URL",
     "SCIEDU_HK_STOCK_RETURN_DRIVERS_URL",
     "CENSTATD_CONSUMER_PRICES_URL",
+    "DOAJ_STOCK_LIQUIDITY_ACCRUAL_ANOMALY_URL",
     "SFC_TAKEOVERS_AND_MERGERS_URL",
     "SFC_TAKEOVER_OFFER_PERIODS_URL",
     "SFC_TAKEOVER_PAST_OFFER_PERIODS_URL",
@@ -669,7 +701,11 @@ __all__ = [
     "SCIENCEDIRECT_HK_LIQUIDITY_ASSET_PRICING_URL",
     "SCIENCEDIRECT_TURN_OF_MONTH_INTERNATIONAL_URL",
     "SCIENCEDIRECT_LIMITS_TO_ARBITRAGE_ASSET_GROWTH_URL",
+    "SCIENCEDIRECT_UK_ACCRUAL_ANOMALY_URL",
+    "SCIENCEDIRECT_IDIOSYNCRATIC_RISK_ACCRUAL_URL",
     "UNIBIRMINGHAM_IPO_LOCKUPS_LONG_RUN_PERFORMANCE_URL",
     "AQR_GLOBAL_ASSET_GROWTH_ANOMALY_URL",
+    "AAA_ACCRUAL_RISK_VS_ANOMALY_URL",
+    "AAA_INTERNATIONAL_ACCRUAL_ANOMALY_PDF_URL",
     "build_future_research_live_enablement_policy",
 ]
