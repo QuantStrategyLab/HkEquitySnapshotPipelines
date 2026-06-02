@@ -313,6 +313,7 @@ def _suggested_platform_evidence_command(payload: Mapping[str, Any], *, output_d
         f"--fee-breakdown-file {output_dir / f'{platform}_fee_breakdown.json'} "
         "--fee-breakdown-uri <stable-fee-breakdown-uri> "
         "--notification-delivery-log-uri <stable-notification-log-uri> "
+        "--notification-delivery-log-file <notification-log.json> "
         "--notification-correlation-id <dry-run-correlation-id> "
         "--adv-window-trading-days <days> "
         "--median-daily-turnover-hkd <hkd> "

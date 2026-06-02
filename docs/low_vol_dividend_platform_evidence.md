@@ -40,6 +40,7 @@ python scripts/draft_low_vol_dividend_platform_evidence.py \
   --fee-breakdown-file fees.json \
   --fee-breakdown-uri gs://.../fees.json \
   --notification-delivery-log-uri gs://.../notification-log.json \
+  --notification-delivery-log-file notification-log.json \
   --notification-correlation-id run-001 \
   --orders-previewed 2 \
   --adv-window-trading-days 20 \
@@ -62,8 +63,33 @@ The platform dry-run section is marked `passed` only when:
 - the previewed order count is positive;
 - fractional-share and lot-size errors are zero;
 - stable runtime-report, quote-snapshot, fee-breakdown, and notification-log URIs are provided;
-- local quote and fee files are provided so sha256 provenance can be computed;
+- local quote, fee, and notification delivery-log files are provided so sha256 provenance can be computed;
 - generated support-artifact files, when used, are marked `status=passed`;
-- order-preview provenance, notification audit, and execution-capacity confirmations are explicitly supplied.
+- order-preview provenance, notification-audit, and execution-capacity confirmations are explicitly supplied;
+- the notification delivery log is schema-versioned, correlated to the dry-run, bilingual (`en` and `zh-Hans`), contains the profile, platform, validation status, and order-preview summary, and redacts sensitive fields.
 
 Even if the platform dry-run section is `passed`, the full evidence file can still fail validation until every other live-enable evidence gate is complete.
+
+## Notification delivery log format
+
+Use a secret-safe JSON object. The platform evidence draft validates the file instead of trusting the confirmation flag alone:
+
+```json
+{
+  "notification_schema_version": "hk_live_enablement_notification.v1",
+  "notification_event_type": "hk_snapshot_live_enablement_dry_run",
+  "notification_correlation_id": "run-001",
+  "locales": ["en", "zh-Hans"],
+  "profile": "hk_low_vol_dividend_quality",
+  "platform": "longbridge",
+  "validation_status": "passed",
+  "orders_previewed": 2,
+  "notification_redacts_sensitive_fields": true,
+  "messages": {
+    "en": "HK low-vol dividend quality dry-run preview passed with 2 orders.",
+    "zh-Hans": "港股低波股息质量 dry-run 订单预览已通过，共 2 笔订单。"
+  }
+}
+```
+
+Do not include tokens, cookies, API keys, account IDs, or order-account identifiers in the delivery log. If a diagnostic field must mention a sensitive key name, its value must be redacted.

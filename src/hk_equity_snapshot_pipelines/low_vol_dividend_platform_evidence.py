@@ -12,6 +12,7 @@ from .live_enablement_evidence import (
     validate_live_enablement_evidence,
     build_live_enablement_evidence_template,
 )
+from .notification_audit_policy import NOTIFICATION_SCHEMA_VERSION, SNAPSHOT_DRY_RUN_NOTIFICATION_EVENT_TYPE
 from .snapshot_readiness import SUPPORTED_SNAPSHOT_PLATFORMS
 
 DEFAULT_OUTPUT_DIR = Path("data/output/low_vol_dividend_platform_evidence")
@@ -21,6 +22,26 @@ RUNTIME_REPORT_PLATFORM_ALIASES = {
     "longbridge": {"longbridge"},
 }
 SUPPORT_ARTIFACT_TYPE_PREFIX = "hk_low_vol_dividend_quality.dry_run_support"
+SENSITIVE_NOTIFICATION_FIELD_MARKERS = (
+    "api_key",
+    "apikey",
+    "authorization",
+    "cookie",
+    "jwt",
+    "password",
+    "private_key",
+    "refresh_token",
+    "secret",
+    "token",
+)
+SENSITIVE_NOTIFICATION_VALUE_MARKERS = (
+    "bearer ",
+    "gho_",
+    "github_pat_",
+    "sk-",
+    "xoxb-",
+)
+REDACTED_MARKERS = ("***", "redacted", "[redacted]", "<redacted>")
 
 
 def _read_json(path: str | Path) -> dict[str, Any]:
@@ -67,6 +88,152 @@ def _support_artifact_passed(path: str | Path | None) -> bool:
     if artifact_type.startswith(SUPPORT_ARTIFACT_TYPE_PREFIX):
         return str(payload.get("status") or "").strip().lower() == "passed"
     return True
+
+
+def _json_text(value: Any) -> str:
+    return json.dumps(value, ensure_ascii=False, sort_keys=True).lower()
+
+
+def _bool_field(payload: Mapping[str, Any], *fields: str) -> bool:
+    return any(payload.get(field) is True for field in fields)
+
+
+def _is_redacted(value: Any) -> bool:
+    text = str(value or "").strip().lower()
+    if not text:
+        return True
+    return any(marker in text for marker in REDACTED_MARKERS)
+
+
+def _contains_unredacted_sensitive_value(value: Any, *, field_name: str = "") -> bool:
+    lowered_field_name = field_name.lower()
+    if isinstance(value, Mapping):
+        return any(
+            _contains_unredacted_sensitive_value(item, field_name=str(key))
+            for key, item in value.items()
+        )
+    if isinstance(value, list):
+        return any(_contains_unredacted_sensitive_value(item, field_name=field_name) for item in value)
+    if isinstance(value, tuple):
+        return any(_contains_unredacted_sensitive_value(item, field_name=field_name) for item in value)
+    if isinstance(value, str):
+        lowered = value.lower()
+        sensitive_field = any(marker in lowered_field_name for marker in SENSITIVE_NOTIFICATION_FIELD_MARKERS)
+        if sensitive_field and not _is_redacted(value):
+            return True
+        if any(marker in lowered for marker in SENSITIVE_NOTIFICATION_VALUE_MARKERS) and not _is_redacted(value):
+            return True
+    return False
+
+
+def _notification_locale_present(payload: Mapping[str, Any], *, locale: str) -> bool:
+    if locale == "en" and _bool_field(payload, "notification_locale_en", "locale_en"):
+        return True
+    if locale == "zh_hans" and _bool_field(payload, "notification_locale_zh_hans", "locale_zh_hans"):
+        return True
+    accepted = {"en": {"en", "en-us", "en_us"}, "zh_hans": {"zh-hans", "zh_hans", "zh-cn", "zh_cn", "zh"}}[
+        locale
+    ]
+    locales = payload.get("locales") or payload.get("delivered_locales")
+    if isinstance(locales, list) and any(str(item).strip().lower() in accepted for item in locales):
+        return True
+    messages = payload.get("messages") or payload.get("localized_messages")
+    if isinstance(messages, Mapping) and any(str(key).strip().lower() in accepted for key in messages):
+        return True
+    deliveries = payload.get("deliveries") or payload.get("events")
+    if isinstance(deliveries, list):
+        for item in deliveries:
+            if not isinstance(item, Mapping):
+                continue
+            item_locale = str(item.get("locale") or item.get("language") or "").strip().lower()
+            if item_locale in accepted:
+                return True
+    return False
+
+
+def _notification_log_audit(
+    *,
+    notification_delivery_log_file: str | Path | None,
+    platform: str,
+    profile: str,
+    expected_correlation_id: str,
+    orders_previewed: int,
+) -> dict[str, Any]:
+    if notification_delivery_log_file is None:
+        return {
+            "status": "pending",
+            "sha256": "",
+            "errors": ["notification_delivery_log_file is required for live-enable platform evidence"],
+            "payload": {},
+            "notification_correlation_id": expected_correlation_id,
+            "notification_locale_en": False,
+            "notification_locale_zh_hans": False,
+            "notification_contains_profile": False,
+            "notification_contains_platform": False,
+            "notification_contains_validation_status": False,
+            "notification_contains_order_preview_summary": False,
+            "notification_redacts_sensitive_fields": False,
+        }
+    path = Path(notification_delivery_log_file)
+    payload = _read_json(path)
+    text = _json_text(payload)
+    correlation_id = str(
+        payload.get("notification_correlation_id")
+        or payload.get("correlation_id")
+        or expected_correlation_id
+        or ""
+    ).strip()
+    profile_present = _bool_field(payload, "notification_contains_profile") or profile.lower() in text
+    platform_aliases = RUNTIME_REPORT_PLATFORM_ALIASES.get(platform, {platform})
+    platform_present = _bool_field(payload, "notification_contains_platform") or any(alias in text for alias in platform_aliases)
+    validation_status_present = _bool_field(payload, "notification_contains_validation_status") or any(
+        marker in text
+        for marker in (
+            "validation_status",
+            "live_enablement_allowed",
+            "platform_dry_run_section_status",
+            "passed",
+            "pending",
+            "blocked",
+        )
+    )
+    order_preview_present = _bool_field(payload, "notification_contains_order_preview_summary") or (
+        ("order_preview" in text or "orders_previewed" in text or "orders" in text)
+        and (orders_previewed <= 0 or str(orders_previewed) in text)
+    )
+    redacts_sensitive_fields = (
+        _bool_field(payload, "notification_redacts_sensitive_fields", "redacts_sensitive_fields")
+        and not _contains_unredacted_sensitive_value(payload)
+    )
+    checks = {
+        "notification_locale_en": _notification_locale_present(payload, locale="en"),
+        "notification_locale_zh_hans": _notification_locale_present(payload, locale="zh_hans"),
+        "notification_contains_profile": profile_present,
+        "notification_contains_platform": platform_present,
+        "notification_contains_validation_status": validation_status_present,
+        "notification_contains_order_preview_summary": order_preview_present,
+        "notification_redacts_sensitive_fields": redacts_sensitive_fields,
+    }
+    errors: list[str] = []
+    if payload.get("notification_schema_version") != NOTIFICATION_SCHEMA_VERSION:
+        errors.append("notification_schema_version must match the live-enable notification schema")
+    if payload.get("notification_event_type") != SNAPSHOT_DRY_RUN_NOTIFICATION_EVENT_TYPE:
+        errors.append("notification_event_type must match the HK snapshot dry-run event type")
+    if not correlation_id:
+        errors.append("notification_correlation_id is required")
+    elif expected_correlation_id and correlation_id != expected_correlation_id:
+        errors.append("notification_correlation_id must match the dry-run correlation id")
+    for field, passed in checks.items():
+        if not passed:
+            errors.append(f"{field} must be true in the delivery log audit")
+    return {
+        "status": "passed" if not errors else "pending",
+        "sha256": sha256_file(path),
+        "errors": errors,
+        "payload": payload,
+        "notification_correlation_id": correlation_id,
+        **checks,
+    }
 
 
 def _normalize_platform(platform: str) -> str:
@@ -180,6 +347,7 @@ def build_low_vol_dividend_platform_evidence_draft(
     fee_breakdown_uri: str = "",
     fee_breakdown_file: str | Path | None = None,
     notification_delivery_log_uri: str = "",
+    notification_delivery_log_file: str | Path | None = None,
     notification_correlation_id: str = "",
     adv_window_trading_days: int = 0,
     median_daily_turnover_hkd: float | None = None,
@@ -231,6 +399,15 @@ def build_low_vol_dividend_platform_evidence_draft(
         platform=normalized_platform,
         profile=contract.profile,
     )
+    resolved_notification_correlation_id = str(notification_correlation_id or runtime_report.get("run_id") or "")
+    notification_log_audit = _notification_log_audit(
+        notification_delivery_log_file=notification_delivery_log_file,
+        platform=normalized_platform,
+        profile=contract.profile,
+        expected_correlation_id=resolved_notification_correlation_id,
+        orders_previewed=resolved_orders_previewed,
+    )
+    notification_log_artifact_passed = notification_log_audit["status"] == "passed"
 
     section = dict(payload.get("platform_dry_run_order_preview") or {})
     section.update(
@@ -241,15 +418,21 @@ def build_low_vol_dividend_platform_evidence_draft(
             "fractional_share_errors": fractional_share_errors,
             "lot_size_errors": int(lot_size_errors),
             "notification_sent": bool(notification_delivery_log_uri),
-            "notification_correlation_id": str(notification_correlation_id or runtime_report.get("run_id") or ""),
-            "notification_locale_en": bool(confirm_notification_audit),
-            "notification_locale_zh_hans": bool(confirm_notification_audit),
-            "notification_contains_profile": bool(confirm_notification_audit),
-            "notification_contains_platform": bool(confirm_notification_audit),
-            "notification_contains_validation_status": bool(confirm_notification_audit),
-            "notification_contains_order_preview_summary": bool(confirm_notification_audit),
-            "notification_redacts_sensitive_fields": bool(confirm_notification_audit),
+            "notification_correlation_id": notification_log_audit["notification_correlation_id"],
+            "notification_locale_en": bool(notification_log_audit["notification_locale_en"]),
+            "notification_locale_zh_hans": bool(notification_log_audit["notification_locale_zh_hans"]),
+            "notification_contains_profile": bool(notification_log_audit["notification_contains_profile"]),
+            "notification_contains_platform": bool(notification_log_audit["notification_contains_platform"]),
+            "notification_contains_validation_status": bool(notification_log_audit["notification_contains_validation_status"]),
+            "notification_contains_order_preview_summary": bool(
+                notification_log_audit["notification_contains_order_preview_summary"],
+            ),
+            "notification_redacts_sensitive_fields": bool(notification_log_audit["notification_redacts_sensitive_fields"]),
             "notification_delivery_log_uri": _stable_uri(notification_delivery_log_uri),
+            "notification_delivery_log_sha256": notification_log_audit["sha256"],
+            "notification_log_artifact_status": notification_log_audit["status"],
+            "notification_log_artifact_errors": notification_log_audit["errors"],
+            "notification_operator_confirmed": bool(confirm_notification_audit),
             "dry_run_session_id": str(runtime_report.get("run_id") or ""),
             "raw_order_preview_uri": raw_order_preview_uri,
             "raw_order_preview_sha256": raw_order_preview_sha256,
@@ -292,10 +475,12 @@ def build_low_vol_dividend_platform_evidence_draft(
                 fee_breakdown_uri,
                 fee_breakdown_sha256,
                 notification_delivery_log_uri,
+                notification_log_audit["sha256"],
                 section.get("dry_run_session_id"),
             ),
             quote_snapshot_artifact_passed,
             fee_breakdown_artifact_passed,
+            notification_log_artifact_passed,
             int(adv_window_trading_days) > 0,
             median_daily_turnover_hkd is not None,
             max_single_order_adv_fraction is not None,
@@ -317,6 +502,8 @@ def build_low_vol_dividend_platform_evidence_draft(
         "orders_previewed": resolved_orders_previewed,
         "quote_snapshot_artifact_passed": quote_snapshot_artifact_passed,
         "fee_breakdown_artifact_passed": fee_breakdown_artifact_passed,
+        "notification_log_artifact_passed": notification_log_artifact_passed,
+        "notification_log_artifact_errors": notification_log_audit["errors"],
         "platform_dry_run_section_status": section["status"],
         "live_enablement_allowed": bool(validation.get("live_enablement_allowed")),
         "validation_status": validation.get("validation_status"),
@@ -359,6 +546,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--fee-breakdown-uri", default="")
     parser.add_argument("--fee-breakdown-file")
     parser.add_argument("--notification-delivery-log-uri", default="")
+    parser.add_argument("--notification-delivery-log-file")
     parser.add_argument("--notification-correlation-id", default="")
     parser.add_argument("--adv-window-trading-days", type=int, default=0)
     parser.add_argument("--median-daily-turnover-hkd", type=float)
@@ -386,6 +574,7 @@ def main(argv: list[str] | None = None) -> int:
         fee_breakdown_uri=args.fee_breakdown_uri,
         fee_breakdown_file=args.fee_breakdown_file,
         notification_delivery_log_uri=args.notification_delivery_log_uri,
+        notification_delivery_log_file=args.notification_delivery_log_file,
         notification_correlation_id=args.notification_correlation_id,
         adv_window_trading_days=args.adv_window_trading_days,
         median_daily_turnover_hkd=args.median_daily_turnover_hkd,

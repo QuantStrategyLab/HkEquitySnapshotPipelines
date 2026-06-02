@@ -40,6 +40,7 @@ python scripts/draft_low_vol_dividend_platform_evidence.py \
   --fee-breakdown-file fees.json \
   --fee-breakdown-uri gs://.../fees.json \
   --notification-delivery-log-uri gs://.../notification-log.json \
+  --notification-delivery-log-file notification-log.json \
   --notification-correlation-id run-001 \
   --orders-previewed 2 \
   --adv-window-trading-days 20 \
@@ -62,8 +63,33 @@ python scripts/draft_low_vol_dividend_platform_evidence.py \
 - previewed order 数量大于 0；
 - fractional-share 和 lot-size errors 都为 0；
 - 提供稳定的 runtime-report、quote-snapshot、fee-breakdown 和 notification-log URI；
-- 提供本地 quote 和 fee 文件，用于计算 sha256 provenance；
+- 提供本地 quote、fee 和 notification delivery-log 文件，用于计算 sha256 provenance；
 - 如果使用生成的 support-artifact 文件，其 `status` 必须是 `passed`；
-- 显式确认 order-preview provenance、notification audit 和 execution-capacity controls。
+- 显式确认 order-preview provenance、notification audit 和 execution-capacity controls；
+- notification delivery log 通过 schema、dry-run correlation id、中英文双语（`en` 和 `zh-Hans`）、profile、platform、validation status、order-preview summary 和敏感字段脱敏检查。
 
 即使平台 dry-run section 为 `passed`，只要其他 live-enable evidence gate 未补齐，完整 evidence 文件仍可能无法通过校验。
+
+## Notification delivery log 格式
+
+使用 secret-safe JSON object。平台 evidence 草稿会校验该文件，不再只依赖确认 flag：
+
+```json
+{
+  "notification_schema_version": "hk_live_enablement_notification.v1",
+  "notification_event_type": "hk_snapshot_live_enablement_dry_run",
+  "notification_correlation_id": "run-001",
+  "locales": ["en", "zh-Hans"],
+  "profile": "hk_low_vol_dividend_quality",
+  "platform": "longbridge",
+  "validation_status": "passed",
+  "orders_previewed": 2,
+  "notification_redacts_sensitive_fields": true,
+  "messages": {
+    "en": "HK low-vol dividend quality dry-run preview passed with 2 orders.",
+    "zh-Hans": "港股低波股息质量 dry-run 订单预览已通过，共 2 笔订单。"
+  }
+}
+```
+
+不要在 delivery log 中包含 token、Cookie、API key、账号 ID 或订单账号标识。如果诊断字段必须提到敏感 key 名称，对应值必须脱敏。

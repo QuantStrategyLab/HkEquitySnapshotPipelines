@@ -181,6 +181,7 @@ def _suggested_command(item: dict[str, Any]) -> str:
             "--fee-breakdown-file <fees.json> "
             "--fee-breakdown-uri <stable-uri> "
             "--notification-delivery-log-uri <stable-uri> "
+            "--notification-delivery-log-file <notification-log.json> "
             "--notification-correlation-id <dry-run-correlation-id> "
             "--adv-window-trading-days <days> "
             "--median-daily-turnover-hkd <hkd> "
