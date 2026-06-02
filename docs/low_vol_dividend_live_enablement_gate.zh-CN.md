@@ -80,6 +80,18 @@ hkeq-run-low-vol-dividend-live-enable-gate \
   --json
 ```
 
+在申请 live-enable 之前，可以打印面向 operator 的 readiness checklist：
+
+```bash
+hkeq-print-low-vol-dividend-live-enable-readiness \
+  --evidence-dir evidence/low_vol_dividend_quality \
+  --artifact-dir data/output/low_vol_dividend_quality \
+  --validation-as-of 2026-06-03 \
+  --json
+```
+
+readiness report 会把每个约定文件标记为 `present` 或 `missing`，展示每个平台的 validation status，并且在最终 gate 允许前保持 `ready_to_request_live_enable=false`。
+
 输出文件：
 
 ```text

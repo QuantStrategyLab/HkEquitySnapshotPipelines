@@ -80,6 +80,18 @@ hkeq-run-low-vol-dividend-live-enable-gate \
   --json
 ```
 
+For an operator-focused checklist before requesting live-enable, print the readiness report:
+
+```bash
+hkeq-print-low-vol-dividend-live-enable-readiness \
+  --evidence-dir evidence/low_vol_dividend_quality \
+  --artifact-dir data/output/low_vol_dividend_quality \
+  --validation-as-of 2026-06-03 \
+  --json
+```
+
+The readiness report classifies each convention file as `present` or `missing`, shows per-platform validation status, and keeps `ready_to_request_live_enable=false` until the final gate allows live-enable.
+
 Output files:
 
 ```text
