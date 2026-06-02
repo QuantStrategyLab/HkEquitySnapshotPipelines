@@ -44,6 +44,7 @@ from .future_research_live_enablement_policy import (
     ECONPAPERS_STOCK_CONNECT_INCLUSION_EXCLUSION_URL,
     FUTURE_RESEARCH_LIVE_ENABLEMENT_POLICY_VERSION,
     HK_AUDIT_OPINION_SUSPENSION_RISK_OVERLAY_PROFILE_HINT,
+    HK_LIQUID_PAIRS_COINTEGRATION_STAT_ARB_OVERLAY_PROFILE_HINT,
     HK_SHARE_REPURCHASE_EXECUTION_SIGNAL_OVERLAY_PROFILE_HINT,
     HK_CONNECTED_TRANSACTION_GOVERNANCE_RISK_OVERLAY_PROFILE_HINT,
     HK_DIRECTOR_DEALING_DISCLOSURE_QUALITY_OVERLAY_PROFILE_HINT,
@@ -97,7 +98,9 @@ from .future_research_live_enablement_policy import (
     HSI_SMART_BETA_RESEARCH_PAPER_URL,
     HKU_STOCK_DISTRIBUTIONS_EX_DAY_ANCHORING_URL,
     HKUST_GOING_CONCERN_BANKRUPTCY_REACTION_URL,
+    HKU_COINTEGRATION_PAIRS_TRADING_POWER_STATISTIC_URL,
     IDEAS_HK_STOCK_RETURN_REVERSAL_CONTINUANCE_URL,
+    IDEAS_HK_PAIRS_TRADING_PROFITABILITY_URL,
     IDEAS_HK_EX_DAY_ELECTRONIC_SETTLEMENT_URL,
     POLYU_HK_EARNINGS_ANNOUNCEMENT_DRIFT_THESIS_URL,
     POLYU_HK_ACQUISITION_MERGER_WEALTH_THESIS_URL,
@@ -120,6 +123,7 @@ from .future_research_live_enablement_policy import (
     SCIENCEDIRECT_QUALIFIED_AUDIT_OPINIONS_STOCK_PRICES_URL,
     SCIENCEDIRECT_HK_SHORT_SALE_BAN_PEAD_URL,
     SCIENCEDIRECT_HK_VOLATILITY_EFFECT_URL,
+    SCIENCEDIRECT_COINTEGRATED_BASKET_TRADING_URL,
     SCIENCEDIRECT_SHORT_SALES_PRICE_ADJUSTMENT_HK_URL,
     SFC_DISCLOSURE_OF_INTERESTS_DI_NOTICES_URL,
     SFC_DISCLOSURE_OF_INTERESTS_PART_XV_URL,
@@ -985,6 +989,41 @@ FUTURE_RESEARCH_BACKLOG: tuple[dict[str, object], ...] = (
             HKEX_SHARE_REPURCHASE_ELEARNING_URL,
             SAGE_HK_SHARE_BUYBACKS_EMPIRICAL_URL,
             SCIENCEDIRECT_HK_DIRECTOR_DEALING_SHARE_REPURCHASE_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_LIQUID_PAIRS_COINTEGRATION_STAT_ARB_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "liquid_pairs_cointegration_stat_arb_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "pair_snapshot_overlay",
+        "research_thesis": (
+            "Test liquid HK market-neutral pairs / baskets using cointegration, distance, and correlation "
+            "signals as a relative-value overlay, while proving short-leg feasibility, spread stability, "
+            "and execution capacity before any runtime exposure."
+        ),
+        "required_new_data": (
+            "point_in_time_hsi_liquid_pair_universe_industry_beta_dual_listing_and_corporate_action_history",
+            "cointegration_distance_correlation_formation_window_spread_half_life_hurst_and_breakdown_history",
+            "pair_leg_quote_spread_board_lot_borrow_fee_designated_short_selling_tick_rule_vcm_cas_and_capacity_history",
+            "pair_signal_entry_exit_stop_loss_rebalance_window_leverage_margin_and_locate_availability_history",
+            "same_universe_dually_traded_reversal_ah_premium_short_pressure_liquidity_and_market_beta_ablation_history",
+            "pair_level_net_pnl_tail_loss_forced_buy_in_suspension_gap_and_crowding_decay_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new pair snapshot overlay contract before adding pair, basket, or hedge-ratio fields to any existing snapshot artifact.",
+            "Use as a liquid relative-value research overlay first; do not expose a live market-neutral stat-arb strategy until both legs pass borrow, short-sale, margin, and order-preview evidence.",
+            "Classify pair universe, industry/beta matching, dual-listing or economic-link rationale, hedge ratio, cointegration strength, spread stationarity, half-life, Hurst exponent, formation/trading window, breakdown flags, and rebalance cadence before ranking signals.",
+            "Ablate pairs signals versus dually-traded reversal, AH premium, short-selling pressure, liquid momentum, low-size/liquidity, and market-beta hedging on the same universe.",
+            "Stress spread regime breaks, crowding, low-liquidity widening, one-leg suspension, forced buy-in / locate loss, short-sale tick-rule rejection, VCM/CAS sessions, corporate actions, takeovers, connected transactions, and cost/slippage shocks.",
+            "Require walk-forward pair-level evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, positive net excess return after borrow/fee/slippage/spread stress, HK short-selling and capacity controls, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            IDEAS_HK_PAIRS_TRADING_PROFITABILITY_URL,
+            HKU_COINTEGRATION_PAIRS_TRADING_POWER_STATISTIC_URL,
+            SCIENCEDIRECT_COINTEGRATED_BASKET_TRADING_URL,
+            HKEX_REGULATED_SHORT_SELLING_URL,
+            HKEX_REVERSAL_EXECUTION_TRADING_MECHANISM_URL,
+            HKEX_REVERSAL_EXECUTION_TRANSACTION_FEES_URL,
         ),
     },
 )
