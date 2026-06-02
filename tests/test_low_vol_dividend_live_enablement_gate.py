@@ -79,6 +79,14 @@ def test_gate_run_reports_all_missing_convention_files_when_evidence_dir_empty(t
         "hkeq-draft-low-vol-dividend-platform-evidence --platform longbridge" in command
         for command in payload["next_evidence_commands"]
     )
+    artifact_command = next(command for command in payload["next_evidence_commands"] if command.startswith("hkeq-draft-low-vol-dividend-artifact-evidence"))
+    platform_command = next(command for command in payload["next_evidence_commands"] if "hkeq-draft-low-vol-dividend-platform-evidence --platform longbridge" in command)
+    assert "--evidence-generated-at <YYYY-MM-DD>" in artifact_command
+    assert "--evidence-generated-at <YYYY-MM-DD>" in platform_command
+    assert "--adv-window-trading-days <days>" in platform_command
+    assert "--median-daily-turnover-hkd <hkd>" in platform_command
+    assert "--max-single-order-adv-fraction <fraction>" in platform_command
+    assert "--rebalance-adv-fraction <fraction>" in platform_command
     assert payload["assemblies"]["longbridge"]["provided_sections"] == []
     assert payload["audit"]["gates"]["longbridge_live_enablement_evidence"] == "failed"
     assert payload["audit"]["gates"]["ibkr_live_enablement_evidence"] == "failed"

@@ -142,6 +142,7 @@ def _suggested_command(item: dict[str, Any]) -> str:
             "--source-quality-report-uri <stable-uri> "
             "--point-in-time-data-dictionary-uri <stable-uri> "
             "--evidence-uri <stable-uri> "
+            "--evidence-generated-at <YYYY-MM-DD> "
             "--output-dir evidence/low_vol_dividend_quality"
         )
     if section == "artifact_pack_validation":
@@ -154,6 +155,7 @@ def _suggested_command(item: dict[str, Any]) -> str:
             "--published-ranking-uri <stable-uri> "
             "--published-release-summary-uri <stable-uri> "
             "--evidence-uri <stable-uri> "
+            "--evidence-generated-at <YYYY-MM-DD> "
             "--confirm-immutable-release "
             "--confirm-published-artifacts-not-sample "
             "--confirm-manifest-provenance "
@@ -165,6 +167,7 @@ def _suggested_command(item: dict[str, Any]) -> str:
             "hkeq-draft-low-vol-dividend-backtest-evidence "
             "--summary <walk-forward-summary.json> "
             "--evidence-uri <stable-uri> "
+            "--evidence-generated-at <YYYY-MM-DD> "
             "--output-dir evidence/low_vol_dividend_quality"
         )
     if section == "platform_dry_run_order_preview":
@@ -178,9 +181,15 @@ def _suggested_command(item: dict[str, Any]) -> str:
             "--fee-breakdown-file <fees.json> "
             "--fee-breakdown-uri <stable-uri> "
             "--notification-delivery-log-uri <stable-uri> "
+            "--notification-correlation-id <dry-run-correlation-id> "
+            "--adv-window-trading-days <days> "
+            "--median-daily-turnover-hkd <hkd> "
+            "--max-single-order-adv-fraction <fraction> "
+            "--rebalance-adv-fraction <fraction> "
             "--confirm-order-preview-provenance "
             "--confirm-notification-audit "
             "--confirm-execution-capacity "
+            "--evidence-generated-at <YYYY-MM-DD> "
             "--output-dir evidence/low_vol_dividend_quality"
         )
     if section in {
@@ -199,6 +208,7 @@ def _suggested_command(item: dict[str, Any]) -> str:
             "--rollout-evidence-uri <stable-uri> "
             "--approval-reference <operator-approval-reference> "
             "--strategy-policy-evidence-uri <stable-uri> "
+            "<required-confirmation-flags> "
             "--output-dir evidence/low_vol_dividend_quality"
         )
     return "Provide a validator-compatible evidence section file."
