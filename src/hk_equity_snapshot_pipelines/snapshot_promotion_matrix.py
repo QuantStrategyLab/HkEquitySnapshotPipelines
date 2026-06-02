@@ -526,6 +526,7 @@ SP_ETF_CONNECT_HK_US_LOW_VOL_HIGH_DIV_URL = (
 )
 MOMENTUM_LIVE_ENABLEMENT_COMPARISON_VERSION = "hk_snapshot_momentum_live_enablement_comparison.v1"
 FUTURE_RESEARCH_BACKLOG_VERSION = "hk_snapshot_future_research_backlog.v1"
+CURATED_SNAPSHOT_STRATEGY_RANKING_VERSION = "hk_snapshot_curated_strategy_ranking.v1"
 
 LIVE_ENABLEMENT_STAGE_BY_BUCKET: dict[str, str] = {
     "first_snapshot_candidate": "production_data_audit_and_walk_forward_first",
@@ -556,6 +557,81 @@ NEXT_LIVE_ENABLEMENT_ACTION_BY_BUCKET: dict[str, str] = {
     "baseline_snapshot_candidate": "Use for artifact contract plumbing; do not treat as the first preferred live candidate.",
     "event_research_candidate": "Run an event study with announcement/effective timestamps before any dry-run promotion.",
 }
+
+CURATED_SNAPSHOT_STRATEGY_RANKING: tuple[dict[str, object], ...] = (
+    {
+        "rank": 1,
+        "profile": HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,
+        "decision": "first_snapshot_candidate",
+        "why": "Best single-name HK snapshot starting point: low-turnover high-dividend plus low-volatility evidence.",
+        "next_action": "Audit production dividend/fundamentals history and run same-universe walk-forward tests.",
+    },
+    {
+        "rank": 2,
+        "profile": HK_SHAREHOLDER_YIELD_QUALITY_PROFILE,
+        "decision": "first_snapshot_candidate",
+        "why": "Actual HKEX buybacks plus dividend/share-count quality can improve defensive yield selection.",
+        "next_action": "Audit repurchase execution, treasury-share treatment, dilution, blackout, and share-count data.",
+    },
+    {
+        "rank": 3,
+        "profile": HK_FREE_CASH_FLOW_QUALITY_PROFILE,
+        "decision": "first_snapshot_candidate",
+        "why": "FCF yield is a cleaner quality/value extension once point-in-time reporting-date lineage is proven.",
+        "next_action": "Build FCF/EV formula lineage, restatement controls, sector exceptions, and negative-FCF handling.",
+    },
+    {
+        "rank": 4,
+        "profile": HK_RESIDUAL_MOMENTUM_QUALITY_PROFILE,
+        "decision": "stage_after_quality_yield",
+        "why": "Closest HK analogue to US-style cross-sectional momentum, but turnover and crash windows need proof.",
+        "next_action": "Compare residual, liquid, and composite momentum on one survivorship-safe universe.",
+    },
+    {
+        "rank": 5,
+        "profile": HK_FACTOR_MIX_QVLM_RISK_PARITY_PROFILE,
+        "decision": "stage_after_single_factor_ablation",
+        "why": "QVLM risk parity can diversify factor regimes if factor returns and covariance are point-in-time.",
+        "next_action": "Run equal-weight, composite-QVM, and leave-one-out factor ablations.",
+    },
+    {
+        "rank": 6,
+        "profile": HK_QUALITY_GROWTH_LOW_VOLATILITY_PROFILE,
+        "decision": "stage_after_first_quality_candidates",
+        "why": "Quality/growth/low-volatility can help avoid yield traps, but needs fundamentals provenance.",
+        "next_action": "Audit HSI QGLV descriptors, missing-factor handling, and growth-deceleration stress.",
+    },
+    {
+        "rank": 7,
+        "profile": HK_SOUTHBOUND_FLOW_MOMENTUM_PROFILE,
+        "decision": "research_after_core_factor_profiles",
+        "why": "Southbound flows are HK-specific and observable, but signal decay and crowding risk are high.",
+        "next_action": "Build official HKEX/CCASS flow collector and test event/flow decay before promotion.",
+    },
+)
+
+DEPRIORITIZED_SNAPSHOT_STRATEGY_PROFILES: tuple[dict[str, str], ...] = (
+    {
+        "profile": HK_BLUE_CHIP_LEADER_ROTATION_PROFILE,
+        "decision": "baseline_contract_plumbing_only",
+        "reason": "Useful as a simple artifact baseline, but not an excellent live-enable strategy versus promoted ETF profiles.",
+    },
+    {
+        "profile": HK_AH_PREMIUM_RELATIVE_VALUE_PROFILE,
+        "decision": "exclude_from_live_enablement_shortlist",
+        "reason": "True relative-value edge can require A-share access, shorting, FX, and close-time alignment beyond current safe scope.",
+    },
+    {
+        "profile": HK_INDEX_REBALANCE_EVENT_PROFILE,
+        "decision": "exclude_from_live_enablement_shortlist",
+        "reason": "Event sample size, crowding, closing-auction capacity, and slippage risk are too high for the first live-enable wave.",
+    },
+    {
+        "profile": "future_research_long_tail",
+        "decision": "exclude_from_live_enablement_shortlist",
+        "reason": "Most raw future-research ideas are retained only for audit, not for live-enable ranking.",
+    },
+)
 
 MOMENTUM_COMPARISON_BY_PROFILE: dict[str, dict[str, object]] = {
     HK_RESIDUAL_MOMENTUM_QUALITY_PROFILE: {
@@ -2590,12 +2666,15 @@ def build_momentum_live_enablement_comparison() -> dict[str, Any]:
 
 
 def build_future_research_backlog() -> dict[str, Any]:
+    future_policy = build_future_research_live_enablement_policy()
     return {
         "backlog_version": FUTURE_RESEARCH_BACKLOG_VERSION,
         "status": "research_only_not_scaffolded",
         "live_enablement_gate": "requires_new_snapshot_contract_and_production_evidence",
         "candidate_count": len(FUTURE_RESEARCH_BACKLOG),
-        "future_research_live_enablement_policy": build_future_research_live_enablement_policy(),
+        "future_research_live_enablement_policy": future_policy,
+        "curated_candidate_count": len(future_policy["curated_candidate_order"]),
+        "deprioritized_candidate_count": len(future_policy["deprioritized_candidate_order"]),
         "candidates": [
             {
                 "profile_hint": str(item["profile_hint"]),
@@ -2608,6 +2687,24 @@ def build_future_research_backlog() -> dict[str, Any]:
                 "source_reference_urls": list(item["source_reference_urls"]),
             }
             for item in FUTURE_RESEARCH_BACKLOG
+        ],
+    }
+
+
+def build_curated_snapshot_strategy_ranking() -> dict[str, Any]:
+    future_policy = build_future_research_live_enablement_policy()
+    return {
+        "ranking_version": CURATED_SNAPSHOT_STRATEGY_RANKING_VERSION,
+        "selection_scope": "snapshot_scaffolds_only",
+        "live_enablement_allowed_without_evidence": False,
+        "max_allowed_drawdown": 0.30,
+        "ranking": [dict(item) for item in CURATED_SNAPSHOT_STRATEGY_RANKING],
+        "deprioritized_profiles": [dict(item) for item in DEPRIORITIZED_SNAPSHOT_STRATEGY_PROFILES],
+        "future_research_curated_candidate_order": list(future_policy["curated_candidate_order"]),
+        "future_research_deprioritized_candidate_order": list(future_policy["deprioritized_candidate_order"]),
+        "notes": [
+            "This is the narrowed live-enable work queue; raw future-research ideas stay documented but excluded.",
+            "Every promoted snapshot still needs a new contract/evidence pack, walk-forward backtest, dry-run order preview, bilingual notification, and operator approval.",
         ],
     }
 
@@ -2678,6 +2775,7 @@ def build_snapshot_promotion_matrix() -> dict[str, Any]:
         "profile_count": len(rows),
         "first_snapshot_candidates": first_snapshot_candidates,
         "recommended_live_enablement_sequence": [row["profile"] for row in rows],
+        "curated_snapshot_strategy_ranking": build_curated_snapshot_strategy_ranking(),
         "generic_required_next_evidence": list(GENERIC_REQUIRED_NEXT_EVIDENCE),
         "evidence_uri_policy": EVIDENCE_URI_POLICY,
         "artifact_provenance_policy": build_artifact_provenance_policy(),
@@ -2740,6 +2838,7 @@ __all__ = [
     "EVIDENCE_URI_POLICY",
     "FACTOR_MIX_LIVE_ENABLEMENT_POLICY_VERSION",
     "FACTOR_MIX_STOCK_SELECTION_PROFILES",
+    "CURATED_SNAPSHOT_STRATEGY_RANKING_VERSION",
     "FUTURE_RESEARCH_BACKLOG_VERSION",
     "FUTURE_RESEARCH_LIVE_ENABLEMENT_POLICY_VERSION",
     "GENERIC_REQUIRED_NEXT_EVIDENCE",
@@ -2773,6 +2872,7 @@ __all__ = [
     "SNAPSHOT_PROMOTION_GATE",
     "SnapshotPromotionCandidate",
     "build_baseline_rotation_live_enablement_policy",
+    "build_curated_snapshot_strategy_ranking",
     "build_future_research_backlog",
     "build_future_research_live_enablement_policy",
     "build_factor_mix_live_enablement_policy",

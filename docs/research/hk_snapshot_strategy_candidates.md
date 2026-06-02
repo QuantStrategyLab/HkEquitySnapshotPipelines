@@ -13,6 +13,25 @@ Research refresh date: 2026-06-02
 
 This note keeps HK snapshot-backed strategy research separate from the non-snapshot runtime profiles in `HkEquityStrategies`. None of the candidates below are live-enabled. A candidate can only be promoted after the production data source, manifest publication, backtest, paper trading, and platform dry-run evidence are available.
 
+## Final snapshot shortlist / 收口排名
+
+This is the narrowed snapshot work queue after excluding weaker, high-turnover, derivative, shorting, margin, or
+event-crowding ideas from live-enable consideration. Raw future-research notes remain below for auditability only.
+
+| Rank | Profile | Decision | Why |
+| ---: | --- | --- | --- |
+| 1 | `hk_low_vol_dividend_quality` | First snapshot candidate | Low-turnover high-dividend plus low-volatility evidence fits HK costs and drawdown-control needs. |
+| 2 | `hk_shareholder_yield_quality` | First snapshot candidate | HKEX buyback disclosure, dividends, and share-count quality can complement defensive yield selection. |
+| 3 | `hk_free_cash_flow_quality` | First snapshot candidate | FCF yield adds quality/value exposure after point-in-time fundamentals lineage is audited. |
+| 4 | `hk_residual_momentum_quality` | Stage after quality/yield | Closest HK analogue to US-style momentum, but turnover and crash windows require stricter proof. |
+| 5 | `hk_factor_mix_qvlm_risk_parity` | Stage after factor ablation | QVLM diversification is promising only if point-in-time factor covariance and leave-one-out tests pass. |
+| 6 | `hk_quality_growth_low_volatility` | Stage after first quality candidates | Useful yield-trap control, but fundamentals provenance and low-vol crowding stress are required. |
+| 7 | `hk_southbound_flow_momentum` | Research after core factor profiles | HK-specific and observable, but signal decay, holiday mismatch, and crowding make it later-stage. |
+
+Excluded from the live-enable shortlist for now: `hk_blue_chip_leader_rotation` as baseline plumbing only,
+`hk_ah_premium_relative_value`, `hk_index_rebalance_event`, and the raw future-research long tail. The promotion matrix
+exposes this via `curated_snapshot_strategy_ranking`.
+
 Current live-enable evidence gate:
 
 - `walk_forward_backtest.annual_return` must be positive.

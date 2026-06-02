@@ -9,6 +9,7 @@ from hk_equity_snapshot_pipelines.contracts import list_profile_contracts
 from hk_equity_snapshot_pipelines.snapshot_promotion_matrix import (
     BASELINE_ROTATION_LIVE_ENABLEMENT_POLICY_VERSION,
     BACKTEST_VALIDATION_POLICY_VERSION,
+    CURATED_SNAPSHOT_STRATEGY_RANKING_VERSION,
     FACTOR_MIX_LIVE_ENABLEMENT_POLICY_VERSION,
     FUTURE_RESEARCH_BACKLOG_VERSION,
     FUTURE_RESEARCH_LIVE_ENABLEMENT_POLICY_VERSION,
@@ -20,6 +21,7 @@ from hk_equity_snapshot_pipelines.snapshot_promotion_matrix import (
     SPECIAL_SITUATION_LIVE_ENABLEMENT_POLICY_VERSION,
     SNAPSHOT_PROMOTION_GATE,
     build_baseline_rotation_live_enablement_policy,
+    build_curated_snapshot_strategy_ranking,
     build_future_research_backlog,
     build_future_research_live_enablement_policy,
     build_factor_mix_live_enablement_policy,
@@ -204,6 +206,14 @@ def test_snapshot_promotion_matrix_covers_every_contract_profile():
     assert matrix["future_research_backlog"]["future_research_live_enablement_policy"]["policy_version"] == (
         FUTURE_RESEARCH_LIVE_ENABLEMENT_POLICY_VERSION
     )
+    ranking = matrix["curated_snapshot_strategy_ranking"]
+    assert ranking["ranking_version"] == CURATED_SNAPSHOT_STRATEGY_RANKING_VERSION
+    assert [row["profile"] for row in ranking["ranking"][:3]] == [
+        "hk_low_vol_dividend_quality",
+        "hk_shareholder_yield_quality",
+        "hk_free_cash_flow_quality",
+    ]
+    assert "hk_index_rebalance_event" in {row["profile"] for row in ranking["deprioritized_profiles"]}
     assert matrix["recommended_live_enablement_sequence"] == [
         row["profile"] for row in sorted(matrix["profiles"], key=lambda item: item["priority"])
     ]
@@ -218,6 +228,30 @@ def test_first_snapshot_candidates_prioritize_low_turnover_quality_styles():
         "hk_shareholder_yield_quality",
         "hk_free_cash_flow_quality",
     ]
+
+
+def test_curated_snapshot_strategy_ranking_excludes_weaker_backlog_profiles():
+    ranking = build_curated_snapshot_strategy_ranking()
+
+    assert ranking["live_enablement_allowed_without_evidence"] is False
+    assert ranking["max_allowed_drawdown"] == 0.30
+    assert ranking["ranking"][0]["profile"] == "hk_low_vol_dividend_quality"
+    assert ranking["ranking"][1]["profile"] == "hk_shareholder_yield_quality"
+    assert ranking["future_research_curated_candidate_order"] == [
+        "hk_earnings_revision_quality_overlay",
+        "hk_stock_connect_inclusion_event_flow",
+        "hk_share_repurchase_execution_signal_overlay",
+        "hk_etf_premium_discount_tracking_quality_overlay",
+        "hk_amihud_liquidity_risk_capacity_overlay",
+        "hk_downside_beta_tail_risk_volatility_overlay",
+        "hk_smart_beta_factor_regime_rotation_overlay",
+    ]
+    assert "hk_structured_product_warrant_cbbc_flow_risk_overlay" in (
+        ranking["future_research_deprioritized_candidate_order"]
+    )
+    assert "hk_margin_financing_collateral_forced_selling_risk_overlay" in (
+        ranking["future_research_deprioritized_candidate_order"]
+    )
 
 
 def test_blue_chip_baseline_row_carries_active_policy_and_hsi_execution_controls():
@@ -641,6 +675,8 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
         backlog["future_research_live_enablement_policy"]["required_pre_scaffold_gates"]
     )
     assert backlog["candidate_count"] == 37
+    assert backlog["curated_candidate_count"] == 7
+    assert backlog["deprioritized_candidate_count"] == 30
     assert backlog["candidates"][0]["profile_hint"] == "hk_earnings_revision_quality_overlay"
     assert backlog["candidates"][0]["scaffold_status"] == "research_only_not_scaffolded"
     assert any("earnings-revision-overlay" in url for url in backlog["candidates"][0]["source_reference_urls"])
@@ -927,6 +963,17 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
         "hk_smart_beta_factor_regime_rotation_overlay",
         "hk_esg_downside_risk_quality_overlay",
     ]
+    assert policy["curated_candidate_order"] == [
+        "hk_earnings_revision_quality_overlay",
+        "hk_stock_connect_inclusion_event_flow",
+        "hk_share_repurchase_execution_signal_overlay",
+        "hk_etf_premium_discount_tracking_quality_overlay",
+        "hk_amihud_liquidity_risk_capacity_overlay",
+        "hk_downside_beta_tail_risk_volatility_overlay",
+        "hk_smart_beta_factor_regime_rotation_overlay",
+    ]
+    assert "hk_structured_product_warrant_cbbc_flow_risk_overlay" in policy["deprioritized_candidate_order"]
+    assert "hk_liquid_pairs_cointegration_stat_arb_overlay" in policy["deprioritized_candidate_order"]
     assert "same_universe_ablation_vs_existing_quality_yield_momentum_and_special_situation_profiles" in (
         policy["required_pre_scaffold_gates"]
     )
