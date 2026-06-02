@@ -11,6 +11,34 @@ IBKR 在 CLI 中使用 `--platform ibkr`，同时兼容 runtime report 顶层 `p
 
 ## 使用方式
 
+推荐从真实平台 dry-run runtime report 直接一条命令生成平台 convention evidence：
+
+```bash
+python scripts/draft_low_vol_dividend_platform_evidence_from_runtime.py \
+  --platform longbridge \
+  --runtime-report runtime-report.json \
+  --runtime-report-uri gs://.../runtime-report.json \
+  --quote-snapshot-uri gs://.../quotes.json \
+  --fee-breakdown-uri gs://.../fees.json \
+  --notification-delivery-log-uri gs://.../notification-log.json \
+  --adv-window-trading-days 20 \
+  --median-daily-turnover-hkd 50000000 \
+  --max-single-order-adv-fraction 0.01 \
+  --rebalance-adv-fraction 0.05 \
+  --confirm-order-preview-provenance \
+  --confirm-notification-audit \
+  --confirm-execution-capacity \
+  --evidence-generated-at 2026-06-03 \
+  --evidence-dir evidence/low_vol_dividend_quality \
+  --json
+```
+
+该命令会把 support artifacts 写到 `evidence/low_vol_dividend_quality/support/<platform>/`，并生成约定文件
+`evidence/low_vol_dividend_quality/<platform>_live_enablement_evidence.draft.json`。
+如果 quote、fee、notification、capacity 或确认项证据缺失，平台 section 仍会保持 `pending`。
+
+手动两步流程：
+
 先从真实平台 dry-run runtime report 收集 support artifacts：
 
 ```bash

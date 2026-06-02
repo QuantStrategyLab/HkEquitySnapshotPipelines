@@ -11,6 +11,34 @@ It keeps the full evidence pack blocked until the production source, artifact, b
 
 ## Usage
 
+Recommended one-step flow from a real platform dry-run runtime report:
+
+```bash
+python scripts/draft_low_vol_dividend_platform_evidence_from_runtime.py \
+  --platform longbridge \
+  --runtime-report runtime-report.json \
+  --runtime-report-uri gs://.../runtime-report.json \
+  --quote-snapshot-uri gs://.../quotes.json \
+  --fee-breakdown-uri gs://.../fees.json \
+  --notification-delivery-log-uri gs://.../notification-log.json \
+  --adv-window-trading-days 20 \
+  --median-daily-turnover-hkd 50000000 \
+  --max-single-order-adv-fraction 0.01 \
+  --rebalance-adv-fraction 0.05 \
+  --confirm-order-preview-provenance \
+  --confirm-notification-audit \
+  --confirm-execution-capacity \
+  --evidence-generated-at 2026-06-03 \
+  --evidence-dir evidence/low_vol_dividend_quality \
+  --json
+```
+
+This command writes support artifacts under `evidence/low_vol_dividend_quality/support/<platform>/` and the convention file
+`evidence/low_vol_dividend_quality/<platform>_live_enablement_evidence.draft.json`.
+It still keeps the platform section `pending` when quote, fee, notification, capacity, or confirmation evidence is missing.
+
+Manual two-step flow:
+
 First collect support artifacts from a real platform dry-run runtime report:
 
 ```bash
