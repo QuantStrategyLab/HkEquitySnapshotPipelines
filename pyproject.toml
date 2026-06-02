@@ -36,6 +36,7 @@ hkeq-validate-snapshot-artifact-pack = "hk_equity_snapshot_pipelines.snapshot_ar
 hkeq-validate-live-enable-evidence = "hk_equity_snapshot_pipelines.live_enablement_evidence:main"
 hkeq-audit-low-vol-dividend-live-enable = "hk_equity_snapshot_pipelines.low_vol_dividend_live_enablement_audit:main"
 hkeq-draft-low-vol-dividend-platform-evidence = "hk_equity_snapshot_pipelines.low_vol_dividend_platform_evidence:main"
+hkeq-draft-low-vol-dividend-artifact-evidence = "hk_equity_snapshot_pipelines.low_vol_dividend_artifact_evidence:main"
 hkeq-build-first-snapshot-live-enablement-packages = "hk_equity_snapshot_pipelines.first_snapshot_live_enablement_package:main"
 hkeq-build-first-snapshot-evidence-bundles = "hk_equity_snapshot_pipelines.first_snapshot_evidence_bundle:main"
 hkeq-draft-first-snapshot-production-source-audit = "hk_equity_snapshot_pipelines.first_snapshot_production_source_audit:main"

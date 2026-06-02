@@ -149,6 +149,20 @@ hkeq-audit-low-vol-dividend-live-enable \
   --json
 ```
 
+Draft artifact-pack evidence after publishing a production artifact release:
+
+```bash
+hkeq-draft-low-vol-dividend-artifact-evidence \
+  --artifact-dir data/output/low_vol_dividend_quality \
+  --artifact-release-id hk-low-vol-dividend-quality-20260603-001 \
+  --published-snapshot-uri gs://.../hk_low_vol_dividend_quality_factor_snapshot_latest.csv \
+  --published-manifest-uri gs://.../hk_low_vol_dividend_quality_factor_snapshot_latest.csv.manifest.json \
+  --published-ranking-uri gs://.../hk_low_vol_dividend_quality_ranking_latest.csv \
+  --published-release-summary-uri gs://.../release_status_summary.json \
+  --evidence-uri gs://.../artifact_pack_validation.json \
+  --evidence-generated-at 2026-06-03
+```
+
 Draft platform dry-run evidence from a runtime report:
 
 ```bash
@@ -238,6 +252,7 @@ python -m pytest -q
 - [`docs/low_vol_dividend_live_enablement_package.md`](./docs/low_vol_dividend_live_enablement_package.md): first-candidate evidence package for `hk_low_vol_dividend_quality`.
 - [`docs/low_vol_dividend_evidence_bundle.md`](./docs/low_vol_dividend_evidence_bundle.md): production source and walk-forward evidence templates for `hk_low_vol_dividend_quality`.
 - [`docs/low_vol_dividend_live_enablement_audit.md`](./docs/low_vol_dividend_live_enablement_audit.md): final artifact + platform evidence audit for `hk_low_vol_dividend_quality`.
+- [`docs/low_vol_dividend_artifact_evidence.md`](./docs/low_vol_dividend_artifact_evidence.md): artifact-pack validation result to live-enable artifact evidence draft tool.
 - [`docs/low_vol_dividend_platform_evidence.md`](./docs/low_vol_dividend_platform_evidence.md): LongBridge/IBKR dry-run runtime report to platform evidence draft tool.
 - [`docs/low_vol_dividend_production_source_audit.md`](./docs/low_vol_dividend_production_source_audit.md): production source audit draft tool for `hk_low_vol_dividend_quality`.
 - [`docs/low_vol_dividend_backtest_evidence.md`](./docs/low_vol_dividend_backtest_evidence.md): walk-forward backtest evidence draft tool for `hk_low_vol_dividend_quality`.
