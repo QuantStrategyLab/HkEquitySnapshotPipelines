@@ -133,6 +133,41 @@ hkeq-validate-live-enable-evidence \
 
 Validator 要求稳定 evidence URI、不能带 token/password/signature 等 secret-like query 参数、point-in-time 数据证明、样本外回测、港股成本/滑点/lot-size/容量检查、dry-run order-preview provenance、双语通知证据、上线控制和人工审批引用。
 
+## 月度 AI 审计
+
+定时 workflow [`monthly_snapshot_audit.yml`](./.github/workflows/monthly_snapshot_audit.yml) 会创建月度 GitHub issue，并以 `monthly_snapshot_audit` 任务派发到 `QuantStrategyLab/CodexAuditBridge`。
+这和已有 snapshot 仓库的月度 review 架构保持一致，同时避免把 AI provider key 放在本源仓库。
+
+该 workflow 只生成 `data/output/monthly_snapshot_audit` 下的审计包：
+
+- `ai_review_input.md`：发送给 AI 审计的 issue 正文
+- `job_summary.md`：GitHub Actions summary
+- `monthly_snapshot_audit_issue.json`：issue metadata 和 artifact name
+
+它不会发布 artifact、不会部署 Cloud Run、不会修改券商配置，也不会下单。
+首批审计范围只包含 `hk_low_vol_dividend_quality`、`hk_shareholder_yield_quality`、`hk_free_cash_flow_quality`；未入选的 snapshot scaffold 继续保持 research-only / deprioritized，除非后续补齐已验证证据。
+
+本地手动生成审计包：
+
+```bash
+python scripts/write_monthly_snapshot_audit_issue.py --as-of-month 2026-06
+```
+
+手动触发 workflow：
+
+```bash
+gh workflow run monthly_snapshot_audit.yml --repo QuantStrategyLab/HkEquitySnapshotPipelines
+```
+
+源仓库配置：
+
+- `SELFHOSTED_CODEX_REVIEW_REPOSITORY` 默认是 `QuantStrategyLab/CodexAuditBridge`。
+- `SELFHOSTED_CODEX_REVIEW_MODE` 默认是 `review_and_fix`。
+- `SELFHOSTED_CODEX_REVIEW_PROVIDER` 默认是 `auto`。
+- `SELFHOSTED_CODEX_REVIEW_AUTO_MERGE` 默认是 `false`。
+- 跨仓 dispatch 需要 `CROSS_REPO_GITHUB_APP_ID` + `CROSS_REPO_GITHUB_APP_PRIVATE_KEY`，或具备作用域的 `CODEX_AUDIT_DISPATCH_TOKEN`。
+- `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` 应配置在 `CodexAuditBridge`，不要放在本源仓库。
+
 ## 本地 smoke 命令
 
 ```bash

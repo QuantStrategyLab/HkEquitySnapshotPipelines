@@ -1,0 +1,250 @@
+name: Monthly Snapshot Audit
+
+"on":
+  schedule:
+    - cron: "25 2 1 * *"
+  workflow_dispatch:
+
+jobs:
+  monthly-snapshot-audit:
+    if: github.ref_name != 'logs'
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+    permissions:
+      actions: write
+      contents: read
+      issues: write
+    env:
+      MONTHLY_SNAPSHOT_AUDIT_ENABLED: ${{ vars.MONTHLY_SNAPSHOT_AUDIT_ENABLED || 'true' }}
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+      SELFHOSTED_CODEX_REVIEW_ENABLED: ${{ vars.SELFHOSTED_CODEX_REVIEW_ENABLED || 'true' }}
+      SELFHOSTED_CODEX_REVIEW_REPOSITORY: ${{ vars.SELFHOSTED_CODEX_REVIEW_REPOSITORY || 'QuantStrategyLab/CodexAuditBridge' }}
+      SELFHOSTED_CODEX_REVIEW_MODE: ${{ vars.SELFHOSTED_CODEX_REVIEW_MODE || 'review_and_fix' }}
+      SELFHOSTED_CODEX_REVIEW_PROVIDER: ${{ vars.SELFHOSTED_CODEX_REVIEW_PROVIDER || 'auto' }}
+      SELFHOSTED_CODEX_REVIEW_AUTO_MERGE: ${{ vars.SELFHOSTED_CODEX_REVIEW_AUTO_MERGE || 'false' }}
+
+    steps:
+      - name: Checkout
+        if: env.MONTHLY_SNAPSHOT_AUDIT_ENABLED != 'false'
+        uses: actions/checkout@v6
+
+      - name: Set Up Python
+        if: env.MONTHLY_SNAPSHOT_AUDIT_ENABLED != 'false'
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install Dependencies
+        if: env.MONTHLY_SNAPSHOT_AUDIT_ENABLED != 'false'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Write Monthly Snapshot Audit Bundle
+        if: env.MONTHLY_SNAPSHOT_AUDIT_ENABLED != 'false'
+        id: monthly_audit
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          CODEX_AUDIT_REPOSITORY: ${{ env.SELFHOSTED_CODEX_REVIEW_REPOSITORY }}
+        run: |
+          set -euo pipefail
+          python scripts/write_monthly_snapshot_audit_issue.py \
+            --source-repo "${GITHUB_REPOSITORY}" \
+            --source-ref "${GITHUB_REF_NAME}" \
+            --codex-audit-repository "${CODEX_AUDIT_REPOSITORY}"
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          with open("data/output/monthly_snapshot_audit/monthly_snapshot_audit_issue.json", "r", encoding="utf-8") as handle:
+              payload = json.load(handle)
+          print(f"artifact_name={payload['artifact_name']}")
+          print(f"issue_title={payload['issue_title']}")
+          PY
+
+      - name: Append Monthly Snapshot Audit Job Summary
+        if: env.MONTHLY_SNAPSHOT_AUDIT_ENABLED != 'false'
+        run: cat data/output/monthly_snapshot_audit/job_summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Monthly Snapshot Audit Artifact
+        if: env.MONTHLY_SNAPSHOT_AUDIT_ENABLED != 'false'
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.monthly_audit.outputs.artifact_name }}
+          path: data/output/monthly_snapshot_audit
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Create Monthly Snapshot Audit Issue
+        if: success() && env.MONTHLY_SNAPSHOT_AUDIT_ENABLED != 'false'
+        id: audit_issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+
+          token = os.environ["GITHUB_TOKEN"]
+          repository = os.environ["GITHUB_REPOSITORY"]
+          headers = {
+              "Authorization": f"Bearer {token}",
+              "Accept": "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+              "User-Agent": "hk-equity-snapshot-monthly-audit",
+          }
+          api_base = f"https://api.github.com/repos/{repository}"
+          label_name = "monthly-review"
+          label_path = urllib.parse.quote(label_name, safe="")
+
+          with open("data/output/monthly_snapshot_audit/monthly_snapshot_audit_issue.json", "r", encoding="utf-8") as handle:
+              metadata = json.load(handle)
+          with open("data/output/monthly_snapshot_audit/ai_review_input.md", "r", encoding="utf-8") as handle:
+              issue_body = handle.read()
+
+          def request_json(method: str, url: str, payload: dict | None = None) -> dict:
+              data = None
+              if payload is not None:
+                  data = json.dumps(payload).encode("utf-8")
+              request = urllib.request.Request(url, data=data, method=method, headers=headers)
+              with urllib.request.urlopen(request) as response:
+                  body = response.read().decode("utf-8")
+              return json.loads(body) if body else {}
+
+          try:
+              request_json("GET", f"{api_base}/labels/{label_path}")
+          except urllib.error.HTTPError as exc:
+              if exc.code != 404:
+                  raise
+              request_json(
+                  "POST",
+                  f"{api_base}/labels",
+                  {
+                      "name": label_name,
+                      "description": "Automated monthly snapshot AI review",
+                      "color": "0E8A16",
+                  },
+              )
+
+          issue = request_json(
+              "POST",
+              f"{api_base}/issues",
+              {
+                  "title": metadata["issue_title"],
+                  "labels": [label_name],
+                  "body": issue_body,
+              },
+          )
+          print(f"Created issue #{issue['number']}: {issue['html_url']}")
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              print(f"issue_number={issue['number']}", file=output)
+              print(f"issue_url={issue['html_url']}", file=output)
+          PY
+
+      - name: Detect Self-hosted Review GitHub App Credentials
+        id: codex_review_app_credentials
+        if: success() && env.MONTHLY_SNAPSHOT_AUDIT_ENABLED != 'false' && env.SELFHOSTED_CODEX_REVIEW_ENABLED != 'false'
+        env:
+          APP_ID: ${{ vars.CROSS_REPO_GITHUB_APP_ID }}
+          APP_PRIVATE_KEY: ${{ secrets.CROSS_REPO_GITHUB_APP_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -n "${APP_ID:-}" ] && [ -n "${APP_PRIVATE_KEY:-}" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create GitHub App Token For Self-hosted Review
+        id: codex_review_app_token
+        if: steps.codex_review_app_credentials.outputs.available == 'true'
+        continue-on-error: true
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ vars.CROSS_REPO_GITHUB_APP_ID }}
+          private-key: ${{ secrets.CROSS_REPO_GITHUB_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: |
+            CodexAuditBridge
+          permission-actions: write
+
+      - name: Trigger Monthly Snapshot Review Automation
+        if: success() && env.MONTHLY_SNAPSHOT_AUDIT_ENABLED != 'false' && env.SELFHOSTED_CODEX_REVIEW_ENABLED != 'false'
+        env:
+          APP_TOKEN: ${{ steps.codex_review_app_token.outputs.token }}
+          CODEX_AUDIT_DISPATCH_TOKEN: ${{ secrets.CODEX_AUDIT_DISPATCH_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          ISSUE_NUMBER: ${{ steps.audit_issue.outputs.issue_number }}
+          TARGET_REPOSITORY: ${{ env.SELFHOSTED_CODEX_REVIEW_REPOSITORY }}
+          REVIEW_MODE: ${{ env.SELFHOSTED_CODEX_REVIEW_MODE }}
+          REVIEW_PROVIDER: ${{ env.SELFHOSTED_CODEX_REVIEW_PROVIDER }}
+          AUTO_MERGE: ${{ env.SELFHOSTED_CODEX_REVIEW_AUTO_MERGE }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          import re
+          import urllib.request
+
+          def dispatch(token: str, url: str, payload: dict) -> int:
+              request = urllib.request.Request(
+                  url,
+                  data=json.dumps(payload).encode("utf-8"),
+                  method="POST",
+                  headers={
+                      "Authorization": f"Bearer {token}",
+                      "Accept": "application/vnd.github+json",
+                      "Content-Type": "application/json",
+                      "X-GitHub-Api-Version": "2022-11-28",
+                      "User-Agent": "hk-equity-snapshot-monthly-audit",
+                  },
+              )
+              with urllib.request.urlopen(request) as response:
+                  return response.status
+
+          token = os.environ.get("APP_TOKEN", "").strip() or os.environ.get("CODEX_AUDIT_DISPATCH_TOKEN", "").strip()
+          if not token:
+              raise RuntimeError(
+                  "Codex review workflow dispatch requires either a GitHub App token or CODEX_AUDIT_DISPATCH_TOKEN"
+              )
+          target_repository = os.environ["TARGET_REPOSITORY"].strip()
+          if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", target_repository):
+              raise RuntimeError(f"Invalid Codex review repository: {target_repository!r}")
+          mode = os.environ["REVIEW_MODE"].strip() or "review_and_fix"
+          if mode not in {"review_only", "review_and_fix"}:
+              raise RuntimeError(f"Unsupported Codex review mode: {mode}")
+          provider = os.environ["REVIEW_PROVIDER"].strip() or "codex"
+          if provider not in {"api", "anthropic", "codex", "openai", "auto"}:
+              raise RuntimeError(f"Unsupported Codex review provider: {provider}")
+          payload = {
+              "ref": "main",
+              "inputs": {
+                  "source_repo": os.environ["GITHUB_REPOSITORY"],
+                  "source_ref": os.environ["GITHUB_REF_NAME"],
+                  "issue_number": os.environ["ISSUE_NUMBER"],
+                  "mode": mode,
+                  "provider": provider,
+                  "task": "monthly_snapshot_audit",
+                  "auto_merge": str(os.environ["AUTO_MERGE"].strip().lower() == "true").lower(),
+              },
+          }
+          status = dispatch(
+              token,
+              f"https://api.github.com/repos/{target_repository}/actions/workflows/selfhosted_monthly_review.yml/dispatches",
+              payload,
+          )
+          if status not in (201, 204):
+              raise RuntimeError(f"Unexpected Codex dispatch status: {status}")
+          print(
+              f"Dispatched CodexAuditBridge HK snapshot review for issue #{os.environ['ISSUE_NUMBER']} "
+              f"to {target_repository}"
+          )
+          PY
