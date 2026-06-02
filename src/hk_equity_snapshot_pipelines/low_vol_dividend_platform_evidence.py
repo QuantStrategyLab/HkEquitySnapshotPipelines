@@ -61,6 +61,7 @@ def _normalize_platform(platform: str) -> str:
 def _infer_orders(runtime_report: Mapping[str, Any], reconciliation_record: Mapping[str, Any]) -> list[Mapping[str, Any]]:
     summary = _as_mapping(runtime_report.get("summary"))
     candidates = (
+        summary.get("orders_previewed"),
         summary.get("orders_submitted"),
         reconciliation_record.get("orders_submitted"),
         _as_mapping(runtime_report.get("diagnostics")).get("orders_submitted"),

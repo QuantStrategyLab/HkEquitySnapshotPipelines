@@ -102,6 +102,28 @@ def test_platform_evidence_accepts_ibkr_runtime_report_platform_alias(tmp_path):
     assert payload["platform"] == "ibkr"
 
 
+def test_platform_evidence_reads_longbridge_structured_order_previews(tmp_path):
+    report_path = _runtime_report(tmp_path, platform="longbridge")
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    report["summary"]["orders_previewed_count"] = 0
+    report["summary"]["orders_previewed"] = [
+        {"symbol": "02800.HK", "side": "buy", "quantity": 100, "status": "dry_run"},
+        {"symbol": "03033.HK", "side": "buy", "quantity": 200, "status": "dry_run"},
+    ]
+    report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
+
+    payload = build_low_vol_dividend_platform_evidence_draft(
+        platform="longbridge",
+        runtime_report_path=report_path,
+        runtime_report_uri="gs://qsl-evidence/hk-low-vol/longbridge/runtime-report.json",
+        evidence_generated_at="2026-06-03",
+    )
+
+    assert payload["runtime_report_checks_passed"] is True
+    assert payload["orders_previewed"] == 2
+    assert payload["platform"] == "longbridge"
+
+
 def test_platform_evidence_draft_keeps_section_pending_when_runtime_report_is_not_dry_run(tmp_path):
     report_path = _runtime_report(tmp_path, platform="longbridge", dry_run=False)
 
