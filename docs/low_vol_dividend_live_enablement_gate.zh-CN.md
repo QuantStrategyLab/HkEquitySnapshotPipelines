@@ -62,6 +62,12 @@ data/output/low_vol_dividend_live_enablement_gate/final_live_enablement_audit.js
 data/output/low_vol_dividend_live_enablement_gate/live_enablement_gate_summary.json
 ```
 
+summary 会包含：
+
+- `missing_files`：未找到的约定 evidence 文件；
+- `external_evidence_blockers`：每个缺失文件背后的外部证据依赖；
+- `next_evidence_commands`：用于生成缺失 evidence 草稿的建议命令。
+
 ## 退出行为
 
 默认情况下，即使 gate blocked，命令也返回 0，方便 operator 查看缺失证据和 validation errors。

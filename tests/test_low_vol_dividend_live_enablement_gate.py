@@ -65,6 +65,20 @@ def test_gate_run_reports_all_missing_convention_files_when_evidence_dir_empty(t
     assert payload["status"] == "blocked"
     assert payload["live_enablement_allowed"] is False
     assert len(payload["missing_files"]) == 15
+    assert len(payload["external_evidence_blockers"]) == 15
+    assert any(
+        blocker["section"] == "production_snapshot_source_audit"
+        and "Point-in-time production factor snapshot" in blocker["external_dependency"]
+        for blocker in payload["external_evidence_blockers"]
+    )
+    assert any(
+        command.startswith("hkeq-draft-low-vol-dividend-production-source-audit")
+        for command in payload["next_evidence_commands"]
+    )
+    assert any(
+        "hkeq-draft-low-vol-dividend-platform-evidence --platform longbridge" in command
+        for command in payload["next_evidence_commands"]
+    )
     assert payload["assemblies"]["longbridge"]["provided_sections"] == []
     assert payload["audit"]["gates"]["longbridge_live_enablement_evidence"] == "failed"
     assert payload["audit"]["gates"]["ibkr_live_enablement_evidence"] == "failed"
@@ -98,6 +112,9 @@ def test_gate_run_consumes_operator_convention_files_and_keeps_remaining_gaps(tm
     missing_paths = {Path(item["path"]).name for item in payload["missing_files"]}
     assert "production_source_audit.draft.json" in missing_paths
     assert "longbridge_broker_permission_and_fee_verification.draft.json" not in missing_paths
+    missing_sections = {blocker["section"] for blocker in payload["external_evidence_blockers"]}
+    assert "broker_permission_and_fee_verification" not in missing_sections
+    assert "platform_dry_run_order_preview" in missing_sections
     assert payload["live_enablement_allowed"] is False
 
 

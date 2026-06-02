@@ -62,6 +62,12 @@ data/output/low_vol_dividend_live_enablement_gate/final_live_enablement_audit.js
 data/output/low_vol_dividend_live_enablement_gate/live_enablement_gate_summary.json
 ```
 
+The summary includes:
+
+- `missing_files`: convention files that were not found;
+- `external_evidence_blockers`: the external dependency behind each missing file;
+- `next_evidence_commands`: suggested commands for generating the missing evidence drafts.
+
 ## Exit behavior
 
 By default, the command returns zero even when the gate is blocked. This lets operators inspect missing evidence and validation errors.

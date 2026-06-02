@@ -29,6 +29,41 @@ PLATFORM_CONVENTION_FILES = {
     "risk_approval_file": "{platform}_risk_approval.draft.json",
     "strategy_policy_evidence_file": "{platform}_strategy_policy_evidence.draft.json",
 }
+SECTION_EXTERNAL_DEPENDENCIES = {
+    "production_snapshot_source_audit": (
+        "Point-in-time production factor snapshot, production source URI, source quality report URI, "
+        "and data dictionary URI. Sample factor snapshots are not acceptable."
+    ),
+    "artifact_pack_validation": (
+        "Immutable production artifact publication with stable snapshot/manifest/ranking/release-summary URIs, "
+        "sha256 provenance, and at least 20 snapshot rows."
+    ),
+    "walk_forward_backtest": (
+        "Operator-supplied walk-forward OOS backtest summary with HK fees, slippage, lot-size, suspension, "
+        "bias-control, fold drawdown, turnover, benchmark, and stress-test evidence."
+    ),
+    "platform_dry_run_order_preview": (
+        "Platform dry-run runtime report plus quote snapshot, fee breakdown, notification delivery log, "
+        "sha256 provenance, and capacity confirmations."
+    ),
+    "broker_permission_and_fee_verification": (
+        "Broker account evidence for HK market data, SEHK trading permission, HKD cash handling, fees, "
+        "and stamp-duty/exemption verification."
+    ),
+    "paper_or_dry_run_rebalance_window": (
+        "At least the required count of paper/dry-run rebalance or event windows with evidence URI."
+    ),
+    "runtime_rollout_plan": (
+        "Staged rollout, capital caps, drawdown tripwires, observation period, kill switch, rollback, "
+        "monitoring, operator notification, severe-weather, and VCM runbooks."
+    ),
+    "risk_approval": (
+        "Operator approval reference confirming runtime enablement and dry-run removal approval."
+    ),
+    "strategy_policy_evidence": (
+        "Quality/yield same-universe ablations, stress windows, and point-in-time data-provenance review pack."
+    ),
+}
 
 
 def _normalize_platforms(platforms: tuple[str, ...]) -> tuple[str, ...]:
@@ -95,6 +130,95 @@ def _file_inventory(evidence_dir: Path, *, platforms: tuple[str, ...]) -> list[d
     return inventory
 
 
+def _suggested_command(item: dict[str, Any]) -> str:
+    section = item["section"]
+    platform = item.get("platform")
+    if section == "production_snapshot_source_audit":
+        return (
+            "hkeq-draft-low-vol-dividend-production-source-audit "
+            "--factor-snapshot <production-factor-snapshot.csv> "
+            "--source-name <vendor-or-pipeline-name> "
+            "--production-source-uri <stable-uri> "
+            "--source-quality-report-uri <stable-uri> "
+            "--point-in-time-data-dictionary-uri <stable-uri> "
+            "--evidence-uri <stable-uri> "
+            "--output-dir evidence/low_vol_dividend_quality"
+        )
+    if section == "artifact_pack_validation":
+        return (
+            "hkeq-draft-low-vol-dividend-artifact-evidence "
+            "--artifact-dir <production-artifact-dir> "
+            "--artifact-release-id <immutable-release-id> "
+            "--published-snapshot-uri <stable-uri> "
+            "--published-manifest-uri <stable-uri> "
+            "--published-ranking-uri <stable-uri> "
+            "--published-release-summary-uri <stable-uri> "
+            "--evidence-uri <stable-uri> "
+            "--confirm-immutable-release "
+            "--confirm-published-artifacts-not-sample "
+            "--confirm-manifest-provenance "
+            "--confirm-release-summary-ready "
+            "--output-dir evidence/low_vol_dividend_quality"
+        )
+    if section == "walk_forward_backtest":
+        return (
+            "hkeq-draft-low-vol-dividend-backtest-evidence "
+            "--summary <walk-forward-summary.json> "
+            "--evidence-uri <stable-uri> "
+            "--output-dir evidence/low_vol_dividend_quality"
+        )
+    if section == "platform_dry_run_order_preview":
+        return (
+            "hkeq-draft-low-vol-dividend-platform-evidence "
+            f"--platform {platform or '<platform>'} "
+            "--runtime-report <dry-run-runtime-report.json> "
+            "--runtime-report-uri <stable-uri> "
+            "--quote-snapshot-file <quotes.json> "
+            "--quote-snapshot-uri <stable-uri> "
+            "--fee-breakdown-file <fees.json> "
+            "--fee-breakdown-uri <stable-uri> "
+            "--notification-delivery-log-uri <stable-uri> "
+            "--confirm-order-preview-provenance "
+            "--confirm-notification-audit "
+            "--confirm-execution-capacity "
+            "--output-dir evidence/low_vol_dividend_quality"
+        )
+    if section in {
+        "broker_permission_and_fee_verification",
+        "paper_or_dry_run_rebalance_window",
+        "runtime_rollout_plan",
+        "risk_approval",
+        "strategy_policy_evidence",
+    }:
+        return (
+            "hkeq-draft-low-vol-dividend-operator-evidence "
+            f"--platform {platform or '<platform>'} "
+            "--evidence-generated-at <YYYY-MM-DD> "
+            "--broker-evidence-uri <stable-uri> "
+            "--rebalance-evidence-uri <stable-uri> "
+            "--rollout-evidence-uri <stable-uri> "
+            "--approval-reference <operator-approval-reference> "
+            "--strategy-policy-evidence-uri <stable-uri> "
+            "--output-dir evidence/low_vol_dividend_quality"
+        )
+    return "Provide a validator-compatible evidence section file."
+
+
+def _external_evidence_blockers(missing_files: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    blockers: list[dict[str, Any]] = []
+    for item in missing_files:
+        blockers.append(
+            {
+                "section": item["section"],
+                "platform": item.get("platform"),
+                "missing_file": item["path"],
+                "external_dependency": SECTION_EXTERNAL_DEPENDENCIES.get(item["section"], "Validator-compatible evidence file."),
+                "suggested_command": _suggested_command(item),
+            }
+        )
+    return blockers
+
+
 def _strip_large_assembly_fields(payload: dict[str, Any]) -> dict[str, Any]:
     return {key: value for key, value in payload.items() if key not in {"evidence", "validation"}}
 
@@ -145,6 +269,7 @@ def build_low_vol_dividend_live_enablement_gate_run(
         validation_as_of=validation_as_of,
     )
     missing_files = [item for item in _file_inventory(evidence_dir, platforms=selected_platforms) if not item["exists"]]
+    external_evidence_blockers = _external_evidence_blockers(missing_files)
     return {
         "gate_runner_version": GATE_RUNNER_VERSION,
         "profile": contract.profile,
@@ -158,6 +283,8 @@ def build_low_vol_dividend_live_enablement_gate_run(
         "platforms": list(selected_platforms),
         "file_inventory": _file_inventory(evidence_dir, platforms=selected_platforms),
         "missing_files": missing_files,
+        "external_evidence_blockers": external_evidence_blockers,
+        "next_evidence_commands": sorted({blocker["suggested_command"] for blocker in external_evidence_blockers}),
         "assemblies": assemblies,
         "audit": audit,
         "live_enablement_allowed": bool(audit.get("live_enablement_allowed")),

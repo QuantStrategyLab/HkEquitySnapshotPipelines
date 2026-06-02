@@ -223,6 +223,7 @@ hkeq-run-low-vol-dividend-live-enable-gate \
 ```
 
 Use `--fail-on-blocked` in CI/release gates. The gate remains blocked until both platform evidence packs and the final audit return `live_enablement_allowed=true`.
+The gate summary includes `external_evidence_blockers` and `next_evidence_commands` so operators can see which production source, artifact, backtest, platform dry-run, or approval evidence is still missing.
 
 For the active and deferred quality/yield snapshot candidates, use the shared evidence draft commands. Deferred profiles should stay out of the default live-enable queue until real point-in-time walk-forward evidence passes the 30% drawdown gate:
 
