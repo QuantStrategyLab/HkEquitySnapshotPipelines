@@ -234,7 +234,7 @@ def test_platform_evidence_rejects_unredacted_notification_secret(tmp_path):
     fee_path = _artifact(tmp_path / "fees.json", {"orders": 2, "currency": "HKD"})
     notification_path = _notification_log(tmp_path / "notification-log.json")
     notification_payload = json.loads(notification_path.read_text(encoding="utf-8"))
-    notification_payload["api_key"] = "sk-live-test-value"
+    notification_payload["api_key"] = "plain-test-value"
     notification_path.write_text(
         json.dumps(notification_payload, ensure_ascii=False, indent=2, sort_keys=True),
         encoding="utf-8",
