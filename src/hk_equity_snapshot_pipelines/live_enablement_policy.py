@@ -2,6 +2,8 @@ from __future__ import annotations
 
 MAX_ALLOWED_BACKTEST_DRAWDOWN = 0.30
 MIN_RETURN_TO_DRAWDOWN_RATIO = 0.50
+MIN_REQUIRED_OOS_FOLD_COUNT = 3
+MAX_SINGLE_PERIOD_RETURN_CONTRIBUTION = 0.60
 DEFAULT_MAX_ALLOWED_ANNUALIZED_TURNOVER = 1.50
 DEFAULT_MIN_REQUIRED_REBALANCE_WINDOWS = 3
 DEFAULT_MIN_ADV_WINDOW_TRADING_DAYS = 20
@@ -564,6 +566,8 @@ def build_live_enablement_thresholds(profile: str) -> dict[str, float | int]:
     return {
         "max_allowed_backtest_drawdown": MAX_ALLOWED_BACKTEST_DRAWDOWN,
         "min_return_to_drawdown_ratio": MIN_RETURN_TO_DRAWDOWN_RATIO,
+        "min_required_oos_fold_count": MIN_REQUIRED_OOS_FOLD_COUNT,
+        "max_single_period_return_contribution": MAX_SINGLE_PERIOD_RETURN_CONTRIBUTION,
         "max_allowed_annualized_turnover": get_max_allowed_annualized_turnover(profile),
         "min_required_walk_forward_years": MIN_REQUIRED_WALK_FORWARD_YEARS,
         "min_required_rebalance_windows": get_min_required_rebalance_windows(profile),
@@ -580,6 +584,8 @@ __all__ = [
     "EXECUTION_CAPACITY_REFERENCE_URLS",
     "MAX_ALLOWED_ANNUALIZED_TURNOVER_BY_PROFILE",
     "MAX_ALLOWED_BACKTEST_DRAWDOWN",
+    "MAX_SINGLE_PERIOD_RETURN_CONTRIBUTION",
+    "MIN_REQUIRED_OOS_FOLD_COUNT",
     "MIN_RETURN_TO_DRAWDOWN_RATIO",
     "MIN_MEDIAN_DAILY_TURNOVER_HKD_BY_PROFILE",
     "MIN_REQUIRED_REBALANCE_WINDOWS_BY_PROFILE",

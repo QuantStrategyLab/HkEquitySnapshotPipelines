@@ -171,6 +171,8 @@ def _evidence(**overrides):
             "annual_return": 0.12,
             "max_drawdown": -0.18,
             "rolling_oos_fold_max_drawdown": -0.22,
+            "oos_fold_count": 4,
+            "max_single_period_return_contribution": 0.42,
             "annual_return_to_max_drawdown_ratio": 0.67,
             "annualized_turnover": 0.60,
             "hk_fees_and_levies": True,
@@ -441,6 +443,8 @@ def test_build_live_enablement_evidence_template_is_fillable_but_not_preapproved
     assert template["production_snapshot_source_audit"]["evidence_generated_at"] == ""
     assert template["walk_forward_backtest"]["max_drawdown"] is None
     assert template["walk_forward_backtest"]["rolling_oos_fold_max_drawdown"] is None
+    assert template["walk_forward_backtest"]["oos_fold_count"] is None
+    assert template["walk_forward_backtest"]["max_single_period_return_contribution"] is None
     assert template["walk_forward_backtest"]["annual_return_to_max_drawdown_ratio"] is None
     assert template["walk_forward_backtest"]["annualized_turnover"] is None
     assert template["walk_forward_backtest"]["hk_fees_and_levies"] is False
@@ -877,6 +881,29 @@ def test_validate_live_enablement_evidence_rejects_oos_fold_drawdown_above_30_pe
 
     assert result["live_enablement_allowed"] is False
     assert any("rolling_oos_fold_max_drawdown exceeds" in error for error in result["errors"])
+
+
+def test_validate_live_enablement_evidence_rejects_too_few_oos_folds():
+    payload = _evidence(walk_forward_backtest={**_evidence()["walk_forward_backtest"], "oos_fold_count": 2})
+
+    result = validate_live_enablement_evidence(payload)
+
+    assert result["live_enablement_allowed"] is False
+    assert any("oos_fold_count must be" in error for error in result["errors"])
+
+
+def test_validate_live_enablement_evidence_rejects_high_single_period_return_contribution():
+    payload = _evidence(
+        walk_forward_backtest={
+            **_evidence()["walk_forward_backtest"],
+            "max_single_period_return_contribution": 0.61,
+        }
+    )
+
+    result = validate_live_enablement_evidence(payload)
+
+    assert result["live_enablement_allowed"] is False
+    assert any("max_single_period_return_contribution exceeds" in error for error in result["errors"])
 
 
 def test_validate_live_enablement_evidence_rejects_low_return_to_drawdown_ratio():

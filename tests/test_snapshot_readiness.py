@@ -25,9 +25,12 @@ def test_snapshot_readiness_blocks_scaffold_live_enablement():
     assert plan["live_enablement_evidence_validation"]["required"] is True
     assert "hkeq-validate-live-enable-evidence" in plan["live_enablement_evidence_validation"]["command"]
     assert "--print-template" in plan["live_enablement_evidence_validation"]["template_command"]
+    assert any("three independent OOS folds" in item for item in plan["live_enablement_requirements"])
     assert plan["live_enablement_thresholds"] == {
         "max_allowed_backtest_drawdown": 0.30,
         "min_return_to_drawdown_ratio": 0.50,
+        "min_required_oos_fold_count": 3,
+        "max_single_period_return_contribution": 0.60,
         "max_allowed_annualized_turnover": 1.50,
         "min_required_rebalance_windows": 3,
         "min_required_walk_forward_years": 3.0,

@@ -19,6 +19,13 @@ The snapshot strategy helper and feature-column contract live in this repository
 `HkEquityStrategies` runtime catalog should not expose this profile until the snapshot data source
 and publication flow are promoted.
 
+## Live-enable backtest evidence boundary
+
+Snapshot artifacts are not sufficient for live trading by themselves. The live-enable evidence pack
+must also include at least 3 independent out-of-sample folds, every fold's max drawdown <= 30%,
+overall max drawdown <= 30%, max single-period return contribution <= 60%, and
+annual-return-to-max-drawdown ratio >= 0.50, before platform dry-run removal can be considered.
+
 ## Files
 
 ### `hk_ah_premium_relative_value`

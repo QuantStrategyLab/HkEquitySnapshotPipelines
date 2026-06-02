@@ -53,6 +53,8 @@ def test_snapshot_promotion_matrix_covers_every_contract_profile():
     assert matrix["backtest_validation_policy"]["live_enablement_allowed_without_policy_evidence"] is False
     assert matrix["backtest_validation_policy"]["max_allowed_drawdown"] == 0.30
     assert matrix["backtest_validation_policy"]["min_return_to_drawdown_ratio"] == 0.50
+    assert matrix["backtest_validation_policy"]["min_required_oos_fold_count"] == 3
+    assert matrix["backtest_validation_policy"]["max_single_period_return_contribution"] == 0.60
     assert "point_in_time_inputs_only" in matrix["backtest_validation_policy"]["required_controls"]
     assert "no_full_sample_parameter_selection" in matrix["backtest_validation_policy"]["required_controls"]
     assert "rolling_oos_fold_drawdown_controls" in matrix["backtest_validation_policy"]["required_controls"]
@@ -75,9 +77,17 @@ def test_snapshot_promotion_matrix_covers_every_contract_profile():
     assert "annual_return_to_max_drawdown_ratio_at_or_above_50_percent" in (
         matrix["backtest_validation_policy"]["required_risk_constraints"]
     )
+    assert "minimum_three_independent_oos_folds" in (
+        matrix["backtest_validation_policy"]["required_risk_constraints"]
+    )
+    assert "single_period_return_contribution_at_or_below_60_percent" in (
+        matrix["backtest_validation_policy"]["required_risk_constraints"]
+    )
     assert "cross_strategy_correlation_and_aggregate_drawdown_budget_limits" in (
         matrix["backtest_validation_policy"]["required_risk_constraints"]
     )
+    assert "oos_fold_count" in matrix["backtest_validation_policy"]["required_metrics"]
+    assert "max_single_period_return_contribution" in matrix["backtest_validation_policy"]["required_metrics"]
     assert "annual_return_to_max_drawdown_ratio" in matrix["backtest_validation_policy"]["required_metrics"]
     assert "data_vendor_reconciliation_and_missingness_controls" in (
         matrix["backtest_validation_policy"]["required_controls"]
@@ -95,6 +105,10 @@ def test_snapshot_promotion_matrix_covers_every_contract_profile():
     assert "annual_return_to_max_drawdown_ratio_below_50_percent" in (
         matrix["backtest_validation_policy"]["reject_criteria"]
     )
+    assert "fewer_than_three_independent_oos_folds" in matrix["backtest_validation_policy"]["reject_criteria"]
+    assert "single_period_return_contribution_above_60_percent" in (
+        matrix["backtest_validation_policy"]["reject_criteria"]
+    )
     assert "gross_return_only_backtest_without_net_cost_validation" in (
         matrix["backtest_validation_policy"]["reject_criteria"]
     )
@@ -108,6 +122,8 @@ def test_snapshot_promotion_matrix_covers_every_contract_profile():
     assert "bilingual_notification_delivery_log" in matrix["generic_required_next_evidence"]
     assert "backtest_validation_policy_evidence" in matrix["generic_required_next_evidence"]
     assert "point_in_time_no_lookahead_and_no_overfit_controls" in matrix["generic_required_next_evidence"]
+    assert "minimum_three_independent_oos_folds" in matrix["generic_required_next_evidence"]
+    assert "single_period_return_contribution_below_60_percent" in matrix["generic_required_next_evidence"]
     assert "per_fold_drawdown_parameter_stability_and_regime_stress_controls" in (
         matrix["generic_required_next_evidence"]
     )

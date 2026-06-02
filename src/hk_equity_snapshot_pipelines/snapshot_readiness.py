@@ -70,6 +70,7 @@ SNAPSHOT_LIVE_ENABLEMENT_REQUIREMENTS: tuple[str, ...] = (
     "Strategy package must explicitly promote the snapshot-backed profile to runtime_enabled before platform selection.",
     "Platform dry-run must load the artifact, preview orders, enforce lot size, and emit bilingual EN/ZH-Hans operator notifications with a stable delivery-log URI.",
     "Broker account must have HK market data, SEHK trading permission, HKD cash handling, and approved product permissions.",
+    "Backtest evidence must include at least three independent OOS folds and max single-period return contribution <= 60%.",
     "Paper trading or dry-run evidence must cover the profile-required rebalance/event windows before live order submission.",
     "Each snapshot profile family must provide matching strategy_policy_evidence before dry-run removal.",
 )
