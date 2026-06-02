@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from .artifact_provenance_policy import build_artifact_provenance_policy
+from .backtest_validation_policy import BACKTEST_VALIDATION_POLICY_VERSION, build_backtest_validation_policy
 from .baseline_rotation_live_enablement_policy import (
     BASELINE_ROTATION_LIVE_ENABLEMENT_POLICY_VERSION,
     BASELINE_ROTATION_PROFILES,
@@ -114,6 +115,8 @@ GENERIC_REQUIRED_NEXT_EVIDENCE: tuple[str, ...] = (
     "dry_run_order_preview_artifact_provenance",
     "staged_rollout_tripwires_and_rollback",
     "survivorship_safe_walk_forward_backtest_min_three_oos_years",
+    "backtest_validation_policy_evidence",
+    "point_in_time_no_lookahead_and_no_overfit_controls",
     "positive_annual_return_and_positive_excess_return_vs_profile_benchmark",
     "hk_fee_stamp_duty_or_exemption_slippage_and_lot_size_model",
     "paper_or_dry_run_rebalance_windows",
@@ -1234,6 +1237,7 @@ def build_snapshot_promotion_row(profile: str) -> dict[str, Any]:
         "live_enablement_thresholds": build_live_enablement_thresholds(contract.profile),
         "production_source_audit_policy": build_production_source_audit_policy(contract.profile),
         "artifact_provenance_policy": build_artifact_provenance_policy(),
+        "backtest_validation_policy": build_backtest_validation_policy(),
         "execution_capacity_policy": build_execution_capacity_policy(contract.profile),
         "dry_run_order_preview_policy": build_dry_run_order_preview_policy(),
         "rollout_risk_policy": build_rollout_risk_policy(),
@@ -1280,6 +1284,7 @@ def build_snapshot_promotion_matrix() -> dict[str, Any]:
         "generic_required_next_evidence": list(GENERIC_REQUIRED_NEXT_EVIDENCE),
         "evidence_uri_policy": EVIDENCE_URI_POLICY,
         "artifact_provenance_policy": build_artifact_provenance_policy(),
+        "backtest_validation_policy": build_backtest_validation_policy(),
         "evidence_freshness_policy": EVIDENCE_FRESHNESS_POLICY,
         "execution_capacity_policy": build_execution_capacity_policy(""),
         "dry_run_order_preview_policy": build_dry_run_order_preview_policy(),
@@ -1333,6 +1338,7 @@ if __name__ == "__main__":
 
 __all__ = [
     "BASELINE_ROTATION_LIVE_ENABLEMENT_POLICY_VERSION",
+    "BACKTEST_VALIDATION_POLICY_VERSION",
     "BASELINE_ROTATION_PROFILES",
     "EVIDENCE_URI_POLICY",
     "FACTOR_MIX_LIVE_ENABLEMENT_POLICY_VERSION",

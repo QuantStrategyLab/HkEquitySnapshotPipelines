@@ -8,6 +8,7 @@ from pathlib import Path
 from hk_equity_snapshot_pipelines.contracts import list_profile_contracts
 from hk_equity_snapshot_pipelines.snapshot_promotion_matrix import (
     BASELINE_ROTATION_LIVE_ENABLEMENT_POLICY_VERSION,
+    BACKTEST_VALIDATION_POLICY_VERSION,
     FACTOR_MIX_LIVE_ENABLEMENT_POLICY_VERSION,
     FUTURE_RESEARCH_BACKLOG_VERSION,
     FUTURE_RESEARCH_LIVE_ENABLEMENT_POLICY_VERSION,
@@ -48,6 +49,20 @@ def test_snapshot_promotion_matrix_covers_every_contract_profile():
     assert matrix["evidence_uri_policy"]["allowed_schemes"] == ["gs://", "https://", "s3://"]
     assert "signature=" in matrix["evidence_uri_policy"]["rejected_query_markers"]
     assert matrix["artifact_provenance_policy"]["required"] is True
+    assert matrix["backtest_validation_policy"]["policy_version"] == BACKTEST_VALIDATION_POLICY_VERSION
+    assert matrix["backtest_validation_policy"]["live_enablement_allowed_without_policy_evidence"] is False
+    assert matrix["backtest_validation_policy"]["max_allowed_drawdown"] == 0.30
+    assert "point_in_time_inputs_only" in matrix["backtest_validation_policy"]["required_controls"]
+    assert "no_full_sample_parameter_selection" in matrix["backtest_validation_policy"]["required_controls"]
+    assert "max_drawdown_at_or_below_30_percent" in (
+        matrix["backtest_validation_policy"]["required_risk_constraints"]
+    )
+    assert "adv_capacity_spread_board_lot_and_odd_lot_limits" in (
+        matrix["backtest_validation_policy"]["required_risk_constraints"]
+    )
+    assert "using_future_financials_estimates_or_index_changes_before_effective_timestamp" in (
+        matrix["backtest_validation_policy"]["reject_criteria"]
+    )
     assert matrix["evidence_freshness_policy"]["required_field"] == "evidence_generated_at"
     assert "artifact_publication_provenance" in matrix["generic_required_next_evidence"]
     assert "production_source_uri_and_quality_report_provenance" in matrix["generic_required_next_evidence"]
@@ -56,6 +71,8 @@ def test_snapshot_promotion_matrix_covers_every_contract_profile():
     assert "dry_run_order_preview_artifact_provenance" in matrix["generic_required_next_evidence"]
     assert "staged_rollout_tripwires_and_rollback" in matrix["generic_required_next_evidence"]
     assert "bilingual_notification_delivery_log" in matrix["generic_required_next_evidence"]
+    assert "backtest_validation_policy_evidence" in matrix["generic_required_next_evidence"]
+    assert "point_in_time_no_lookahead_and_no_overfit_controls" in matrix["generic_required_next_evidence"]
     assert matrix["execution_capacity_policy"]["max_single_order_adv_fraction"] == 0.025
     assert matrix["rollout_risk_policy"]["max_initial_capital_fraction"] == 0.25
     assert matrix["notification_audit_policy"]["schema_version"] == "hk_live_enablement_notification.v1"
@@ -158,6 +175,8 @@ def test_blue_chip_baseline_row_carries_active_policy_and_hsi_execution_controls
     assert row["baseline_rotation_live_enablement_policy"]["policy_version"] == (
         BASELINE_ROTATION_LIVE_ENABLEMENT_POLICY_VERSION
     )
+    assert row["backtest_validation_policy"]["policy_version"] == BACKTEST_VALIDATION_POLICY_VERSION
+    assert "signal_timestamp_before_trade_timestamp" in row["backtest_validation_policy"]["required_controls"]
     assert "blue_chip_rotation_vs_hsi_tracker_same_universe" in (
         row["baseline_rotation_live_enablement_policy"]["required_ablation_tests"]
     )
