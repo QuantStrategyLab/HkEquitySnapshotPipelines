@@ -16,6 +16,7 @@ HK_EARNINGS_ANNOUNCEMENT_DRIFT_OVERLAY_PROFILE_HINT = "hk_earnings_announcement_
 HK_LOTTERY_STOCK_RISK_EXCLUSION_OVERLAY_PROFILE_HINT = "hk_lottery_stock_risk_exclusion_overlay"
 HK_EQUITY_FINANCING_DILUTION_RISK_OVERLAY_PROFILE_HINT = "hk_equity_financing_dilution_risk_overlay"
 HK_CONNECTED_TRANSACTION_GOVERNANCE_RISK_OVERLAY_PROFILE_HINT = "hk_connected_transaction_governance_risk_overlay"
+HK_TAKEOVER_PRIVATIZATION_EVENT_SPREAD_OVERLAY_PROFILE_HINT = "hk_takeover_privatization_event_spread_overlay"
 
 SP_EARNINGS_REVISION_OVERLAY_ASIA_URL = (
     "https://www.spglobal.com/spdji/en/research/article/"
@@ -149,6 +150,24 @@ HKEX_CONNECTED_TRANSACTION_RULES_ELEARNING_URL = (
     "https://www.hkex.com.hk/Listing/Listed-Issuers/e-Learning/"
     "Connected-Transaction-Rules?sc_lang=en"
 )
+SFC_TAKEOVERS_AND_MERGERS_URL = "https://www.sfc.hk/en/Regulatory-functions/Corporates/Takeovers-and-mergers"
+SFC_TAKEOVER_TRANSACTION_ANNOUNCEMENTS_URL = (
+    "https://www.sfc.hk/en/Regulatory-functions/Corporates/Takeovers-and-mergers/"
+    "Transaction-announcements-and-documents"
+)
+SFC_TAKEOVER_OFFER_PERIODS_URL = (
+    "https://www.sfc.hk/en/Regulatory-functions/Corporates/Takeovers-and-mergers/offer-periods"
+)
+SFC_TAKEOVER_PAST_OFFER_PERIODS_URL = (
+    "https://www.sfc.hk/en/Regulatory-functions/Corporates/Takeovers-and-mergers/past-offer-periods"
+)
+SCIENCEDIRECT_HK_CORPORATE_TAKEOVER_SHAREHOLDER_WEALTH_URL = (
+    "https://www.sciencedirect.com/science/article/abs/pii/S089083898371022X"
+)
+SCIENCEDIRECT_HK_GOING_PRIVATE_TUNNELING_URL = (
+    "https://www.sciencedirect.com/science/article/pii/S0927538X12000765"
+)
+POLYU_HK_ACQUISITION_MERGER_WEALTH_THESIS_URL = "https://theses.lib.polyu.edu.hk/handle/200/2926"
 
 FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_EARNINGS_REVISION_QUALITY_OVERLAY_PROFILE_HINT,
@@ -161,6 +180,7 @@ FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_LOTTERY_STOCK_RISK_EXCLUSION_OVERLAY_PROFILE_HINT,
     HK_EQUITY_FINANCING_DILUTION_RISK_OVERLAY_PROFILE_HINT,
     HK_CONNECTED_TRANSACTION_GOVERNANCE_RISK_OVERLAY_PROFILE_HINT,
+    HK_TAKEOVER_PRIVATIZATION_EVENT_SPREAD_OVERLAY_PROFILE_HINT,
 )
 
 FUTURE_RESEARCH_REQUIRED_PRE_SCAFFOLD_GATES: tuple[str, ...] = (
@@ -219,6 +239,9 @@ FUTURE_RESEARCH_REQUIRED_DATA_PROVENANCE: tuple[str, ...] = (
     "point_in_time_connected_transaction_announcement_circular_and_shareholder_approval_history",
     "connected_person_relationship_transaction_type_pricing_policy_and_independent_advice_history",
     "post_connected_transaction_return_tunneling_propping_disclosure_quality_and_governance_history",
+    "point_in_time_takeover_possible_offer_firm_intention_privatisation_and_offer_period_history",
+    "offer_price_spread_conditions_acceptance_level_compulsory_acquisition_and_withdrawal_history",
+    "takeover_event_liquidity_trading_halt_disclosure_dealing_and_completion_risk_history",
 )
 
 FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
@@ -272,6 +295,13 @@ FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
     SCIENCEDIRECT_HK_CONNECTED_TRANSACTIONS_FIRM_VALUE_URL,
     HKEX_CONNECTED_TRANSACTIONS_RULEBOOK_URL,
     HKEX_CONNECTED_TRANSACTION_RULES_ELEARNING_URL,
+    SFC_TAKEOVERS_AND_MERGERS_URL,
+    SFC_TAKEOVER_TRANSACTION_ANNOUNCEMENTS_URL,
+    SFC_TAKEOVER_OFFER_PERIODS_URL,
+    SFC_TAKEOVER_PAST_OFFER_PERIODS_URL,
+    SCIENCEDIRECT_HK_CORPORATE_TAKEOVER_SHAREHOLDER_WEALTH_URL,
+    SCIENCEDIRECT_HK_GOING_PRIVATE_TUNNELING_URL,
+    POLYU_HK_ACQUISITION_MERGER_WEALTH_THESIS_URL,
 )
 
 
@@ -311,6 +341,7 @@ __all__ = [
     "HK_EARNINGS_REVISION_QUALITY_OVERLAY_PROFILE_HINT",
     "HK_CONNECTED_TRANSACTION_GOVERNANCE_RISK_OVERLAY_PROFILE_HINT",
     "HK_EQUITY_FINANCING_DILUTION_RISK_OVERLAY_PROFILE_HINT",
+    "HK_TAKEOVER_PRIVATIZATION_EVENT_SPREAD_OVERLAY_PROFILE_HINT",
     "HK_LOTTERY_STOCK_RISK_EXCLUSION_OVERLAY_PROFILE_HINT",
     "HK_LOW_SIZE_QUALITY_LIQUIDITY_PREMIUM_PROFILE_HINT",
     "HK_MOMENTUM_PROFITABILITY_RESEARCH_URL",
@@ -345,6 +376,7 @@ __all__ = [
     "SFC_DISCLOSURE_OF_INTERESTS_PART_XV_URL",
     "IDEAS_HK_STOCK_RETURN_REVERSAL_CONTINUANCE_URL",
     "POLYU_HK_EARNINGS_ANNOUNCEMENT_DRIFT_THESIS_URL",
+    "POLYU_HK_ACQUISITION_MERGER_WEALTH_THESIS_URL",
     "POLYU_HK_GAMBLING_STOCK_MARKET_PDF_URL",
     "POLYU_HK_RIGHTS_ISSUE_REACTION_THESIS_URL",
     "SCIENCEDIRECT_HK_DIRECTOR_DEALING_SHARE_REPURCHASE_URL",
@@ -352,6 +384,8 @@ __all__ = [
     "SCIENCEDIRECT_HK_GAMBLING_STOCK_MARKET_URL",
     "SCIENCEDIRECT_HK_BUY_HIGH_SELL_LOW_RPT_URL",
     "SCIENCEDIRECT_HK_CONNECTED_TRANSACTIONS_FIRM_VALUE_URL",
+    "SCIENCEDIRECT_HK_CORPORATE_TAKEOVER_SHAREHOLDER_WEALTH_URL",
+    "SCIENCEDIRECT_HK_GOING_PRIVATE_TUNNELING_URL",
     "SCIENCEDIRECT_HK_INDEPENDENT_DIRECTORS_RPT_URL",
     "SCIENCEDIRECT_HK_RIGHTS_OFFERS_DIFFERENT_URL",
     "SCIENCEDIRECT_HK_SEO_INSIDER_TRADING_URL",
@@ -361,5 +395,9 @@ __all__ = [
     "TANDF_HK_SHORT_TERM_OVERREACTION_URL",
     "SSRN_SHORT_INTEREST_RETURN_PREDICTABILITY_URL",
     "SSRN_HK_CONNECTED_TRANSACTIONS_TUNNELING_URL",
+    "SFC_TAKEOVERS_AND_MERGERS_URL",
+    "SFC_TAKEOVER_OFFER_PERIODS_URL",
+    "SFC_TAKEOVER_PAST_OFFER_PERIODS_URL",
+    "SFC_TAKEOVER_TRANSACTION_ANNOUNCEMENTS_URL",
     "build_future_research_live_enablement_policy",
 ]
