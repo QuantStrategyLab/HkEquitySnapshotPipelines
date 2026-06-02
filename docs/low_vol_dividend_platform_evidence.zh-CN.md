@@ -24,8 +24,8 @@ python scripts/collect_low_vol_dividend_dry_run_support_artifacts.py \
   --json
 ```
 
-collector 会写出 `raw_order_preview`、`quote_snapshot` 和 `fee_breakdown` support files。
-它不会伪造缺失证据：只有 runtime report 已包含完整 payload，或显式提供外部 broker/runtime JSON 文件时，生成的 quote 或 fee 文件才会标记为 `passed`；否则标记为 `missing`。
+collector 会写出 `raw_order_preview`、`quote_snapshot`、`fee_breakdown` 和 `notification_delivery_log` support files。
+它不会伪造缺失证据：只有 runtime report 已包含完整 payload，或在支持时显式提供外部 broker/runtime JSON 文件时，生成的 quote、fee 或 notification 文件才会标记为 `passed`；否则标记为 `missing`。
 后续即使传入确认 flags，`missing` support artifact 也会让平台 evidence section 保持 `pending`。
 
 然后再生成平台 evidence：

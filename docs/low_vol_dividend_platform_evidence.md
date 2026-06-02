@@ -24,8 +24,8 @@ python scripts/collect_low_vol_dividend_dry_run_support_artifacts.py \
   --json
 ```
 
-The collector writes `raw_order_preview`, `quote_snapshot`, and `fee_breakdown` support files.
-It does not fabricate missing evidence: generated quote or fee files are marked `missing` unless the runtime report already contains a complete payload or an explicit external broker/runtime JSON file is supplied.
+The collector writes `raw_order_preview`, `quote_snapshot`, `fee_breakdown`, and `notification_delivery_log` support files.
+It does not fabricate missing evidence: generated quote, fee, or notification files are marked `missing` unless the runtime report already contains a complete payload or an explicit external broker/runtime JSON file is supplied where supported.
 Files marked `missing` keep the platform evidence section `pending`, even if confirmation flags are supplied later.
 
 Then draft the platform evidence:

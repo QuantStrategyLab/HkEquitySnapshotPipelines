@@ -33,6 +33,12 @@ FEE_BREAKDOWN_FIELDS = (
     "broker_fee_preview",
     "broker_fee_breakdown",
 )
+NOTIFICATION_DELIVERY_LOG_FIELDS = (
+    "notification_delivery_log",
+    "notification_delivery_logs",
+    "notification_audit",
+    "bilingual_notification_delivery_log",
+)
 
 
 def _read_json(path: str | Path) -> dict[str, Any]:
@@ -209,6 +215,34 @@ def _build_fee_breakdown_artifact(
     }
 
 
+def _build_notification_delivery_log_artifact(
+    *,
+    platform: str,
+    profile: str,
+    evidence_generated_at: str,
+    runtime_report: Mapping[str, Any],
+    runtime_report_sha256: str,
+) -> dict[str, Any]:
+    payload, source_field = _find_payload(runtime_report, NOTIFICATION_DELIVERY_LOG_FIELDS)
+    status = "passed" if isinstance(payload, Mapping) else "missing"
+    return {
+        "artifact_type": f"{SUPPORT_ARTIFACT_TYPE_PREFIX}.notification_delivery_log.v1",
+        "support_artifact_version": SUPPORT_ARTIFACT_VERSION,
+        "profile": profile,
+        "platform": platform,
+        "status": status,
+        "evidence_generated_at": evidence_generated_at,
+        "source_runtime_report_sha256": runtime_report_sha256,
+        "source_field": source_field,
+        "notification_delivery_log": payload if isinstance(payload, Mapping) else {},
+        "notes": []
+        if status == "passed"
+        else [
+            "No bilingual notification delivery log payload was found in the runtime report. Provide a schema-versioned delivery log before live-enable.",
+        ],
+    }
+
+
 def build_low_vol_dividend_dry_run_support_artifacts(
     *,
     platform: str,
@@ -278,10 +312,18 @@ def build_low_vol_dividend_dry_run_support_artifacts(
         external_fee_breakdown_path=external_fee_breakdown_path,
         external_fee_breakdown_sha256=external_fee_breakdown_sha256,
     )
+    notification_delivery_log = _build_notification_delivery_log_artifact(
+        platform=normalized_platform,
+        profile=contract.profile,
+        evidence_generated_at=evidence_generated_at,
+        runtime_report=runtime_report,
+        runtime_report_sha256=runtime_report_sha256,
+    )
     support_statuses = {
         "raw_order_preview": raw_order_preview["status"],
         "quote_snapshot": quote_snapshot["status"],
         "fee_breakdown": fee_breakdown["status"],
+        "notification_delivery_log": notification_delivery_log["status"],
     }
     return {
         "support_artifact_version": SUPPORT_ARTIFACT_VERSION,
@@ -298,6 +340,7 @@ def build_low_vol_dividend_dry_run_support_artifacts(
         "raw_order_preview": raw_order_preview,
         "quote_snapshot": quote_snapshot,
         "fee_breakdown": fee_breakdown,
+        "notification_delivery_log": notification_delivery_log,
     }
 
 
@@ -313,7 +356,7 @@ def _suggested_platform_evidence_command(payload: Mapping[str, Any], *, output_d
         f"--fee-breakdown-file {output_dir / f'{platform}_fee_breakdown.json'} "
         "--fee-breakdown-uri <stable-fee-breakdown-uri> "
         "--notification-delivery-log-uri <stable-notification-log-uri> "
-        "--notification-delivery-log-file <notification-log.json> "
+        f"--notification-delivery-log-file {output_dir / f'{platform}_notification_delivery_log.json'} "
         "--notification-correlation-id <dry-run-correlation-id> "
         "--adv-window-trading-days <days> "
         "--median-daily-turnover-hkd <hkd> "
@@ -339,12 +382,18 @@ def write_low_vol_dividend_dry_run_support_artifacts(
         "raw_order_preview_path": output_dir / f"{platform}_raw_order_preview.json",
         "quote_snapshot_path": output_dir / f"{platform}_quote_snapshot.json",
         "fee_breakdown_path": output_dir / f"{platform}_fee_breakdown.json",
+        "notification_delivery_log_path": output_dir / f"{platform}_notification_delivery_log.json",
         "summary_path": output_dir / f"{platform}_dry_run_support_artifacts_summary.json",
     }
     write_json(paths["raw_order_preview_path"], payload["raw_order_preview"])
     write_json(paths["quote_snapshot_path"], payload["quote_snapshot"])
     write_json(paths["fee_breakdown_path"], payload["fee_breakdown"])
-    summary = {key: value for key, value in payload.items() if key not in {"raw_order_preview", "quote_snapshot", "fee_breakdown"}}
+    write_json(paths["notification_delivery_log_path"], payload["notification_delivery_log"])
+    summary = {
+        key: value
+        for key, value in payload.items()
+        if key not in {"raw_order_preview", "quote_snapshot", "fee_breakdown", "notification_delivery_log"}
+    }
     summary["paths"] = {key: str(path) for key, path in paths.items() if key != "summary_path"}
     summary["suggested_platform_evidence_command"] = _suggested_platform_evidence_command(payload, output_dir=output_dir)
     write_json(paths["summary_path"], summary)

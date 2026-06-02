@@ -266,6 +266,48 @@ def test_platform_evidence_rejects_unredacted_notification_secret(tmp_path):
     assert section["notification_log_artifact_status"] == "pending"
 
 
+def test_platform_evidence_accepts_passed_notification_support_artifact(tmp_path):
+    report_path = _runtime_report(tmp_path, platform="ibkr")
+    quote_path = _artifact(tmp_path / "quotes.json", {"symbols": ["00941", "00002"]})
+    fee_path = _artifact(tmp_path / "fees.json", {"orders": 2, "currency": "HKD"})
+    notification_log = json.loads(_notification_log(tmp_path / "raw-notification-log.json").read_text(encoding="utf-8"))
+    notification_support_path = _artifact(
+        tmp_path / "notification-support.json",
+        {
+            "artifact_type": "hk_low_vol_dividend_quality.dry_run_support.notification_delivery_log.v1",
+            "status": "passed",
+            "notification_delivery_log": notification_log,
+        },
+    )
+
+    payload = build_low_vol_dividend_platform_evidence_draft(
+        platform="ibkr",
+        runtime_report_path=report_path,
+        runtime_report_uri="gs://qsl-evidence/hk-low-vol/ibkr/runtime-report.json",
+        quote_snapshot_uri="gs://qsl-evidence/hk-low-vol/ibkr/quotes.json",
+        quote_snapshot_file=quote_path,
+        fee_breakdown_uri="gs://qsl-evidence/hk-low-vol/ibkr/fees.json",
+        fee_breakdown_file=fee_path,
+        notification_delivery_log_uri="gs://qsl-evidence/hk-low-vol/ibkr/notification-log.json",
+        notification_delivery_log_file=notification_support_path,
+        notification_correlation_id="ibkr-run-001",
+        adv_window_trading_days=20,
+        median_daily_turnover_hkd=50_000_000,
+        max_single_order_adv_fraction=0.01,
+        rebalance_adv_fraction=0.05,
+        confirm_order_preview_provenance=True,
+        confirm_notification_audit=True,
+        confirm_execution_capacity=True,
+        evidence_generated_at="2026-06-03",
+    )
+
+    section = payload["evidence"]["platform_dry_run_order_preview"]
+    assert payload["notification_log_artifact_passed"] is True
+    assert section["notification_log_artifact_status"] == "passed"
+    assert section["notification_locale_en"] is True
+    assert section["notification_locale_zh_hans"] is True
+
+
 def test_platform_evidence_draft_keeps_section_pending_when_runtime_report_is_not_dry_run(tmp_path):
     report_path = _runtime_report(tmp_path, platform="longbridge", dry_run=False)
 

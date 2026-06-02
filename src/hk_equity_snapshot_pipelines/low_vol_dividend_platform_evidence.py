@@ -176,6 +176,40 @@ def _notification_log_audit(
         }
     path = Path(notification_delivery_log_file)
     payload = _read_json(path)
+    artifact_type = str(payload.get("artifact_type") or "").strip()
+    if artifact_type.startswith(f"{SUPPORT_ARTIFACT_TYPE_PREFIX}.notification_delivery_log."):
+        if str(payload.get("status") or "").strip().lower() != "passed":
+            return {
+                "status": "pending",
+                "sha256": sha256_file(path),
+                "errors": ["notification_delivery_log support artifact status must be passed"],
+                "payload": payload,
+                "notification_correlation_id": expected_correlation_id,
+                "notification_locale_en": False,
+                "notification_locale_zh_hans": False,
+                "notification_contains_profile": False,
+                "notification_contains_platform": False,
+                "notification_contains_validation_status": False,
+                "notification_contains_order_preview_summary": False,
+                "notification_redacts_sensitive_fields": False,
+            }
+        nested_payload = payload.get("notification_delivery_log")
+        if not isinstance(nested_payload, Mapping):
+            return {
+                "status": "pending",
+                "sha256": sha256_file(path),
+                "errors": ["notification_delivery_log support artifact must contain a notification_delivery_log object"],
+                "payload": payload,
+                "notification_correlation_id": expected_correlation_id,
+                "notification_locale_en": False,
+                "notification_locale_zh_hans": False,
+                "notification_contains_profile": False,
+                "notification_contains_platform": False,
+                "notification_contains_validation_status": False,
+                "notification_contains_order_preview_summary": False,
+                "notification_redacts_sensitive_fields": False,
+            }
+        payload = nested_payload
     text = _json_text(payload)
     correlation_id = str(
         payload.get("notification_correlation_id")

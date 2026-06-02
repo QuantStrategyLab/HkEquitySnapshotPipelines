@@ -15,7 +15,13 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "collect_low_vol_dividend_dry_run_support_artifacts.py"
 
 
-def _runtime_report(tmp_path: Path, *, include_quote: bool = True, include_fee: bool = True) -> Path:
+def _runtime_report(
+    tmp_path: Path,
+    *,
+    include_quote: bool = True,
+    include_fee: bool = True,
+    include_notification: bool = True,
+) -> Path:
     summary = {
         "orders_previewed": [
             {"symbol": "02800.HK", "side": "buy", "quantity": 100, "order_type": "market", "status": "dry_run"},
@@ -37,6 +43,22 @@ def _runtime_report(tmp_path: Path, *, include_quote: bool = True, include_fee: 
                 {"symbol": "02800.HK", "estimated_fee_hkd": 10.0},
                 {"symbol": "03033.HK", "estimated_fee_hkd": 12.0},
             ],
+        }
+    if include_notification:
+        summary["notification_delivery_log"] = {
+            "notification_schema_version": "hk_live_enablement_notification.v1",
+            "notification_event_type": "hk_snapshot_live_enablement_dry_run",
+            "notification_correlation_id": "longbridge-dry-run-001",
+            "locales": ["en", "zh-Hans"],
+            "profile": "hk_low_vol_dividend_quality",
+            "platform": "longbridge",
+            "validation_status": "passed",
+            "orders_previewed": 2,
+            "notification_redacts_sensitive_fields": True,
+            "messages": {
+                "en": "HK low-vol dividend quality dry-run preview passed with 2 orders.",
+                "zh-Hans": "港股低波股息质量 dry-run 订单预览已通过，共 2 笔订单。",
+            },
         }
     path = tmp_path / "runtime-report.json"
     path.write_text(
@@ -74,15 +96,22 @@ def test_build_dry_run_support_artifacts_accepts_complete_runtime_report(tmp_pat
         "raw_order_preview": "passed",
         "quote_snapshot": "passed",
         "fee_breakdown": "passed",
+        "notification_delivery_log": "passed",
     }
     assert payload["raw_order_preview"]["orders_previewed"] == 2
     assert payload["quote_snapshot"]["missing_symbols"] == []
+    assert payload["notification_delivery_log"]["notification_delivery_log"]["locales"] == ["en", "zh-Hans"]
 
 
 def test_build_dry_run_support_artifacts_does_not_fabricate_missing_quote_or_fee(tmp_path):
     payload = build_low_vol_dividend_dry_run_support_artifacts(
         platform="longbridge",
-        runtime_report_path=_runtime_report(tmp_path, include_quote=False, include_fee=False),
+        runtime_report_path=_runtime_report(
+            tmp_path,
+            include_quote=False,
+            include_fee=False,
+            include_notification=False,
+        ),
         evidence_generated_at="2026-06-03",
     )
 
@@ -90,8 +119,10 @@ def test_build_dry_run_support_artifacts_does_not_fabricate_missing_quote_or_fee
     assert payload["support_statuses"]["raw_order_preview"] == "passed"
     assert payload["support_statuses"]["quote_snapshot"] == "missing"
     assert payload["support_statuses"]["fee_breakdown"] == "missing"
+    assert payload["support_statuses"]["notification_delivery_log"] == "missing"
     assert payload["quote_snapshot"]["quote_snapshot"] == {}
     assert payload["fee_breakdown"]["fee_breakdown"] == {}
+    assert payload["notification_delivery_log"]["notification_delivery_log"] == {}
 
 
 def test_build_dry_run_support_artifacts_accepts_external_quote_and_fee_files(tmp_path):
@@ -156,8 +187,10 @@ def test_write_dry_run_support_artifacts_outputs_files_and_command(tmp_path):
     assert Path(payload["raw_order_preview_path"]).exists()
     assert Path(payload["quote_snapshot_path"]).exists()
     assert Path(payload["fee_breakdown_path"]).exists()
+    assert Path(payload["notification_delivery_log_path"]).exists()
     assert Path(payload["summary_path"]).exists()
     assert "hkeq-draft-low-vol-dividend-platform-evidence" in payload["suggested_platform_evidence_command"]
+    assert "--notification-delivery-log-file" in payload["suggested_platform_evidence_command"]
 
 
 def test_dry_run_support_artifacts_cli_json(tmp_path):
@@ -188,3 +221,4 @@ def test_dry_run_support_artifacts_cli_json(tmp_path):
     assert payload["platform"] == "longbridge"
     assert payload["ready_for_platform_evidence_draft"] is True
     assert payload["quote_snapshot_path"].endswith("longbridge_quote_snapshot.json")
+    assert payload["notification_delivery_log_path"].endswith("longbridge_notification_delivery_log.json")
