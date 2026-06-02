@@ -11,6 +11,7 @@ from hk_equity_snapshot_pipelines.snapshot_promotion_matrix import (
     BACKTEST_VALIDATION_POLICY_VERSION,
     CURATED_SNAPSHOT_STRATEGY_RANKING_VERSION,
     FACTOR_MIX_LIVE_ENABLEMENT_POLICY_VERSION,
+    FIRST_SNAPSHOT_PROMOTION_SCOPE,
     FUTURE_RESEARCH_BACKLOG_VERSION,
     FUTURE_RESEARCH_LIVE_ENABLEMENT_POLICY_VERSION,
     MOMENTUM_LIVE_ENABLEMENT_COMPARISON_VERSION,
@@ -18,6 +19,7 @@ from hk_equity_snapshot_pipelines.snapshot_promotion_matrix import (
     POLICY_VALUE_LIVE_ENABLEMENT_POLICY_VERSION,
     QUALITY_GROWTH_LIVE_ENABLEMENT_POLICY_VERSION,
     QUALITY_YIELD_LIVE_ENABLEMENT_POLICY_VERSION,
+    RESEARCH_ONLY_SCAFFOLD_SCOPE,
     SPECIAL_SITUATION_LIVE_ENABLEMENT_POLICY_VERSION,
     SNAPSHOT_PROMOTION_GATE,
     build_baseline_rotation_live_enablement_policy,
@@ -208,16 +210,34 @@ def test_snapshot_promotion_matrix_covers_every_contract_profile():
     )
     ranking = matrix["curated_snapshot_strategy_ranking"]
     assert ranking["ranking_version"] == CURATED_SNAPSHOT_STRATEGY_RANKING_VERSION
+    assert ranking["selection_scope"] == "first_three_live_enablement_candidates_only"
     assert [row["profile"] for row in ranking["ranking"][:3]] == [
         "hk_low_vol_dividend_quality",
         "hk_shareholder_yield_quality",
         "hk_free_cash_flow_quality",
     ]
+    assert len(ranking["ranking"]) == 3
+    assert "hk_residual_momentum_quality" in {row["profile"] for row in ranking["deprioritized_profiles"]}
     assert "hk_index_rebalance_event" in {row["profile"] for row in ranking["deprioritized_profiles"]}
-    assert matrix["recommended_live_enablement_sequence"] == [
-        row["profile"] for row in sorted(matrix["profiles"], key=lambda item: item["priority"])
+    assert matrix["active_live_enablement_candidate_count"] == 3
+    assert matrix["research_only_scaffold_count"] == matrix["profile_count"] - 3
+    assert matrix["recommended_live_enablement_sequence"] == matrix["first_snapshot_candidates"]
+    assert matrix["research_only_scaffold_sequence"] == [
+        row["profile"]
+        for row in sorted(matrix["profiles"], key=lambda item: item["priority"])
+        if row["promotion_scope"] == RESEARCH_ONLY_SCAFFOLD_SCOPE
     ]
     assert all(row["live_enablement_gate"] == SNAPSHOT_PROMOTION_GATE for row in matrix["profiles"])
+    assert all(
+        row["promotion_scope"] == FIRST_SNAPSHOT_PROMOTION_SCOPE
+        for row in matrix["profiles"]
+        if row["profile"] in matrix["first_snapshot_candidates"]
+    )
+    assert all(
+        row["promotion_scope"] == RESEARCH_ONLY_SCAFFOLD_SCOPE
+        for row in matrix["profiles"]
+        if row["profile"] not in matrix["first_snapshot_candidates"]
+    )
 
 
 def test_first_snapshot_candidates_prioritize_low_turnover_quality_styles():
@@ -237,6 +257,9 @@ def test_curated_snapshot_strategy_ranking_excludes_weaker_backlog_profiles():
     assert ranking["max_allowed_drawdown"] == 0.30
     assert ranking["ranking"][0]["profile"] == "hk_low_vol_dividend_quality"
     assert ranking["ranking"][1]["profile"] == "hk_shareholder_yield_quality"
+    assert ranking["ranking"][2]["profile"] == "hk_free_cash_flow_quality"
+    assert len(ranking["ranking"]) == 3
+    assert "hk_factor_mix_qvlm_risk_parity" in {row["profile"] for row in ranking["deprioritized_profiles"]}
     assert ranking["future_research_curated_candidate_order"] == [
         "hk_earnings_revision_quality_overlay",
         "hk_stock_connect_inclusion_event_flow",
@@ -349,6 +372,10 @@ def test_shareholder_yield_row_carries_hkex_evidence_and_turnover_cap():
     assert row["profile"] == "hk_shareholder_yield_quality"
     assert row["priority"] == 2
     assert row["promotion_bucket"] == "first_snapshot_candidate"
+    assert row["promotion_scope"] == FIRST_SNAPSHOT_PROMOTION_SCOPE
+    assert row["live_enablement_work_queue"] is True
+    assert row["requires_full_backtest_now"] is True
+    assert row["evidence_tooling_scope"] == "first_snapshot_shared_evidence_tools"
     assert row["recommended_live_enablement_stage"] == "production_data_audit_and_walk_forward_first"
     assert "production snapshot source" in row["next_live_enablement_action"]
     assert row["live_enablement_thresholds"]["max_allowed_annualized_turnover"] == 1.0
@@ -454,8 +481,13 @@ def test_momentum_rows_carry_current_hsi_momentum_methodology_and_later_stage():
 
     assert row["priority"] == 7
     assert row["promotion_bucket"] == "momentum_snapshot_candidate"
+    assert row["promotion_scope"] == RESEARCH_ONLY_SCAFFOLD_SCOPE
+    assert row["live_enablement_work_queue"] is False
+    assert row["requires_full_backtest_now"] is False
+    assert row["evidence_tooling_scope"] == "research_only_no_live_enablement_package"
     assert row["recommended_live_enablement_stage"] == "momentum_research_after_quality_candidates"
-    assert "Compare residual, liquid, and composite momentum variants" in row["next_live_enablement_action"]
+    assert "research only" in row["next_live_enablement_action"]
+    assert "Compare residual, liquid, and composite momentum variants" in row["reopen_research_action"]
     assert row["momentum_live_enablement_comparison"]["momentum_priority"] == 1
     assert row["momentum_live_enablement_comparison"]["momentum_role"] == (
         "closest_to_us_momentum_factor_stock_selection"

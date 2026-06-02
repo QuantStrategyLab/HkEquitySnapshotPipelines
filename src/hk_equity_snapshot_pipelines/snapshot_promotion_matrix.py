@@ -322,6 +322,12 @@ from .special_situation_live_enablement_policy import (
 
 SNAPSHOT_PROMOTION_GATE = "blocked_until_production_evidence"
 SNAPSHOT_RUNTIME_ENABLED = False
+FIRST_SNAPSHOT_PROMOTION_SCOPE = "first_snapshot_live_enablement_candidate"
+RESEARCH_ONLY_SCAFFOLD_SCOPE = "research_only_scaffold"
+RESEARCH_ONLY_NEXT_ACTION = (
+    "Retain the scaffold, sample builder, and basic tests for research only; do not build a full "
+    "walk-forward/live-enable evidence package unless this profile is explicitly reopened."
+)
 
 GENERIC_REQUIRED_NEXT_EVIDENCE: tuple[str, ...] = (
     "production_snapshot_source_audit",
@@ -580,37 +586,44 @@ CURATED_SNAPSHOT_STRATEGY_RANKING: tuple[dict[str, object], ...] = (
         "why": "FCF yield is a cleaner quality/value extension once point-in-time reporting-date lineage is proven.",
         "next_action": "Build FCF/EV formula lineage, restatement controls, sector exceptions, and negative-FCF handling.",
     },
-    {
-        "rank": 4,
-        "profile": HK_RESIDUAL_MOMENTUM_QUALITY_PROFILE,
-        "decision": "stage_after_quality_yield",
-        "why": "Closest HK analogue to US-style cross-sectional momentum, but turnover and crash windows need proof.",
-        "next_action": "Compare residual, liquid, and composite momentum on one survivorship-safe universe.",
-    },
-    {
-        "rank": 5,
-        "profile": HK_FACTOR_MIX_QVLM_RISK_PARITY_PROFILE,
-        "decision": "stage_after_single_factor_ablation",
-        "why": "QVLM risk parity can diversify factor regimes if factor returns and covariance are point-in-time.",
-        "next_action": "Run equal-weight, composite-QVM, and leave-one-out factor ablations.",
-    },
-    {
-        "rank": 6,
-        "profile": HK_QUALITY_GROWTH_LOW_VOLATILITY_PROFILE,
-        "decision": "stage_after_first_quality_candidates",
-        "why": "Quality/growth/low-volatility can help avoid yield traps, but needs fundamentals provenance.",
-        "next_action": "Audit HSI QGLV descriptors, missing-factor handling, and growth-deceleration stress.",
-    },
-    {
-        "rank": 7,
-        "profile": HK_SOUTHBOUND_FLOW_MOMENTUM_PROFILE,
-        "decision": "research_after_core_factor_profiles",
-        "why": "Southbound flows are HK-specific and observable, but signal decay and crowding risk are high.",
-        "next_action": "Build official HKEX/CCASS flow collector and test event/flow decay before promotion.",
-    },
 )
 
 DEPRIORITIZED_SNAPSHOT_STRATEGY_PROFILES: tuple[dict[str, str], ...] = (
+    {
+        "profile": HK_RESIDUAL_MOMENTUM_QUALITY_PROFILE,
+        "decision": "research_only_scaffold",
+        "reason": "Potential HK momentum analogue, but turnover, crash windows, and production factor history make it later-stage.",
+    },
+    {
+        "profile": HK_FACTOR_MIX_QVLM_RISK_PARITY_PROFILE,
+        "decision": "research_only_scaffold",
+        "reason": "Factor diversification is interesting, but it should wait until the first quality/yield profiles prove robust evidence.",
+    },
+    {
+        "profile": HK_QUALITY_GROWTH_LOW_VOLATILITY_PROFILE,
+        "decision": "research_only_scaffold",
+        "reason": "Useful defensive-growth research, but fundamentals provenance and low-volatility crowding need later-stage proof.",
+    },
+    {
+        "profile": HK_SOUTHBOUND_FLOW_MOMENTUM_PROFILE,
+        "decision": "research_only_scaffold",
+        "reason": "HK-specific flow data is worth retaining, but signal decay, holiday mismatch, and crowding keep it out of the current work queue.",
+    },
+    {
+        "profile": HK_CENTRAL_SOE_VALUE_QUALITY_SELECT_PROFILE,
+        "decision": "research_only_scaffold",
+        "reason": "Policy/value angle is retained for research, but ownership-source drift and sector concentration make it unsuitable for the first wave.",
+    },
+    {
+        "profile": HK_COMPOSITE_FACTOR_QUALITY_VALUE_MOMENTUM_PROFILE,
+        "decision": "research_only_scaffold",
+        "reason": "Broad multi-factor scaffold is useful for ablation research, but too wide for near-term live-enable evidence work.",
+    },
+    {
+        "profile": HK_LIQUID_MOMENTUM_QUALITY_PROFILE,
+        "decision": "research_only_scaffold",
+        "reason": "Simple price momentum is retained as a fallback, but raw HK turnover and reversal risk keep it research-only.",
+    },
     {
         "profile": HK_BLUE_CHIP_LEADER_ROTATION_PROFILE,
         "decision": "baseline_contract_plumbing_only",
@@ -2695,7 +2708,7 @@ def build_curated_snapshot_strategy_ranking() -> dict[str, Any]:
     future_policy = build_future_research_live_enablement_policy()
     return {
         "ranking_version": CURATED_SNAPSHOT_STRATEGY_RANKING_VERSION,
-        "selection_scope": "snapshot_scaffolds_only",
+        "selection_scope": "first_three_live_enablement_candidates_only",
         "live_enablement_allowed_without_evidence": False,
         "max_allowed_drawdown": 0.30,
         "ranking": [dict(item) for item in CURATED_SNAPSHOT_STRATEGY_RANKING],
@@ -2703,8 +2716,9 @@ def build_curated_snapshot_strategy_ranking() -> dict[str, Any]:
         "future_research_curated_candidate_order": list(future_policy["curated_candidate_order"]),
         "future_research_deprioritized_candidate_order": list(future_policy["deprioritized_candidate_order"]),
         "notes": [
-            "This is the narrowed live-enable work queue; raw future-research ideas stay documented but excluded.",
-            "Every promoted snapshot still needs a new contract/evidence pack, walk-forward backtest, dry-run order preview, bilingual notification, and operator approval.",
+            "The active live-enable work queue is intentionally limited to the first three quality/yield profiles.",
+            "Other scaffolded profiles are retained as research-only artifacts; do not require full backtests or live-enable evidence packages unless explicitly reopened.",
+            "Every promoted snapshot still needs production evidence, walk-forward backtest, dry-run order preview, bilingual notification, and operator approval.",
         ],
     }
 
@@ -2712,14 +2726,32 @@ def build_curated_snapshot_strategy_ranking() -> dict[str, Any]:
 def build_snapshot_promotion_row(profile: str) -> dict[str, Any]:
     contract = get_profile_contract(profile)
     candidate = get_snapshot_promotion_candidate(contract.profile)
+    is_first_snapshot_candidate = candidate.promotion_bucket == "first_snapshot_candidate"
     row = {
         "profile": contract.profile,
         "display_name": contract.display_name,
         "source_project": SOURCE_PROJECT,
         "priority": candidate.priority,
         "promotion_bucket": candidate.promotion_bucket,
+        "promotion_scope": (
+            FIRST_SNAPSHOT_PROMOTION_SCOPE
+            if is_first_snapshot_candidate
+            else RESEARCH_ONLY_SCAFFOLD_SCOPE
+        ),
+        "live_enablement_work_queue": is_first_snapshot_candidate,
+        "requires_full_backtest_now": is_first_snapshot_candidate,
+        "evidence_tooling_scope": (
+            "first_snapshot_shared_evidence_tools"
+            if is_first_snapshot_candidate
+            else "research_only_no_live_enablement_package"
+        ),
         "recommended_live_enablement_stage": LIVE_ENABLEMENT_STAGE_BY_BUCKET[candidate.promotion_bucket],
-        "next_live_enablement_action": NEXT_LIVE_ENABLEMENT_ACTION_BY_BUCKET[candidate.promotion_bucket],
+        "next_live_enablement_action": (
+            NEXT_LIVE_ENABLEMENT_ACTION_BY_BUCKET[candidate.promotion_bucket]
+            if is_first_snapshot_candidate
+            else RESEARCH_ONLY_NEXT_ACTION
+        ),
+        "reopen_research_action": NEXT_LIVE_ENABLEMENT_ACTION_BY_BUCKET[candidate.promotion_bucket],
         "snapshot_type": candidate.snapshot_type,
         "style_family": candidate.style_family,
         "status": SNAPSHOT_STATUS,
@@ -2766,6 +2798,9 @@ def build_snapshot_promotion_matrix() -> dict[str, Any]:
     first_snapshot_candidates = [
         row["profile"] for row in rows if row["promotion_bucket"] == "first_snapshot_candidate"
     ]
+    research_only_scaffolds = [
+        row["profile"] for row in rows if row["promotion_scope"] == RESEARCH_ONLY_SCAFFOLD_SCOPE
+    ]
     return {
         "source_project": SOURCE_PROJECT,
         "status": SNAPSHOT_STATUS,
@@ -2773,8 +2808,11 @@ def build_snapshot_promotion_matrix() -> dict[str, Any]:
         "runtime_enabled_count": sum(1 for row in rows if row["runtime_enabled"]),
         "blocked_profile_count": sum(1 for row in rows if not row["runtime_enabled"]),
         "profile_count": len(rows),
+        "active_live_enablement_candidate_count": len(first_snapshot_candidates),
+        "research_only_scaffold_count": len(research_only_scaffolds),
         "first_snapshot_candidates": first_snapshot_candidates,
-        "recommended_live_enablement_sequence": [row["profile"] for row in rows],
+        "recommended_live_enablement_sequence": first_snapshot_candidates,
+        "research_only_scaffold_sequence": research_only_scaffolds,
         "curated_snapshot_strategy_ranking": build_curated_snapshot_strategy_ranking(),
         "generic_required_next_evidence": list(GENERIC_REQUIRED_NEXT_EVIDENCE),
         "evidence_uri_policy": EVIDENCE_URI_POLICY,
@@ -2812,6 +2850,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"profile={payload['profile']}")
         print(f"priority={payload['priority']}")
         print(f"promotion_bucket={payload['promotion_bucket']}")
+        print(f"promotion_scope={payload['promotion_scope']}")
         print(f"recommended_live_enablement_stage={payload['recommended_live_enablement_stage']}")
         print(f"next_live_enablement_action={payload['next_live_enablement_action']}")
         print(f"live_enablement_gate={payload['live_enablement_gate']}")
@@ -2820,8 +2859,11 @@ def main(argv: list[str] | None = None) -> int:
     print(f"status={payload['status']}")
     print(f"live_enablement_gate={payload['live_enablement_gate']}")
     print(f"profile_count={payload['profile_count']}")
+    print(f"active_live_enablement_candidate_count={payload['active_live_enablement_candidate_count']}")
+    print(f"research_only_scaffold_count={payload['research_only_scaffold_count']}")
     print("first_snapshot_candidates=" + ",".join(payload["first_snapshot_candidates"]))
     print("recommended_live_enablement_sequence=" + ",".join(payload["recommended_live_enablement_sequence"]))
+    print("research_only_scaffold_sequence=" + ",".join(payload["research_only_scaffold_sequence"]))
     for row in payload["profiles"]:
         print(f"- {row['priority']}: {row['profile']} ({row['recommended_live_enablement_stage']})")
     return 0
@@ -2841,6 +2883,7 @@ __all__ = [
     "CURATED_SNAPSHOT_STRATEGY_RANKING_VERSION",
     "FUTURE_RESEARCH_BACKLOG_VERSION",
     "FUTURE_RESEARCH_LIVE_ENABLEMENT_POLICY_VERSION",
+    "FIRST_SNAPSHOT_PROMOTION_SCOPE",
     "GENERIC_REQUIRED_NEXT_EVIDENCE",
     "HSI_MOMENTUM_METHODOLOGY_URL",
     "HSI_QUALITY_GROWTH_LOW_VOL_FACTSHEET_URL",
@@ -2867,6 +2910,7 @@ __all__ = [
     "QUALITY_YIELD_STOCK_SELECTION_PROFILES",
     "QUALITY_GROWTH_LIVE_ENABLEMENT_POLICY_VERSION",
     "QUALITY_GROWTH_STOCK_SELECTION_PROFILES",
+    "RESEARCH_ONLY_SCAFFOLD_SCOPE",
     "SPECIAL_SITUATION_LIVE_ENABLEMENT_POLICY_VERSION",
     "SPECIAL_SITUATION_STOCK_SELECTION_PROFILES",
     "SNAPSHOT_PROMOTION_GATE",

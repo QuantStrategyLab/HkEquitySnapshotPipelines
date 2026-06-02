@@ -15,22 +15,23 @@ This note keeps HK snapshot-backed strategy research separate from the non-snaps
 
 ## Final snapshot shortlist / 收口排名
 
-This is the narrowed snapshot work queue after excluding weaker, high-turnover, derivative, shorting, margin, or
-event-crowding ideas from live-enable consideration. Raw future-research notes remain below for auditability only.
+This is now a deliberately small live-enable work queue. We only require full production-source, walk-forward,
+platform dry-run, bilingual notification, and operator-approval evidence for the first three quality/yield profiles.
+Other scaffolded strategies are retained as research-only assets so they do not create mandatory backtest or
+live-enable evidence work until explicitly reopened.
 
 | Rank | Profile | Decision | Why |
 | ---: | --- | --- | --- |
 | 1 | `hk_low_vol_dividend_quality` | First snapshot candidate | Low-turnover high-dividend plus low-volatility evidence fits HK costs and drawdown-control needs. |
 | 2 | `hk_shareholder_yield_quality` | First snapshot candidate | HKEX buyback disclosure, dividends, and share-count quality can complement defensive yield selection. |
 | 3 | `hk_free_cash_flow_quality` | First snapshot candidate | FCF yield adds quality/value exposure after point-in-time fundamentals lineage is audited. |
-| 4 | `hk_residual_momentum_quality` | Stage after quality/yield | Closest HK analogue to US-style momentum, but turnover and crash windows require stricter proof. |
-| 5 | `hk_factor_mix_qvlm_risk_parity` | Stage after factor ablation | QVLM diversification is promising only if point-in-time factor covariance and leave-one-out tests pass. |
-| 6 | `hk_quality_growth_low_volatility` | Stage after first quality candidates | Useful yield-trap control, but fundamentals provenance and low-vol crowding stress are required. |
-| 7 | `hk_southbound_flow_momentum` | Research after core factor profiles | HK-specific and observable, but signal decay, holiday mismatch, and crowding make it later-stage. |
 
-Excluded from the live-enable shortlist for now: `hk_blue_chip_leader_rotation` as baseline plumbing only,
-`hk_ah_premium_relative_value`, `hk_index_rebalance_event`, and the raw future-research long tail. The promotion matrix
-exposes this via `curated_snapshot_strategy_ranking`.
+Research-only scaffolded profiles kept for future reopening: `hk_residual_momentum_quality`,
+`hk_factor_mix_qvlm_risk_parity`, `hk_quality_growth_low_volatility`, `hk_southbound_flow_momentum`,
+`hk_central_soe_value_quality_select`, `hk_composite_factor_quality_value_momentum`,
+`hk_liquid_momentum_quality`, `hk_blue_chip_leader_rotation`, `hk_ah_premium_relative_value`, and
+`hk_index_rebalance_event`. The promotion matrix exposes the active queue through
+`recommended_live_enablement_sequence` and retained research scaffolds through `research_only_scaffold_sequence`.
 
 Current live-enable evidence gate:
 

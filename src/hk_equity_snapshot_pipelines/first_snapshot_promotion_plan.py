@@ -188,7 +188,8 @@ def build_first_snapshot_promotion_plan(
         "profiles_in_scope": list(selected_profiles),
         "excluded_from_scope": [
             candidate for candidate in matrix["recommended_live_enablement_sequence"] if candidate not in selected_profiles
-        ],
+        ]
+        + list(matrix.get("research_only_scaffold_sequence", [])),
         "promotion_steps": list(_PROMOTION_STEPS),
         "shared_gates": {
             "backtest_validation_policy": matrix["backtest_validation_policy"],

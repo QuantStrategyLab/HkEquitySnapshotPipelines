@@ -9,7 +9,14 @@ from .baseline_rotation_live_enablement_policy import (
     BASELINE_ROTATION_PROFILES,
     build_baseline_rotation_live_enablement_policy,
 )
-from .contracts import SnapshotProfileContract, get_profile_contract, list_profile_contracts
+from .contracts import (
+    HK_FREE_CASH_FLOW_QUALITY_PROFILE,
+    HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,
+    HK_SHAREHOLDER_YIELD_QUALITY_PROFILE,
+    SnapshotProfileContract,
+    get_profile_contract,
+    list_profile_contracts,
+)
 from .dry_run_order_preview_policy import build_dry_run_order_preview_policy
 from .evidence_freshness_policy import build_evidence_freshness_policy
 from .evidence_uri_policy import build_evidence_uri_policy
@@ -44,6 +51,15 @@ from .special_situation_live_enablement_policy import (
 
 SUPPORTED_SNAPSHOT_PLATFORMS = frozenset({"ibkr", "longbridge"})
 SNAPSHOT_STATUS = "architecture_scaffold_not_live_enabled"
+FIRST_SNAPSHOT_PROMOTION_SCOPE = "first_snapshot_live_enablement_candidate"
+RESEARCH_ONLY_SCAFFOLD_SCOPE = "research_only_scaffold"
+FIRST_SNAPSHOT_READINESS_PROFILES = frozenset(
+    {
+        HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,
+        HK_SHAREHOLDER_YIELD_QUALITY_PROFILE,
+        HK_FREE_CASH_FLOW_QUALITY_PROFILE,
+    }
+)
 
 PLATFORM_SNAPSHOT_ENV_TEMPLATES: dict[str, dict[str, str]] = {
     "ibkr": {
@@ -200,6 +216,7 @@ def _live_enablement_evidence_template_command(contract: SnapshotProfileContract
 def build_snapshot_readiness(profile: str, *, platform_id: str) -> dict[str, Any]:
     platform = _normalize_platform(platform_id)
     contract = get_profile_contract(profile)
+    is_first_snapshot_candidate = contract.profile in FIRST_SNAPSHOT_READINESS_PROFILES
     platform_env = dict(PLATFORM_SNAPSHOT_ENV_TEMPLATES[platform])
     feature_key = next(key for key in platform_env if key.endswith("FEATURE_SNAPSHOT_PATH"))
     manifest_key = next(key for key in platform_env if key.endswith("FEATURE_SNAPSHOT_MANIFEST_PATH"))
@@ -211,6 +228,18 @@ def build_snapshot_readiness(profile: str, *, platform_id: str) -> dict[str, Any
         "profile": contract.profile,
         "display_name": contract.display_name,
         "status": SNAPSHOT_STATUS,
+        "promotion_scope": (
+            FIRST_SNAPSHOT_PROMOTION_SCOPE
+            if is_first_snapshot_candidate
+            else RESEARCH_ONLY_SCAFFOLD_SCOPE
+        ),
+        "live_enablement_work_queue": is_first_snapshot_candidate,
+        "requires_full_backtest_now": is_first_snapshot_candidate,
+        "evidence_tooling_scope": (
+            "first_snapshot_shared_evidence_tools"
+            if is_first_snapshot_candidate
+            else "research_only_no_live_enablement_package"
+        ),
         "runtime_enabled": False,
         "manifest_required_by_runtime": contract.manifest_required_by_runtime,
         "contract_version": contract.contract_version,
@@ -239,7 +268,14 @@ def build_snapshot_readiness(profile: str, *, platform_id: str) -> dict[str, Any
         "profile_live_enablement_requirements": list(
             SNAPSHOT_PROFILE_PROMOTION_REQUIREMENTS.get(contract.profile, ())
         ),
-        "blocking_reasons": list(SNAPSHOT_BLOCKING_REASONS),
+        "blocking_reasons": list(SNAPSHOT_BLOCKING_REASONS)
+        + (
+            []
+            if is_first_snapshot_candidate
+            else [
+                "This profile is retained as a research-only scaffold and is outside the active first-three live-enable work queue."
+            ]
+        ),
     }
     if contract.profile in BASELINE_ROTATION_PROFILES:
         payload["baseline_rotation_live_enablement_policy"] = build_baseline_rotation_live_enablement_policy()
