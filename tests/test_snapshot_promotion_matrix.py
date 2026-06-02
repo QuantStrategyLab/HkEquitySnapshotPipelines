@@ -601,7 +601,7 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert "new_snapshot_profile_name_and_contract_version" in (
         backlog["future_research_live_enablement_policy"]["required_pre_scaffold_gates"]
     )
-    assert backlog["candidate_count"] == 13
+    assert backlog["candidate_count"] == 14
     assert backlog["candidates"][0]["profile_hint"] == "hk_earnings_revision_quality_overlay"
     assert backlog["candidates"][0]["scaffold_status"] == "research_only_not_scaffolded"
     assert any("earnings-revision-overlay" in url for url in backlog["candidates"][0]["source_reference_urls"])
@@ -667,6 +667,13 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert any("2647696" in url for url in backlog["candidates"][12]["source_reference_urls"])
     assert any("cornerstone" in item for item in backlog["candidates"][12]["required_new_data"])
     assert any("lockup_expiry" in item for item in backlog["candidates"][12]["required_new_data"])
+    assert backlog["candidates"][13]["profile_hint"] == "hk_audit_opinion_suspension_risk_overlay"
+    assert backlog["candidates"][13]["suggested_contract_type"] == "event_calendar_snapshot_overlay"
+    assert any("190524news" in url for url in backlog["candidates"][13]["source_reference_urls"])
+    assert any("1350a" in url for url in backlog["candidates"][13]["source_reference_urls"])
+    assert any("0165410184900181" in url for url in backlog["candidates"][13]["source_reference_urls"])
+    assert any("audit_opinion" in item for item in backlog["candidates"][13]["required_new_data"])
+    assert any("resumption_guidance" in item for item in backlog["candidates"][13]["required_new_data"])
 
 
 def test_future_research_live_enablement_policy_blocks_backlog_until_new_contract_and_evidence():
@@ -690,6 +697,7 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
         "hk_takeover_privatization_event_spread_overlay",
         "hk_distribution_ex_date_entitlement_overlay",
         "hk_ipo_lockup_overhang_event_overlay",
+        "hk_audit_opinion_suspension_risk_overlay",
     ]
     assert "same_universe_ablation_vs_existing_quality_yield_momentum_and_special_situation_profiles" in (
         policy["required_pre_scaffold_gates"]
@@ -772,6 +780,15 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert "post_ipo_return_lockup_expiry_overhang_liquidity_block_trade_and_short_sale_eligibility_history" in (
         policy["required_data_provenance"]
     )
+    assert "point_in_time_audit_opinion_disclaimer_adverse_qualified_going_concern_and_results_history" in (
+        policy["required_data_provenance"]
+    )
+    assert "audit_issue_resolution_remedial_period_suspension_resumption_guidance_and_delisting_history" in (
+        policy["required_data_provenance"]
+    )
+    assert "post_audit_opinion_return_liquidity_resumption_restructuring_and_capacity_history" in (
+        policy["required_data_provenance"]
+    )
     assert policy["dry_run_order_preview_policy"]["policy_version"] == "hk_dry_run_order_preview_provenance.v1"
     assert any("IM_hsscsqe.pdf" in url for url in policy["source_reference_urls"])
     assert any("factor-indexes" in url for url in policy["source_reference_urls"])
@@ -793,6 +810,9 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert any("jfinan" in url for url in policy["source_reference_urls"])
     assert any("chapter_4.pdf" in url for url in policy["source_reference_urls"])
     assert any("2647696" in url for url in policy["source_reference_urls"])
+    assert any("190524news" in url for url in policy["source_reference_urls"])
+    assert any("rulebook/1350a" in url for url in policy["source_reference_urls"])
+    assert any("0165410184900181" in url for url in policy["source_reference_urls"])
 
 
 

@@ -19,6 +19,7 @@ HK_CONNECTED_TRANSACTION_GOVERNANCE_RISK_OVERLAY_PROFILE_HINT = "hk_connected_tr
 HK_TAKEOVER_PRIVATIZATION_EVENT_SPREAD_OVERLAY_PROFILE_HINT = "hk_takeover_privatization_event_spread_overlay"
 HK_DISTRIBUTION_EX_DATE_ENTITLEMENT_OVERLAY_PROFILE_HINT = "hk_distribution_ex_date_entitlement_overlay"
 HK_IPO_LOCKUP_OVERHANG_EVENT_OVERLAY_PROFILE_HINT = "hk_ipo_lockup_overhang_event_overlay"
+HK_AUDIT_OPINION_SUSPENSION_RISK_OVERLAY_PROFILE_HINT = "hk_audit_opinion_suspension_risk_overlay"
 
 SP_EARNINGS_REVISION_OVERLAY_ASIA_URL = (
     "https://www.spglobal.com/spdji/en/research/article/"
@@ -197,6 +198,28 @@ SSRN_HK_CORNERSTONE_INVESTORS_IPO_SURVIVAL_URL = "https://papers.ssrn.com/sol3/p
 UNIBIRMINGHAM_IPO_LOCKUPS_LONG_RUN_PERFORMANCE_URL = (
     "https://research.birmingham.ac.uk/en/publications/long-run-performance-of-ipos-the-role-of-lockups"
 )
+HKEX_ADVERSE_AUDIT_OPINION_RULE_CHANGE_2019_URL = (
+    "https://www.hkex.com.hk/News/Regulatory-Announcements/2019/190524news?sc_lang=en"
+)
+HKEX_RULE_13_50A_AUDIT_OPINION_SUSPENSION_URL = "https://en-rules.hkex.com.hk/rulebook/1350a"
+HKEX_ADVERSE_AUDIT_OPINION_CONCLUSIONS_URL = (
+    "https://www.hkex.com.hk/-/media/HKEX-Market/News/Market-Consultations/2016-Present/"
+    "September-2018-Adverse-Audit-Opinion/Conclusions-%28May-2019%29/cp201809cc.pdf"
+)
+HKEX_LONG_SUSPENSION_GUIDANCE_GL95_URL = (
+    "https://www.hkex.com.hk/-/media/HKEX-Market/Listing/Rules-and-Guidance/Archive/Guidance-Letters/"
+    "gl95_18.pdf"
+)
+HKEX_PROLONGED_SUSPENSION_STATUS_REPORT_URL = (
+    "https://www2.hkexnews.hk/Exchange-Reports/Monthly-Prolonged-Suspension-Status-Report/Main-Board?sc_lang=en"
+)
+SCIENCEDIRECT_QUALIFIED_AUDIT_OPINIONS_STOCK_PRICES_URL = (
+    "https://www.sciencedirect.com/science/article/pii/0165410184900181"
+)
+HKUST_GOING_CONCERN_BANKRUPTCY_REACTION_URL = (
+    "https://researchportal.hkust.edu.hk/en/publications/"
+    "going-concern-opinions-and-the-markets-reaction-to-bankruptcy-fil/"
+)
 
 FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_EARNINGS_REVISION_QUALITY_OVERLAY_PROFILE_HINT,
@@ -212,6 +235,7 @@ FUTURE_RESEARCH_CANDIDATE_ORDER: tuple[str, ...] = (
     HK_TAKEOVER_PRIVATIZATION_EVENT_SPREAD_OVERLAY_PROFILE_HINT,
     HK_DISTRIBUTION_EX_DATE_ENTITLEMENT_OVERLAY_PROFILE_HINT,
     HK_IPO_LOCKUP_OVERHANG_EVENT_OVERLAY_PROFILE_HINT,
+    HK_AUDIT_OPINION_SUSPENSION_RISK_OVERLAY_PROFILE_HINT,
 )
 
 FUTURE_RESEARCH_REQUIRED_PRE_SCAFFOLD_GATES: tuple[str, ...] = (
@@ -279,6 +303,9 @@ FUTURE_RESEARCH_REQUIRED_DATA_PROVENANCE: tuple[str, ...] = (
     "point_in_time_ipo_listing_prospectus_cornerstone_pre_ipo_investor_and_lockup_expiry_history",
     "cornerstone_allocation_lockup_size_free_float_clawback_double_dipping_and_stabilization_history",
     "post_ipo_return_lockup_expiry_overhang_liquidity_block_trade_and_short_sale_eligibility_history",
+    "point_in_time_audit_opinion_disclaimer_adverse_qualified_going_concern_and_results_history",
+    "audit_issue_resolution_remedial_period_suspension_resumption_guidance_and_delisting_history",
+    "post_audit_opinion_return_liquidity_resumption_restructuring_and_capacity_history",
 )
 
 FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
@@ -354,6 +381,13 @@ FUTURE_RESEARCH_SOURCE_URLS: tuple[str, ...] = (
     SCIENCEDIRECT_HK_IPO_OFFERING_METHOD_UNDERPRICING_URL,
     SSRN_HK_CORNERSTONE_INVESTORS_IPO_SURVIVAL_URL,
     UNIBIRMINGHAM_IPO_LOCKUPS_LONG_RUN_PERFORMANCE_URL,
+    HKEX_ADVERSE_AUDIT_OPINION_RULE_CHANGE_2019_URL,
+    HKEX_RULE_13_50A_AUDIT_OPINION_SUSPENSION_URL,
+    HKEX_ADVERSE_AUDIT_OPINION_CONCLUSIONS_URL,
+    HKEX_LONG_SUSPENSION_GUIDANCE_GL95_URL,
+    HKEX_PROLONGED_SUSPENSION_STATUS_REPORT_URL,
+    SCIENCEDIRECT_QUALIFIED_AUDIT_OPINIONS_STOCK_PRICES_URL,
+    HKUST_GOING_CONCERN_BANKRUPTCY_REACTION_URL,
 )
 
 
@@ -395,6 +429,7 @@ __all__ = [
     "HK_DISTRIBUTION_EX_DATE_ENTITLEMENT_OVERLAY_PROFILE_HINT",
     "HK_EQUITY_FINANCING_DILUTION_RISK_OVERLAY_PROFILE_HINT",
     "HK_IPO_LOCKUP_OVERHANG_EVENT_OVERLAY_PROFILE_HINT",
+    "HK_AUDIT_OPINION_SUSPENSION_RISK_OVERLAY_PROFILE_HINT",
     "HK_TAKEOVER_PRIVATIZATION_EVENT_SPREAD_OVERLAY_PROFILE_HINT",
     "HK_LOTTERY_STOCK_RISK_EXCLUSION_OVERLAY_PROFILE_HINT",
     "HK_LOW_SIZE_QUALITY_LIQUIDITY_PREMIUM_PROFILE_HINT",
@@ -422,6 +457,11 @@ __all__ = [
     "HKEX_LIST_WITH_HKEX_FAQ_URL",
     "HKEX_DOUBLE_DIPPING_REFORMS_2023_URL",
     "HKEX_PRE_IPO_INVESTMENT_GUIDANCE_LETTER_URL",
+    "HKEX_ADVERSE_AUDIT_OPINION_RULE_CHANGE_2019_URL",
+    "HKEX_RULE_13_50A_AUDIT_OPINION_SUSPENSION_URL",
+    "HKEX_ADVERSE_AUDIT_OPINION_CONCLUSIONS_URL",
+    "HKEX_LONG_SUSPENSION_GUIDANCE_GL95_URL",
+    "HKEX_PROLONGED_SUSPENSION_STATUS_REPORT_URL",
     "HKEX_PROFIT_WARNING_ALERT_FAQ_URL",
     "HKEXNEWS_ADVANCED_SEARCH_URL",
     "HKEX_STOCK_CONNECT_ELIGIBLE_SECURITIES_URL",
@@ -455,11 +495,13 @@ __all__ = [
     "SCIENCEDIRECT_HK_IPO_PRICE_BLOCK_TRADING_URL",
     "SCIENCEDIRECT_HK_RIGHTS_OFFERS_DIFFERENT_URL",
     "SCIENCEDIRECT_HK_SEO_INSIDER_TRADING_URL",
+    "SCIENCEDIRECT_QUALIFIED_AUDIT_OPINIONS_STOCK_PRICES_URL",
     "SCIENCEDIRECT_HK_SHORT_SALE_BAN_PEAD_URL",
     "SCIENCEDIRECT_HK_VOLATILITY_EFFECT_URL",
     "SCIENCEDIRECT_SHORT_SALES_PRICE_ADJUSTMENT_HK_URL",
     "TANDF_HK_SHORT_TERM_OVERREACTION_URL",
     "HKU_STOCK_DISTRIBUTIONS_EX_DAY_ANCHORING_URL",
+    "HKUST_GOING_CONCERN_BANKRUPTCY_REACTION_URL",
     "SSRN_SHORT_INTEREST_RETURN_PREDICTABILITY_URL",
     "SSRN_HK_CONNECTED_TRANSACTIONS_TUNNELING_URL",
     "SSRN_HK_CORNERSTONE_INVESTORS_IPO_SURVIVAL_URL",
