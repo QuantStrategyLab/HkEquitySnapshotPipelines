@@ -640,7 +640,7 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert "new_snapshot_profile_name_and_contract_version" in (
         backlog["future_research_live_enablement_policy"]["required_pre_scaffold_gates"]
     )
-    assert backlog["candidate_count"] == 25
+    assert backlog["candidate_count"] == 26
     assert backlog["candidates"][0]["profile_hint"] == "hk_earnings_revision_quality_overlay"
     assert backlog["candidates"][0]["scaffold_status"] == "research_only_not_scaffolded"
     assert any("earnings-revision-overlay" in url for url in backlog["candidates"][0]["source_reference_urls"])
@@ -788,6 +788,13 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert any("1949417" in url for url in backlog["candidates"][24]["source_reference_urls"])
     assert any("forecast_dispersion" in item for item in backlog["candidates"][24]["required_new_data"])
     assert any("coverage_drop" in item for item in backlog["candidates"][24]["required_new_data"])
+    assert backlog["candidates"][25]["profile_hint"] == "hk_financial_distress_deleveraging_risk_overlay"
+    assert backlog["candidates"][25]["suggested_contract_type"] == "financial_distress_risk_snapshot_overlay"
+    assert any("corporate-sector-vulnerabilities" in url for url in backlog["candidates"][25]["source_reference_urls"])
+    assert any("2071-1050/7/2/1186" in url for url in backlog["candidates"][25]["source_reference_urls"])
+    assert any("18479790231165603" in url for url in backlog["candidates"][25]["source_reference_urls"])
+    assert any("zscore" in item for item in backlog["candidates"][25]["required_new_data"])
+    assert any("debt_maturity" in item for item in backlog["candidates"][25]["required_new_data"])
 
 
 def test_future_research_live_enablement_policy_blocks_backlog_until_new_contract_and_evidence():
@@ -823,6 +830,7 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
         "hk_shareholding_concentration_free_float_risk_overlay",
         "hk_amihud_liquidity_risk_capacity_overlay",
         "hk_analyst_dispersion_coverage_risk_overlay",
+        "hk_financial_distress_deleveraging_risk_overlay",
     ]
     assert "same_universe_ablation_vs_existing_quality_yield_momentum_and_special_situation_profiles" in (
         policy["required_pre_scaffold_gates"]
@@ -992,6 +1000,15 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert "same_universe_earnings_revision_momentum_quality_value_liquidity_and_short_interest_ablation_history" in (
         policy["required_data_provenance"]
     )
+    assert "point_in_time_financial_distress_zscore_distance_to_default_interest_coverage_and_debt_maturity_history" in (
+        policy["required_data_provenance"]
+    )
+    assert "profitability_liquidity_leverage_cash_flow_debt_service_and_property_exposure_history" in (
+        policy["required_data_provenance"]
+    )
+    assert "same_universe_quality_value_yield_momentum_liquidity_audit_opinion_and_suspension_ablation_history" in (
+        policy["required_data_provenance"]
+    )
     assert "sector_rate_beta_inflation_beta_property_financial_and_dividend_yield_sensitivity_history" in (
         policy["required_data_provenance"]
     )
@@ -1055,6 +1072,9 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert any("S1544612322007462" in url for url in policy["source_reference_urls"])
     assert any("10722/238965" in url for url in policy["source_reference_urls"])
     assert any("1949417" in url for url in policy["source_reference_urls"])
+    assert any("corporate-sector-vulnerabilities" in url for url in policy["source_reference_urls"])
+    assert any("2071-1050/7/2/1186" in url for url in policy["source_reference_urls"])
+    assert any("18479790231165603" in url for url in policy["source_reference_urls"])
 
 
 
