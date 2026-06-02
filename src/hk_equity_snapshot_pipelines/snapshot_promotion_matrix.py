@@ -64,6 +64,7 @@ from .future_research_live_enablement_policy import (
     HK_REIT_DIVIDEND_SPREAD_RATE_SENSITIVITY_OVERLAY_PROFILE_HINT,
     HK_REGULATORY_ENFORCEMENT_DISCIPLINARY_RISK_OVERLAY_PROFILE_HINT,
     HK_MARGIN_FINANCING_COLLATERAL_FORCED_SELLING_RISK_OVERLAY_PROFILE_HINT,
+    HK_LIQUID_LARGECAP_WEEKLY_REVERSAL_COST_AWARE_OVERLAY_PROFILE_HINT,
     HK_CONNECTED_TRANSACTION_GOVERNANCE_RISK_OVERLAY_PROFILE_HINT,
     HK_DIRECTOR_DEALING_DISCLOSURE_QUALITY_OVERLAY_PROFILE_HINT,
     HK_DISTRIBUTION_EX_DATE_ENTITLEMENT_OVERLAY_PROFILE_HINT,
@@ -253,6 +254,9 @@ from .future_research_live_enablement_policy import (
     SFC_SMF_REVIEW_REPORT_URL,
     SFC_POOLING_RISK_MARGIN_ACCOUNTS_URL,
     SCIENCEDIRECT_CONTROLLING_SHAREHOLDER_SHARE_PLEDGE_CRASH_RISK_URL,
+    HKMU_HK_STOCK_MARKET_OVERREACT_URL,
+    SCIENCEDIRECT_HK_OVERREACTION_URL,
+    DOAJ_HK_SHORT_TERM_MOMENTUM_EFFECT_URL,
     TANDF_HK_SHORT_TERM_OVERREACTION_URL,
     TANDF_HK_HOLIDAY_EFFECT_URL,
     AQR_GLOBAL_ASSET_GROWTH_ANOMALY_URL,
@@ -1784,6 +1788,45 @@ FUTURE_RESEARCH_BACKLOG: tuple[dict[str, object], ...] = (
             SFC_DISCLOSURE_OF_INTERESTS_PART_XV_URL,
             HKEX_DISCLOSURE_OF_INTERESTS_SEARCH_URL,
             SCIENCEDIRECT_CONTROLLING_SHAREHOLDER_SHARE_PLEDGE_CRASH_RISK_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_LIQUID_LARGECAP_WEEKLY_REVERSAL_COST_AWARE_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "liquid_largecap_weekly_reversal_cost_aware_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "cost_aware_reversal_snapshot_overlay",
+        "research_thesis": (
+            "Test whether HK weekly extreme-return reversal / continuance evidence can be converted into a "
+            "low-turnover, liquid-large-cap, execution-aware overlay that only downweights crowded extremes "
+            "or cautiously mean-reverts recent large moves when fee, spread, slippage, VCM/CAS, and "
+            "suspension controls leave positive net excess return."
+        ),
+        "required_new_data": (
+            "point_in_time_weekly_extreme_return_reversal_continuance_liquidity_and_volume_history",
+            "largecap_liquid_universe_spread_fee_slippage_vcm_cas_and_bid_ask_bounce_history",
+            "winner_loser_decile_monthly_weekly_reversal_continuance_and_momentum_interaction_history",
+            "same_universe_momentum_dual_listing_liquidity_volatility_lottery_and_event_ablation_history",
+            "turnover_capacity_board_lot_odd_lot_suspension_resumption_and_order_preview_history",
+            "regime_crash_policy_shock_holiday_and_stock_connect_mismatch_stress_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new cost-aware reversal snapshot overlay contract before adding weekly reversal, extreme-return, winner/loser-decile, or overreaction fields to any existing artifact.",
+            "Use point-in-time weekly returns, adjusted corporate actions, liquidity, spread, fees, VCM/CAS, suspension / resumption, and benchmark data only; do not select reversal windows or thresholds from full-sample returns.",
+            "Use as a low-turnover liquid-large-cap overlay first; do not promote an intraday, high-turnover, penny-stock, microcap, opening-gap, or pure contrarian trading strategy without execution evidence.",
+            "Classify recent extreme move, weekly loser/winner decile, continuance versus reversal regime, liquidity, turnover, spread, board lot, odd lot, VCM/CAS, suspension, short-sale eligibility, dual-listing alignment, Stock Connect holiday mismatch, and transaction-cost estimate before ranking signals.",
+            "Ablate weekly reversal versus liquid momentum, residual momentum, dual-listed reversal, downside-risk volatility, Amihud liquidity, lottery-stock exclusion, event overlays, and ETF rotation on the same survivorship-safe universe.",
+            "Stress transaction-cost dominance, bid-ask bounce, stale quotes, low-turnover names, post-crash continuation, China policy shocks, property/tech drawdowns, 2008/2015/2020/2022 volatility windows, holidays, suspensions, VCM/CAS rejections, and capacity crowding.",
+            "Require walk-forward evidence with max drawdown <= 30%, each OOS fold drawdown <= 30%, at least three independent OOS folds, max single-period contribution <= 60%, annual-return-to-drawdown ratio >= 0.50, positive net excess return after fee/spread/slippage stress, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            IDEAS_HK_STOCK_RETURN_REVERSAL_CONTINUANCE_URL,
+            TANDF_HK_SHORT_TERM_OVERREACTION_URL,
+            HKMU_HK_STOCK_MARKET_OVERREACT_URL,
+            SCIENCEDIRECT_HK_OVERREACTION_URL,
+            DOAJ_HK_SHORT_TERM_MOMENTUM_EFFECT_URL,
+            HKBU_HSI_FUTURES_INTRADAY_REVERSAL_URL,
+            HKEX_REVERSAL_EXECUTION_TRADING_MECHANISM_URL,
+            HKEX_REVERSAL_EXECUTION_TRANSACTION_FEES_URL,
         ),
     },
 )

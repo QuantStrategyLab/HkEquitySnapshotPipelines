@@ -640,7 +640,7 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert "new_snapshot_profile_name_and_contract_version" in (
         backlog["future_research_live_enablement_policy"]["required_pre_scaffold_gates"]
     )
-    assert backlog["candidate_count"] == 33
+    assert backlog["candidate_count"] == 34
     assert backlog["candidates"][0]["profile_hint"] == "hk_earnings_revision_quality_overlay"
     assert backlog["candidates"][0]["scaffold_status"] == "research_only_not_scaffolded"
     assert any("earnings-revision-overlay" in url for url in backlog["candidates"][0]["source_reference_urls"])
@@ -850,6 +850,13 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert any("S1057521921001721" in url for url in backlog["candidates"][32]["source_reference_urls"])
     assert any("marginable_security" in item for item in backlog["candidates"][32]["required_new_data"])
     assert any("forced_selling" in item for item in backlog["candidates"][32]["required_new_data"])
+    assert backlog["candidates"][33]["profile_hint"] == "hk_liquid_largecap_weekly_reversal_cost_aware_overlay"
+    assert backlog["candidates"][33]["suggested_contract_type"] == "cost_aware_reversal_snapshot_overlay"
+    assert any("applec" in url for url in backlog["candidates"][33]["source_reference_urls"])
+    assert any("S1044028399000162" in url for url in backlog["candidates"][33]["source_reference_urls"])
+    assert any("Transaction" in url for url in backlog["candidates"][33]["source_reference_urls"])
+    assert any("weekly_extreme_return" in item for item in backlog["candidates"][33]["required_new_data"])
+    assert any("bid_ask_bounce" in item for item in backlog["candidates"][33]["required_new_data"])
 
 
 def test_future_research_live_enablement_policy_blocks_backlog_until_new_contract_and_evidence():
@@ -893,6 +900,7 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
         "hk_reit_dividend_spread_rate_sensitivity_overlay",
         "hk_regulatory_enforcement_disciplinary_risk_overlay",
         "hk_margin_financing_collateral_forced_selling_risk_overlay",
+        "hk_liquid_largecap_weekly_reversal_cost_aware_overlay",
     ]
     assert "same_universe_ablation_vs_existing_quality_yield_momentum_and_special_situation_profiles" in (
         policy["required_pre_scaffold_gates"]
@@ -1131,6 +1139,15 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert "share_pledge_disclosure_margin_call_forced_selling_price_gap_and_liquidity_history" in (
         policy["required_data_provenance"]
     )
+    assert "point_in_time_weekly_extreme_return_reversal_continuance_liquidity_and_volume_history" in (
+        policy["required_data_provenance"]
+    )
+    assert "largecap_liquid_universe_spread_fee_slippage_vcm_cas_and_bid_ask_bounce_history" in (
+        policy["required_data_provenance"]
+    )
+    assert "same_universe_momentum_dual_listing_liquidity_volatility_lottery_and_event_ablation_history" in (
+        policy["required_data_provenance"]
+    )
     assert "same_universe_liquidity_volatility_derivatives_structured_product_momentum_event_and_execution_ablation_history" in (
         policy["required_data_provenance"]
     )
@@ -1232,6 +1249,10 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert any("refNo=17EC67" in url for url in policy["source_reference_urls"])
     assert any("Review-of-Securities-Margin-Financing-Activities" in url for url in policy["source_reference_urls"])
     assert any("S1057521921001721" in url for url in policy["source_reference_urls"])
+    assert any("applec/v46y2014i12p1335-1349" in url for url in policy["source_reference_urls"])
+    assert any("does-the-hong-kong-stock-market-overreact" in url for url in policy["source_reference_urls"])
+    assert any("S1044028399000162" in url for url in policy["source_reference_urls"])
+    assert any("f9bc272223de4c26b1fb161ccaf76cfa" in url for url in policy["source_reference_urls"])
 
 
 
