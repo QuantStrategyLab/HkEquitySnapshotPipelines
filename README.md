@@ -173,6 +173,27 @@ hkeq-draft-low-vol-dividend-platform-evidence \
   --evidence-generated-at 2026-06-03
 ```
 
+Assemble section-level evidence into the final platform evidence pack:
+
+```bash
+hkeq-assemble-low-vol-dividend-live-enable-evidence \
+  --platform longbridge \
+  --validation-as-of 2026-06-03 \
+  --production-source-audit-file evidence/production_source_audit.json \
+  --artifact-pack-validation-file evidence/artifact_pack_validation.json \
+  --walk-forward-backtest-file evidence/walk_forward_backtest.json \
+  --platform-dry-run-file evidence/longbridge_platform_dry_run.json \
+  --broker-permission-file evidence/longbridge_broker_permissions.json \
+  --rebalance-window-file evidence/longbridge_rebalance_window.json \
+  --runtime-rollout-file evidence/longbridge_rollout_plan.json \
+  --risk-approval-file evidence/risk_approval.json \
+  --strategy-policy-evidence-file evidence/quality_yield_strategy_policy.json \
+  --output-dir evidence/assembled \
+  --json
+```
+
+The assembler writes the final evidence JSON, validation JSON, and a compact summary. It does not live-enable trading unless the final validator returns `live_enablement_allowed=true`.
+
 For the active and deferred quality/yield snapshot candidates, use the shared evidence draft commands. Deferred profiles should stay out of the default live-enable queue until real point-in-time walk-forward evidence passes the 30% drawdown gate:
 
 ```bash
@@ -254,6 +275,7 @@ python -m pytest -q
 - [`docs/low_vol_dividend_live_enablement_audit.md`](./docs/low_vol_dividend_live_enablement_audit.md): final artifact + platform evidence audit for `hk_low_vol_dividend_quality`.
 - [`docs/low_vol_dividend_artifact_evidence.md`](./docs/low_vol_dividend_artifact_evidence.md): artifact-pack validation result to live-enable artifact evidence draft tool.
 - [`docs/low_vol_dividend_platform_evidence.md`](./docs/low_vol_dividend_platform_evidence.md): LongBridge/IBKR dry-run runtime report to platform evidence draft tool.
+- [`docs/low_vol_dividend_evidence_assembler.md`](./docs/low_vol_dividend_evidence_assembler.md): assemble section-level evidence drafts into final LongBridge/IBKR live-enable evidence packs.
 - [`docs/low_vol_dividend_production_source_audit.md`](./docs/low_vol_dividend_production_source_audit.md): production source audit draft tool for `hk_low_vol_dividend_quality`.
 - [`docs/low_vol_dividend_backtest_evidence.md`](./docs/low_vol_dividend_backtest_evidence.md): walk-forward backtest evidence draft tool for `hk_low_vol_dividend_quality`.
 - [`docs/research/hk_snapshot_strategy_candidates.md`](./docs/research/hk_snapshot_strategy_candidates.md): snapshot strategy research queue, curated candidates, and gating rationale.
