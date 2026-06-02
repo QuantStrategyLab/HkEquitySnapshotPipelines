@@ -586,7 +586,7 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert "new_snapshot_profile_name_and_contract_version" in (
         backlog["future_research_live_enablement_policy"]["required_pre_scaffold_gates"]
     )
-    assert backlog["candidate_count"] == 7
+    assert backlog["candidate_count"] == 8
     assert backlog["candidates"][0]["profile_hint"] == "hk_earnings_revision_quality_overlay"
     assert backlog["candidates"][0]["scaffold_status"] == "research_only_not_scaffolded"
     assert any("earnings-revision-overlay" in url for url in backlog["candidates"][0]["source_reference_urls"])
@@ -618,6 +618,11 @@ def test_future_research_backlog_keeps_non_scaffolded_candidates_out_of_live_ena
     assert any("hkexnews" in url.lower() or "4070" in url for url in backlog["candidates"][6]["source_reference_urls"])
     assert any("earnings_surprise" in item for item in backlog["candidates"][6]["required_new_data"])
     assert any("announcement_publication_timestamp" in item for item in backlog["candidates"][6]["required_new_data"])
+    assert backlog["candidates"][7]["profile_hint"] == "hk_lottery_stock_risk_exclusion_overlay"
+    assert backlog["candidates"][7]["suggested_contract_type"] == "factor_snapshot_overlay"
+    assert any("Gambling_Hong_Kong" in url for url in backlog["candidates"][7]["source_reference_urls"])
+    assert any("lottery_feature" in item for item in backlog["candidates"][7]["required_new_data"])
+    assert any("max1_max5" in item for item in backlog["candidates"][7]["required_new_data"])
 
 
 def test_future_research_live_enablement_policy_blocks_backlog_until_new_contract_and_evidence():
@@ -635,6 +640,7 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
         "hk_director_dealing_disclosure_quality_overlay",
         "hk_dually_traded_liquid_reversal_overlay",
         "hk_earnings_announcement_drift_overlay",
+        "hk_lottery_stock_risk_exclusion_overlay",
     ]
     assert "same_universe_ablation_vs_existing_quality_yield_momentum_and_special_situation_profiles" in (
         policy["required_pre_scaffold_gates"]
@@ -665,6 +671,13 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert "announcement_publication_timestamp_suspension_and_trading_resumption_history" in (
         policy["required_data_provenance"]
     )
+    assert "point_in_time_lottery_feature_ivol_iskew_max_price_history" in policy["required_data_provenance"]
+    assert "market_regime_volatility_drawdown_and_lottery_premium_condition_history" in (
+        policy["required_data_provenance"]
+    )
+    assert "lottery_overlay_liquidity_short_sale_suspension_and_capacity_history" in (
+        policy["required_data_provenance"]
+    )
     assert policy["dry_run_order_preview_policy"]["policy_version"] == "hk_dry_run_order_preview_provenance.v1"
     assert any("IM_hsscsqe.pdf" in url for url in policy["source_reference_urls"])
     assert any("factor-indexes" in url for url in policy["source_reference_urls"])
@@ -675,6 +688,7 @@ def test_future_research_live_enablement_policy_blocks_backlog_until_new_contrac
     assert any("Disclosure-of-Interests" in url for url in policy["source_reference_urls"])
     assert any("applec" in url or "pacfin" in url for url in policy["source_reference_urls"])
     assert any("hkexnews" in url.lower() or "4070" in url for url in policy["source_reference_urls"])
+    assert any("Gambling_Hong_Kong" in url for url in policy["source_reference_urls"])
 
 
 

@@ -47,6 +47,7 @@ from .future_research_live_enablement_policy import (
     HK_DUALLY_TRADED_LIQUID_REVERSAL_OVERLAY_PROFILE_HINT,
     HK_EARNINGS_ANNOUNCEMENT_DRIFT_OVERLAY_PROFILE_HINT,
     HK_EARNINGS_REVISION_QUALITY_OVERLAY_PROFILE_HINT,
+    HK_LOTTERY_STOCK_RISK_EXCLUSION_OVERLAY_PROFILE_HINT,
     HK_LOW_SIZE_QUALITY_LIQUIDITY_PREMIUM_PROFILE_HINT,
     HK_MOMENTUM_PROFITABILITY_RESEARCH_URL,
     HK_SHORT_SELLING_PRESSURE_RISK_OVERLAY_PROFILE_HINT,
@@ -70,9 +71,12 @@ from .future_research_live_enablement_policy import (
     HSI_SMART_BETA_RESEARCH_PAPER_URL,
     IDEAS_HK_STOCK_RETURN_REVERSAL_CONTINUANCE_URL,
     POLYU_HK_EARNINGS_ANNOUNCEMENT_DRIFT_THESIS_URL,
+    POLYU_HK_GAMBLING_STOCK_MARKET_PDF_URL,
     SCIENCEDIRECT_HK_DIRECTOR_DEALING_SHARE_REPURCHASE_URL,
     SCIENCEDIRECT_HK_DUALLY_TRADED_CONTRARIAN_URL,
+    SCIENCEDIRECT_HK_GAMBLING_STOCK_MARKET_URL,
     SCIENCEDIRECT_HK_SHORT_SALE_BAN_PEAD_URL,
+    SCIENCEDIRECT_HK_VOLATILITY_EFFECT_URL,
     SCIENCEDIRECT_SHORT_SALES_PRICE_ADJUSTMENT_HK_URL,
     SFC_DISCLOSURE_OF_INTERESTS_DI_NOTICES_URL,
     SFC_DISCLOSURE_OF_INTERESTS_PART_XV_URL,
@@ -645,6 +649,39 @@ FUTURE_RESEARCH_BACKLOG: tuple[dict[str, object], ...] = (
             HKEXNEWS_ADVANCED_SEARCH_URL,
             SCIENCEDIRECT_HK_SHORT_SALE_BAN_PEAD_URL,
             SPRINGER_HK_PROFIT_WARNING_MARKET_REACTION_URL,
+        ),
+    },
+    {
+        "profile_hint": HK_LOTTERY_STOCK_RISK_EXCLUSION_OVERLAY_PROFILE_HINT,
+        "candidate_bucket": "lottery_stock_risk_exclusion_overlay_candidate",
+        "scaffold_status": "research_only_not_scaffolded",
+        "suggested_contract_type": "factor_snapshot_overlay",
+        "research_thesis": (
+            "Test HK lottery-like stock features as a risk exclusion / underweight overlay for existing "
+            "single-name snapshots, using IVOL, ISKEW, low price, and MAX-return features to avoid overpaid "
+            "speculative tails rather than to create a direct short-selling strategy."
+        ),
+        "required_new_data": (
+            "point_in_time_lottery_feature_ivol_iskew_max_price_history",
+            "monthly_max1_max5_daily_return_and_idiosyncratic_skewness_history",
+            "market_regime_volatility_drawdown_and_lottery_premium_condition_history",
+            "price_turnover_market_cap_free_float_liquidity_and_suspension_history",
+            "same_universe_quality_momentum_low_size_low_vol_and_short_pressure_ablation_history",
+            "short_sale_eligibility_spread_fee_slippage_vcm_cas_and_capacity_history",
+        ),
+        "live_enablement_blockers": (
+            "Create a new overlay snapshot profile and contract version before adding any artifact fields.",
+            "Use as an exclusion or underweight overlay first; do not promote a short-lottery strategy without borrow, short-sale eligibility, and locate evidence.",
+            "Ablate lottery-risk exclusion versus low-vol dividend, quality growth, residual momentum, low-size, short-selling pressure, and composite QVLM profiles on the same universe.",
+            "Stress persistent lottery features, down-market and high-volatility regimes, low-price illiquidity, one-day MAX outliers, stale quotes, suspensions, corporate actions, and retail-crowding windows.",
+            "Require walk-forward evidence with max drawdown <= 30%, positive benchmark excess return, turnover within HK cost/capacity limits, dry-run order previews, bilingual notifications, rollout controls, and operator approval.",
+        ),
+        "source_reference_urls": (
+            POLYU_HK_GAMBLING_STOCK_MARKET_PDF_URL,
+            SCIENCEDIRECT_HK_GAMBLING_STOCK_MARKET_URL,
+            SCIENCEDIRECT_HK_VOLATILITY_EFFECT_URL,
+            HKEX_REVERSAL_EXECUTION_TRADING_MECHANISM_URL,
+            HKEX_REVERSAL_EXECUTION_TRANSACTION_FEES_URL,
         ),
     },
 )
