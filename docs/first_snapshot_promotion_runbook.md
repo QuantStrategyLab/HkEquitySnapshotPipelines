@@ -2,16 +2,15 @@
 
 [Chinese version](./first_snapshot_promotion_runbook.zh-CN.md)
 
-This runbook narrows HK snapshot promotion work to one active evidence-gated candidate:
+This runbook narrows HK snapshot promotion work to one retained evidence-gated candidate:
 
-1. `hk_low_vol_dividend_quality`
-Deferred retest profiles: `hk_shareholder_yield_quality` and `hk_free_cash_flow_quality`.
+1. `hk_low_vol_dividend_quality_snapshot`
 
-These profiles are still `architecture_scaffold` candidates. This runbook does not live-enable them, publish production artifacts, deploy Cloud Run, or place broker orders.
+Other snapshot scaffolds were rejected or removed from package entrypoints after proxy triage. This runbook does not live-enable the retained profile, publish production artifacts, deploy Cloud Run, or place broker orders.
 
 ## Why this profile first
 
-`hk_low_vol_dividend_quality` is a lower-turnover quality/yield candidate that fits the current HK risk objective better than event, flow, AH-premium, or high-turnover momentum scaffolds, and it passed the proxy long/medium/short 30% drawdown gate. It must still prove max drawdown `<= 30%`, at least three independent out-of-sample folds, net-of-cost performance, HK liquidity/capacity, artifact provenance, dry-run order preview, bilingual notification evidence, and operator approval with real point-in-time data.
+`hk_low_vol_dividend_quality_snapshot` is a lower-turnover quality/yield candidate that fits the current HK risk objective better than event, flow, AH-premium, or high-turnover momentum scaffolds, and it passed the proxy long/medium/short 30% drawdown gate. It must still prove max drawdown `<= 30%`, at least three independent out-of-sample folds, net-of-cost performance, HK liquidity/capacity, artifact provenance, dry-run order preview, bilingual notification evidence, and operator approval with real point-in-time data.
 
 ## Print the promotion plan
 
@@ -25,7 +24,7 @@ Limit to one profile or one platform when needed:
 
 ```bash
 python scripts/print_first_snapshot_promotion_plan.py \
-  --profile hk_low_vol_dividend_quality \
+  --profile hk_low_vol_dividend_quality_snapshot \
   --platform longbridge \
   --json
 ```
@@ -40,8 +39,6 @@ Build sample artifacts only to verify local contract wiring:
 
 ```bash
 PYTHONPATH=src python scripts/build_low_vol_dividend_sample.py
-PYTHONPATH=src python scripts/build_shareholder_yield_sample.py
-PYTHONPATH=src python scripts/build_free_cash_flow_sample.py
 ```
 
 Sample artifacts are not production data and must not drive scheduled trading.
@@ -54,7 +51,7 @@ Replace sample inputs with point-in-time production data. At minimum, evidence m
 - source quality report URI
 - corporate actions, suspensions, stale quotes, missing fields, and symbol mapping
 - reporting-date / availability-date lineage for fundamentals
-- dividend, buyback, share-count, FCF, EV, ROE, debt, FX, and sector-normalization lineage
+- dividend, payout, volatility, liquidity, corporate-action, suspension, ROE/FCF optional quality-field, and sector lineage
 - no secret-like query parameters in evidence URIs
 
 ### 3. Walk-forward backtest
@@ -65,9 +62,9 @@ Run survivorship-safe walk-forward backtests before any platform dry-run promoti
 - max drawdown `<= 30%`, or stricter profile threshold if configured
 - annual return / max drawdown ratio `>= 0.50`
 - max single-period return contribution `<= 60%`
-- annualized turnover `<= 100%` for the active quality/yield candidate
+- annualized turnover `<= 100%` for the retained quality/yield candidate
 - HK fees, levies, slippage, bid/ask spread, lot-size, suspension, VCM, CAS, and capacity stress
-- same-universe ablation across low-vol dividend, shareholder yield, and FCF quality
+- same-universe ablation against rejected quality/yield variants before adding any new snapshot contract
 
 ### 4. Artifact-pack validation
 
@@ -75,12 +72,12 @@ Validate the published artifact directory:
 
 ```bash
 hkeq-validate-snapshot-artifact-pack \
-  --profile hk_low_vol_dividend_quality \
-  --artifact-dir data/output/hk_low_vol_dividend_quality \
+  --profile hk_low_vol_dividend_quality_snapshot \
+  --artifact-dir data/output/hk_low_vol_dividend_quality_snapshot \
   --json
 ```
 
-Repeat for `hk_shareholder_yield_quality` and `hk_free_cash_flow_quality`.
+Rejected profiles are not validated here because they are no longer package contracts.
 
 ### 5. Platform dry-run evidence
 
@@ -88,7 +85,7 @@ Print readiness templates before platform wiring:
 
 ```bash
 python scripts/print_snapshot_readiness.py \
-  --profile hk_low_vol_dividend_quality \
+  --profile hk_low_vol_dividend_quality_snapshot \
   --platform longbridge \
   --json
 ```
@@ -98,7 +95,7 @@ Generate the evidence template:
 ```bash
 hkeq-validate-live-enable-evidence \
   --print-template \
-  --profile hk_low_vol_dividend_quality \
+  --profile hk_low_vol_dividend_quality_snapshot \
   --platform longbridge \
   --json > snapshot-live-enable-evidence.json
 ```
@@ -117,9 +114,7 @@ Dry-run evidence must include raw order preview, quote snapshot, fee breakdown, 
 
 | Profile | Focus before promotion |
 | --- | --- |
-| `hk_low_vol_dividend_quality` | Forecast versus trailing dividend yield ablation, yield-trap controls, Southbound eligibility, three-year cash-dividend records, payout-ratio bounds, price-crash screens, high-volatility exclusion, and financial-soundness screens. |
-| `hk_shareholder_yield_quality` | HKEX buyback ingestion, treasury-share retention/cancellation/resale, share-count reconciliation, dilution controls, blackout/moratorium controls, post-buyback financing checks, and stale estimate-revision controls. |
-| `hk_free_cash_flow_quality` | FCF formula lineage, EV market-cap/debt/cash/FX inputs, reporting-date availability, restatement/as-of handling, sector normalization, and negative-FCF / financial-sector exceptions. |
+| `hk_low_vol_dividend_quality_snapshot` | Forecast versus trailing dividend yield ablation, yield-trap controls, Southbound eligibility, three-year cash-dividend records, payout-ratio bounds, price-crash screens, high-volatility exclusion, and financial-soundness screens. |
 
 ## Stop conditions
 

@@ -76,7 +76,7 @@ def test_artifact_evidence_draft_validates_local_artifact_but_stays_pending_with
 def test_artifact_evidence_draft_keeps_sample_sized_artifact_pending_even_with_publication_proof(tmp_path):
     payload = build_low_vol_dividend_artifact_evidence_draft(
         artifact_dir=_artifact_dir(tmp_path),
-        artifact_release_id="hk-low-vol-dividend-quality-20260603-001",
+        artifact_release_id="hk-low-vol-dividend-quality-snapshot-20260603-001",
         published_snapshot_uri="gs://qsl-evidence/hk-low-vol/artifacts/snapshot.csv",
         published_manifest_uri="gs://qsl-evidence/hk-low-vol/artifacts/snapshot.csv.manifest.json",
         published_ranking_uri="gs://qsl-evidence/hk-low-vol/artifacts/ranking.csv",
@@ -105,7 +105,7 @@ def test_artifact_evidence_draft_keeps_sample_sized_artifact_pending_even_with_p
 def test_artifact_evidence_draft_can_complete_production_sized_artifact_section(tmp_path):
     payload = build_low_vol_dividend_artifact_evidence_draft(
         artifact_dir=_production_sized_artifact_dir(tmp_path),
-        artifact_release_id="hk-low-vol-dividend-quality-20260603-001",
+        artifact_release_id="hk-low-vol-dividend-quality-snapshot-20260603-001",
         published_snapshot_uri="gs://qsl-evidence/hk-low-vol/artifacts/snapshot.csv",
         published_manifest_uri="gs://qsl-evidence/hk-low-vol/artifacts/snapshot.csv.manifest.json",
         published_ranking_uri="gs://qsl-evidence/hk-low-vol/artifacts/ranking.csv",
@@ -159,7 +159,7 @@ def test_write_artifact_evidence_draft_outputs_files(tmp_path):
     summary_path = Path(payload["summary_path"])
     assert draft_path.exists()
     assert summary_path.exists()
-    assert json.loads(draft_path.read_text(encoding="utf-8"))["profile"] == "hk_low_vol_dividend_quality"
+    assert json.loads(draft_path.read_text(encoding="utf-8"))["profile"] == "hk_low_vol_dividend_quality_snapshot"
     assert "artifact_pack_validation_draft" not in json.loads(summary_path.read_text(encoding="utf-8"))
 
 
@@ -182,7 +182,7 @@ def test_artifact_evidence_cli_json(tmp_path):
     )
     payload = json.loads(completed.stdout)
 
-    assert payload["profile"] == "hk_low_vol_dividend_quality"
+    assert payload["profile"] == "hk_low_vol_dividend_quality_snapshot"
     assert payload["local_artifact_valid"] is True
     assert payload["artifact_section_status"] == "pending"
     assert payload["draft_path"].endswith("artifact_pack_validation.draft.json")

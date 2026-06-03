@@ -22,7 +22,7 @@ def _write_pending_template(tmp_path: Path, platform: str) -> Path:
     path = tmp_path / f"{platform}_live_enablement_evidence.json"
     path.write_text(
         json.dumps(
-            build_live_enablement_evidence_template("hk_low_vol_dividend_quality", platform=platform),
+            build_live_enablement_evidence_template("hk_low_vol_dividend_quality_snapshot", platform=platform),
             ensure_ascii=False,
             indent=2,
             sort_keys=True,
@@ -36,7 +36,7 @@ def test_live_enablement_audit_blocks_when_artifact_and_platform_evidence_are_mi
     payload = build_low_vol_dividend_live_enablement_audit()
 
     assert payload["audit_version"] == AUDIT_VERSION
-    assert payload["profile"] == "hk_low_vol_dividend_quality"
+    assert payload["profile"] == "hk_low_vol_dividend_quality_snapshot"
     assert payload["status"] == "blocked"
     assert payload["runtime_enabled"] is False
     assert payload["live_enablement_allowed"] is False

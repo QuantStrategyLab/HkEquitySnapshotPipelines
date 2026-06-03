@@ -21,7 +21,7 @@ def test_low_vol_dividend_evidence_bundle_defines_pending_non_live_templates():
 
     assert payload["bundle_version"] == LOW_VOL_DIVIDEND_EVIDENCE_BUNDLE_VERSION
     assert payload["status"] == LOW_VOL_DIVIDEND_EVIDENCE_BUNDLE_STATUS
-    assert payload["profile"] == "hk_low_vol_dividend_quality"
+    assert payload["profile"] == "hk_low_vol_dividend_quality_snapshot"
     assert payload["runtime_enabled"] is False
     assert payload["live_enablement_allowed"] is False
     assert payload["production_deployment_allowed"] is False
@@ -73,6 +73,6 @@ def test_low_vol_dividend_evidence_bundle_cli_json():
     )
     payload = json.loads(completed.stdout)
 
-    assert payload["profile"] == "hk_low_vol_dividend_quality"
+    assert payload["profile"] == "hk_low_vol_dividend_quality_snapshot"
     assert payload["platforms"] == ["ibkr"]
     assert "ibkr" in payload["platform_live_enablement_templates"]

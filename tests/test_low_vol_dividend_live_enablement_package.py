@@ -20,7 +20,7 @@ def test_low_vol_dividend_package_is_first_candidate_but_not_live_enabled():
     payload = build_low_vol_dividend_live_enablement_package()
 
     assert payload["package_version"] == LOW_VOL_DIVIDEND_PACKAGE_VERSION
-    assert payload["profile"] == "hk_low_vol_dividend_quality"
+    assert payload["profile"] == "hk_low_vol_dividend_quality_snapshot"
     assert payload["status"] == LOW_VOL_DIVIDEND_PACKAGE_STATUS
     assert payload["runtime_enabled"] is False
     assert payload["live_enablement_allowed"] is False
@@ -68,6 +68,6 @@ def test_low_vol_dividend_package_cli_json():
     )
     payload = json.loads(completed.stdout)
 
-    assert payload["profile"] == "hk_low_vol_dividend_quality"
+    assert payload["profile"] == "hk_low_vol_dividend_quality_snapshot"
     assert payload["platforms"] == ["ibkr"]
     assert payload["platform_env_templates"]["ibkr"]["IBKR_DRY_RUN_ONLY"] == "true"

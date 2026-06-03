@@ -2,7 +2,7 @@
 
 [English version](./low_vol_dividend_live_enablement_gate.md)
 
-该命令用于运行 `hk_low_vol_dividend_quality` 的端到端 evidence gate。
+该命令用于运行 `hk_low_vol_dividend_quality_snapshot` 的端到端 evidence gate。
 它会从约定目录读取 evidence 文件，分别组装 LongBridge 和 IBKR evidence pack，然后运行最终 live-enable audit。
 
 该命令不会部署 Cloud Run、不会下单、不会发布 artifact、不会批准风险，也不会移除 dry-run 控制。

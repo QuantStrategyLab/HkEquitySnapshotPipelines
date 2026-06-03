@@ -2,12 +2,12 @@
 
 [中文版本](./low_vol_dividend_live_enablement_package.zh-CN.md)
 
-This document defines the first live-enable evidence package for `hk_low_vol_dividend_quality`.
+This document defines the first live-enable evidence package for `hk_low_vol_dividend_quality_snapshot`.
 It does not live-enable the strategy, deploy Cloud Run, publish production artifacts, or place broker orders.
 
 ## Why this profile first
 
-`hk_low_vol_dividend_quality` is the first HK snapshot candidate because it is a lower-turnover quality/yield profile.
+`hk_low_vol_dividend_quality_snapshot` is the first HK snapshot candidate because it is a lower-turnover quality/yield profile.
 It should be easier to control drawdown, turnover, and HK execution frictions than event, AH-premium, flow, or high-turnover momentum scaffolds.
 
 ## Package command

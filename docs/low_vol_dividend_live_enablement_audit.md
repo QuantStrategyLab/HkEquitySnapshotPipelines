@@ -2,7 +2,7 @@
 
 [中文版本](./low_vol_dividend_live_enablement_audit.zh-CN.md)
 
-This tool is the final machine-checkable audit before `hk_low_vol_dividend_quality` can be treated as true live-enable ready.
+This tool is the final machine-checkable audit before `hk_low_vol_dividend_quality_snapshot` can be treated as true live-enable ready.
 It combines three independent gates:
 
 1. production snapshot artifact pack validation;

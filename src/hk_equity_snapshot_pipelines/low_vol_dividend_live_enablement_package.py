@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from .contracts import HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE, get_profile_contract
+from .contracts import HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE, get_profile_contract
 from .first_snapshot_promotion_plan import build_first_snapshot_promotion_plan
 from .live_enablement_evidence import REQUIRED_SECTIONS, STRATEGY_POLICY_EVIDENCE_SECTION
 from .snapshot_readiness import SUPPORTED_SNAPSHOT_PLATFORMS, build_snapshot_readiness
@@ -118,7 +118,7 @@ def build_low_vol_dividend_live_enablement_package(
     platforms: tuple[str, ...] = DEFAULT_PLATFORMS,
 ) -> dict[str, Any]:
     selected_platforms = _normalize_platforms(platforms)
-    contract = get_profile_contract(HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE)
+    contract = get_profile_contract(HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE)
     plan = build_first_snapshot_promotion_plan(profile=contract.profile, platforms=selected_platforms)
     profile_plan = plan["profiles"][0]
     readiness_by_platform = {

@@ -2,7 +2,7 @@
 
 [English version](./low_vol_dividend_production_source_audit.md)
 
-该工具用于启动 `hk_low_vol_dividend_quality` 的真实 evidence 阶段。
+该工具用于启动 `hk_low_vol_dividend_quality_snapshot` 的真实 evidence 阶段。
 它会检查 operator 提供的 factor snapshot CSV 的本地 schema 质量，并生成 pending 状态的 production source audit 草稿。
 
 它本身不能证明 point-in-time lineage，不会把 source audit 标记为 passed，也不会 live-enable 策略。

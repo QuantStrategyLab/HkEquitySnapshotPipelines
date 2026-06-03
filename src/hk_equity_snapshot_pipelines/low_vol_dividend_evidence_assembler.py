@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from .artifacts import write_json
-from .contracts import HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE, get_profile_contract
+from .contracts import HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE, get_profile_contract
 from .live_enablement_evidence import (
     REQUIRED_SECTIONS,
     STRATEGY_POLICY_EVIDENCE_SECTION,
@@ -18,7 +18,7 @@ from .live_enablement_evidence import (
 from .snapshot_readiness import SUPPORTED_SNAPSHOT_PLATFORMS
 
 DEFAULT_OUTPUT_DIR = Path("data/output/low_vol_dividend_live_enablement_evidence")
-ASSEMBLY_VERSION = "hk_low_vol_dividend_quality.live_enablement_evidence_assembly.v1"
+ASSEMBLY_VERSION = "hk_low_vol_dividend_quality_snapshot.live_enablement_evidence_assembly.v1"
 
 SECTION_WRAPPER_KEYS: dict[str, tuple[str, ...]] = {
     "production_snapshot_source_audit": ("production_source_audit_draft",),
@@ -142,7 +142,7 @@ def build_low_vol_dividend_live_enablement_evidence_assembly(
 ) -> dict[str, Any]:
     normalized_platform = _normalize_platform(platform)
     resolved_validation_as_of = validation_as_of or dt.date.today().isoformat()
-    contract = get_profile_contract(HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE)
+    contract = get_profile_contract(HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE)
     evidence = build_live_enablement_evidence_template(contract.profile, platform=normalized_platform)
     evidence["validation_as_of"] = resolved_validation_as_of
     evidence["template_status"] = "assembled_pending_validation"

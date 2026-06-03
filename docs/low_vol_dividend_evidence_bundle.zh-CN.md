@@ -2,7 +2,7 @@
 
 [English version](./low_vol_dividend_evidence_bundle.md)
 
-该 bundle 是 `hk_low_vol_dividend_quality` live-enable evidence package 之后的下一步。
+该 bundle 是 `hk_low_vol_dividend_quality_snapshot` live-enable evidence package 之后的下一步。
 它为 operator 生成 production source audit、walk-forward backtest、quality/yield policy evidence 和平台 live-enable evidence 模板。
 
 该 bundle 仍然不是 live。不能用它移除 `LONGBRIDGE_DRY_RUN_ONLY=true` 或 `IBKR_DRY_RUN_ONLY=true`。

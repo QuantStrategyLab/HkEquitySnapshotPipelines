@@ -52,7 +52,7 @@ def test_run_proxy_cycle_backtest_supports_synthetic_source():
     assert payload["price_meta"]["price_source"] == "deterministic_synthetic_price_history"
     assert payload["data"]["trading_days"] > 500
     assert payload["ranking"][0]["proxy_rank"] == 1
-    assert any(row["profile"] == "hk_low_vol_dividend_quality" for row in payload["profiles"])
+    assert any(row["profile"] == "hk_low_vol_dividend_quality_snapshot" for row in payload["profiles"])
 
 
 def test_proxy_cycle_backtest_script_json_synthetic():

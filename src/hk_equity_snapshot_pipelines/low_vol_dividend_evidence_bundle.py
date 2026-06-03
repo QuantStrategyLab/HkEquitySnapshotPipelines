@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from .contracts import HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE, get_profile_contract
+from .contracts import HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE, get_profile_contract
 from .live_enablement_evidence import STRATEGY_POLICY_EVIDENCE_SECTION, build_live_enablement_evidence_template
 from .quality_yield_live_enablement_policy import build_quality_yield_live_enablement_policy
 from .snapshot_readiness import SUPPORTED_SNAPSHOT_PLATFORMS
@@ -57,7 +57,7 @@ def build_low_vol_dividend_evidence_bundle(
     platforms: tuple[str, ...] = DEFAULT_PLATFORMS,
 ) -> dict[str, Any]:
     selected_platforms = _normalize_platforms(platforms)
-    contract = get_profile_contract(HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE)
+    contract = get_profile_contract(HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE)
     reference_template = build_live_enablement_evidence_template(contract.profile, platform=selected_platforms[0])
     production_source_template = _template_section(reference_template, "production_snapshot_source_audit")
     walk_forward_template = _template_section(reference_template, "walk_forward_backtest")

@@ -2,7 +2,7 @@
 
 [English version](./low_vol_dividend_backtest_evidence.md)
 
-该工具用于为 `hk_low_vol_dividend_quality` 生成 `walk_forward_backtest` evidence 草稿。
+该工具用于为 `hk_low_vol_dividend_quality_snapshot` 生成 `walk_forward_backtest` evidence 草稿。
 它接收 operator 提供的 walk-forward summary JSON，并在本地检查主要 live-enable 门槛。
 
 它不会运行生产回测，不会把 evidence 标记为 passed，也不会 live-enable 策略。

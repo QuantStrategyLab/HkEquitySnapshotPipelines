@@ -128,7 +128,7 @@ def build_monthly_snapshot_audit_issue(
             "```bash",
             "python scripts/print_first_snapshot_promotion_plan.py --json",
             "python scripts/print_snapshot_promotion_matrix.py --json",
-            "python scripts/print_snapshot_readiness.py --profile hk_low_vol_dividend_quality --platform longbridge --json",
+            "python scripts/print_snapshot_readiness.py --profile hk_low_vol_dividend_quality_snapshot --platform longbridge --json",
             "hkeq-validate-live-enable-evidence --evidence-file <live-enable-evidence.json> --json",
             "```",
             "",

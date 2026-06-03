@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from .artifacts import sha256_file, write_json
-from .contracts import HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE, get_profile_contract
+from .contracts import HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE, get_profile_contract
 from .low_vol_dividend_platform_evidence import (
     _infer_orders,
     _normalize_platform,
@@ -15,8 +15,8 @@ from .low_vol_dividend_platform_evidence import (
 )
 
 DEFAULT_OUTPUT_DIR = Path("data/output/low_vol_dividend_dry_run_support_artifacts")
-SUPPORT_ARTIFACT_VERSION = "hk_low_vol_dividend_quality.dry_run_support_artifacts.v1"
-SUPPORT_ARTIFACT_TYPE_PREFIX = "hk_low_vol_dividend_quality.dry_run_support"
+SUPPORT_ARTIFACT_VERSION = "hk_low_vol_dividend_quality_snapshot.dry_run_support_artifacts.v1"
+SUPPORT_ARTIFACT_TYPE_PREFIX = "hk_low_vol_dividend_quality_snapshot.dry_run_support"
 
 QUOTE_SNAPSHOT_FIELDS = (
     "quote_snapshot",
@@ -252,7 +252,7 @@ def build_low_vol_dividend_dry_run_support_artifacts(
     fee_breakdown_file: str | Path | None = None,
 ) -> dict[str, Any]:
     normalized_platform = _normalize_platform(platform)
-    contract = get_profile_contract(HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE)
+    contract = get_profile_contract(HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE)
     runtime_report_path = Path(runtime_report_path)
     runtime_report = _read_json(runtime_report_path)
     runtime_report_sha256 = sha256_file(runtime_report_path)

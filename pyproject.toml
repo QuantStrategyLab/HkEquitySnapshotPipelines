@@ -18,19 +18,7 @@ longbridge = ["longbridge>=4.2,<5"]
 public-data = ["yfinance>=0.2.40"]
 
 [project.scripts]
-hkeq-build-blue-chip-leader-snapshot = "hk_equity_snapshot_pipelines.blue_chip_leader_rotation:main"
-hkeq-build-central-soe-value-quality-select-snapshot = "hk_equity_snapshot_pipelines.central_soe_value_quality_select:main"
-hkeq-build-ah-premium-relative-value-snapshot = "hk_equity_snapshot_pipelines.ah_premium_relative_value:main"
-hkeq-build-composite-factor-qvm-snapshot = "hk_equity_snapshot_pipelines.composite_factor_quality_value_momentum:main"
-hkeq-build-factor-mix-qvlm-risk-parity-snapshot = "hk_equity_snapshot_pipelines.factor_mix_qvlm_risk_parity:main"
-hkeq-build-free-cash-flow-quality-snapshot = "hk_equity_snapshot_pipelines.free_cash_flow_quality:main"
-hkeq-build-index-rebalance-event-snapshot = "hk_equity_snapshot_pipelines.index_rebalance_event:main"
-hkeq-build-liquid-momentum-quality-snapshot = "hk_equity_snapshot_pipelines.liquid_momentum_quality:main"
 hkeq-build-low-vol-dividend-quality-snapshot = "hk_equity_snapshot_pipelines.low_vol_dividend_quality:main"
-hkeq-build-quality-growth-low-volatility-snapshot = "hk_equity_snapshot_pipelines.quality_growth_low_volatility:main"
-hkeq-build-residual-momentum-quality-snapshot = "hk_equity_snapshot_pipelines.residual_momentum_quality:main"
-hkeq-build-shareholder-yield-quality-snapshot = "hk_equity_snapshot_pipelines.shareholder_yield_quality:main"
-hkeq-build-southbound-flow-momentum-snapshot = "hk_equity_snapshot_pipelines.southbound_flow_momentum:main"
 hkeq-print-snapshot-readiness = "hk_equity_snapshot_pipelines.snapshot_readiness:main"
 hkeq-print-snapshot-promotion-matrix = "hk_equity_snapshot_pipelines.snapshot_promotion_matrix:main"
 hkeq-print-first-snapshot-promotion-plan = "hk_equity_snapshot_pipelines.first_snapshot_promotion_plan:main"

@@ -6,14 +6,14 @@ from pathlib import Path
 from typing import Any
 
 from .artifacts import write_json
-from .contracts import HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE, get_profile_contract
+from .contracts import HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE, get_profile_contract
 from .low_vol_dividend_evidence_assembler import write_low_vol_dividend_live_enablement_evidence_assembly
 from .low_vol_dividend_live_enablement_audit import build_low_vol_dividend_live_enablement_audit
 from .snapshot_readiness import SUPPORTED_SNAPSHOT_PLATFORMS
 
 DEFAULT_EVIDENCE_DIR = Path("evidence/low_vol_dividend_quality")
 DEFAULT_OUTPUT_DIR = Path("data/output/low_vol_dividend_live_enablement_gate")
-GATE_RUNNER_VERSION = "hk_low_vol_dividend_quality.live_enablement_gate_runner.v1"
+GATE_RUNNER_VERSION = "hk_low_vol_dividend_quality_snapshot.live_enablement_gate_runner.v1"
 DEFAULT_PLATFORMS = ("longbridge", "ibkr")
 
 SHARED_CONVENTION_FILES = {
@@ -243,7 +243,7 @@ def build_low_vol_dividend_live_enablement_gate_run(
     platforms: tuple[str, ...] = DEFAULT_PLATFORMS,
 ) -> dict[str, Any]:
     selected_platforms = _normalize_platforms(platforms)
-    contract = get_profile_contract(HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE)
+    contract = get_profile_contract(HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE)
     evidence_dir = Path(evidence_dir)
     output_dir = Path(output_dir)
     assembled_dir = output_dir / "assembled"

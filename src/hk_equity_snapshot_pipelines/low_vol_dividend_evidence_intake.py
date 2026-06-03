@@ -17,7 +17,7 @@ from .low_vol_dividend_live_enablement_gate import (
 from .snapshot_readiness import SUPPORTED_SNAPSHOT_PLATFORMS
 
 DEFAULT_OUTPUT_DIR = Path("data/output/low_vol_dividend_live_enablement_evidence_intake")
-INTAKE_VERSION = "hk_low_vol_dividend_quality.live_enablement_evidence_intake.v1"
+INTAKE_VERSION = "hk_low_vol_dividend_quality_snapshot.live_enablement_evidence_intake.v1"
 
 
 def _normalize_platforms(platforms: tuple[str, ...]) -> tuple[str, ...]:

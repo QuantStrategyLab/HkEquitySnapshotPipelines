@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from .contracts import HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE, get_profile_contract
+from .contracts import HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE, get_profile_contract
 from .live_enablement_evidence import build_live_enablement_evidence_template
 from .live_enablement_policy import (
     MAX_ALLOWED_BACKTEST_DRAWDOWN,
@@ -125,11 +125,11 @@ def analyze_low_vol_dividend_backtest_summary(summary: dict[str, Any]) -> dict[s
     if max_period_contribution is not None and max_period_contribution > MAX_SINGLE_PERIOD_RETURN_CONTRIBUTION:
         errors.append("max_single_period_return_contribution exceeds 60%")
     turnover = _number(summary.get("annualized_turnover"))
-    max_turnover = get_max_allowed_annualized_turnover(HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE)
+    max_turnover = get_max_allowed_annualized_turnover(HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE)
     if turnover is not None and turnover > max_turnover:
         errors.append("annualized_turnover exceeds profile threshold")
     benchmark_symbol = str(summary.get("benchmark_symbol", "")).strip()
-    required_benchmark = get_required_benchmark_symbol(HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE)
+    required_benchmark = get_required_benchmark_symbol(HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE)
     if benchmark_symbol and benchmark_symbol != required_benchmark:
         errors.append(f"benchmark_symbol must be {required_benchmark!r}")
     strategy_excess_return = _number(summary.get("strategy_excess_return"))
@@ -147,7 +147,7 @@ def analyze_low_vol_dividend_backtest_summary(summary: dict[str, Any]) -> dict[s
 
     return {
         "draft_version": LOW_VOL_DIVIDEND_BACKTEST_DRAFT_VERSION,
-        "profile": HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,
+        "profile": HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE,
         "local_backtest_summary_status": "failed" if errors else "passed_with_warnings" if warnings else "passed",
         "missing_fields": missing_fields,
         "missing_boolean_controls": missing_boolean_controls,
@@ -163,7 +163,7 @@ def build_low_vol_dividend_backtest_evidence_draft(
     evidence_uri: str = "",
     evidence_generated_at: str | None = None,
 ) -> dict[str, Any]:
-    contract = get_profile_contract(HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE)
+    contract = get_profile_contract(HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE)
     analysis = analyze_low_vol_dividend_backtest_summary(summary)
     template = build_live_enablement_evidence_template(contract.profile, platform="longbridge")
     draft = dict(template["walk_forward_backtest"])

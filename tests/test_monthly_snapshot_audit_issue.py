@@ -27,7 +27,7 @@ def test_build_monthly_snapshot_audit_issue_scopes_codex_review():
     assert "QuantStrategyLab/HkEquitySnapshotPipelines" in body
     assert "CodexAuditBridge" in body
     assert "monthly_snapshot_audit" in body
-    assert "hk_low_vol_dividend_quality" in body
+    assert "hk_low_vol_dividend_quality_snapshot" in body
     assert "hk_shareholder_yield_quality" in body
     assert "hk_free_cash_flow_quality" in body
     assert "max drawdown <= 30%" in body
@@ -56,7 +56,7 @@ def test_write_monthly_snapshot_audit_issue_outputs_bundle(tmp_path):
     metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
     assert metadata["artifact_name"] == "hk-snapshot-monthly-audit-2026-06"
     assert metadata["source_ref"] == "feature/hk"
-    assert metadata["profiles_in_scope"] == ["hk_low_vol_dividend_quality"]
+    assert metadata["profiles_in_scope"] == ["hk_low_vol_dividend_quality_snapshot"]
     assert "hk_shareholder_yield_quality" in metadata["excluded_from_scope"]
     assert "hk_free_cash_flow_quality" in metadata["excluded_from_scope"]
     assert "issue_body" not in metadata

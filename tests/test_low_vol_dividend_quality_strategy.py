@@ -184,7 +184,7 @@ def test_compute_signals_returns_snapshot_metadata():
     assert "hk low vol dividend quality" in signal_desc
     assert "regime=risk_on" in status_desc
     assert diagnostics["signal_source"] == "factor_snapshot"
-    assert diagnostics["snapshot_contract_version"] == "hk_low_vol_dividend_quality.factor_snapshot.v1"
+    assert diagnostics["snapshot_contract_version"] == "hk_low_vol_dividend_quality_snapshot.factor_snapshot.v1"
     assert "00941" in diagnostics["managed_symbols"]
 
 

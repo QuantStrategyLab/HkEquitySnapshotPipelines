@@ -13,7 +13,7 @@ from .snapshot_readiness import SUPPORTED_SNAPSHOT_PLATFORMS
 
 DEFAULT_OUTPUT_DIR = Path("data/output/low_vol_dividend_platform_evidence_from_runtime")
 DEFAULT_SUPPORT_SUBDIR = "support"
-BUILDER_VERSION = "hk_low_vol_dividend_quality.platform_evidence_from_runtime.v1"
+BUILDER_VERSION = "hk_low_vol_dividend_quality_snapshot.platform_evidence_from_runtime.v1"
 
 
 def build_low_vol_dividend_platform_evidence_from_runtime(

@@ -205,7 +205,7 @@ def write_low_vol_dividend_public_factor_snapshot(
     path.parent.mkdir(parents=True, exist_ok=True)
     snapshot.to_csv(path, index=False)
     return {
-        "profile": "hk_low_vol_dividend_quality",
+        "profile": "hk_low_vol_dividend_quality_snapshot",
         "output_path": str(path),
         "row_count": diagnostics.row_count,
         "symbols_requested": diagnostics.symbols_requested,
@@ -232,7 +232,7 @@ def _parse_date(value: str | None, *, default: date) -> date:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Build a staging hk_low_vol_dividend_quality factor snapshot from public yfinance data."
+        description="Build a staging hk_low_vol_dividend_quality_snapshot factor snapshot from public yfinance data."
     )
     parser.add_argument("--universe", required=True, help="Universe CSV with at least symbol and sector columns.")
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT_PATH), help="Output factor snapshot CSV path.")

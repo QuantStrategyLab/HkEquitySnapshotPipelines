@@ -5,47 +5,27 @@ import json
 from typing import Any
 
 from .contracts import (
-    HK_FREE_CASH_FLOW_QUALITY_PROFILE,
-    HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,
-    HK_SHAREHOLDER_YIELD_QUALITY_PROFILE,
+    HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE,
 )
 from .snapshot_promotion_matrix import build_snapshot_promotion_matrix
 from .snapshot_readiness import build_snapshot_readiness
 
 FIRST_SNAPSHOT_PROMOTION_PLAN_VERSION = "hk_snapshot_first_promotion_plan.v1"
 FIRST_SNAPSHOT_PROFILE_ORDER = (
-    HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,
+    HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE,
 )
 SUPPORTED_FIRST_SNAPSHOT_EVIDENCE_PROFILE_ORDER = (
-    HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,
-    HK_SHAREHOLDER_YIELD_QUALITY_PROFILE,
-    HK_FREE_CASH_FLOW_QUALITY_PROFILE,
+    HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE,
 )
 DEFAULT_PLATFORMS = ("longbridge", "ibkr")
 
 _SAMPLE_BUILD_COMMANDS: dict[str, dict[str, str]] = {
-    HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE: {
+    HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE: {
         "sample_script": "PYTHONPATH=src python scripts/build_low_vol_dividend_sample.py",
         "package_entrypoint": (
             "hkeq-build-low-vol-dividend-quality-snapshot "
             "--factor-snapshot examples/low_vol_dividend_quality/factor_snapshot.sample.csv "
             "--output-dir data/output/low_vol_dividend_quality"
-        ),
-    },
-    HK_SHAREHOLDER_YIELD_QUALITY_PROFILE: {
-        "sample_script": "PYTHONPATH=src python scripts/build_shareholder_yield_sample.py",
-        "package_entrypoint": (
-            "hkeq-build-shareholder-yield-quality-snapshot "
-            "--factor-snapshot examples/shareholder_yield_quality/factor_snapshot.sample.csv "
-            "--output-dir data/output/shareholder_yield_quality"
-        ),
-    },
-    HK_FREE_CASH_FLOW_QUALITY_PROFILE: {
-        "sample_script": "PYTHONPATH=src python scripts/build_free_cash_flow_sample.py",
-        "package_entrypoint": (
-            "hkeq-build-free-cash-flow-quality-snapshot "
-            "--factor-snapshot examples/free_cash_flow_quality/factor_snapshot.sample.csv "
-            "--output-dir data/output/free_cash_flow_quality"
         ),
     },
 }
@@ -191,10 +171,11 @@ def build_first_snapshot_promotion_plan(
     excluded_from_scope: list[str] = []
     for candidate in [
         *matrix["recommended_live_enablement_sequence"],
-        *matrix.get("research_only_scaffold_sequence", []),
+        *matrix.get("rejected_snapshot_profiles", []),
     ]:
-        if candidate not in selected_profiles and candidate not in excluded_from_scope:
-            excluded_from_scope.append(candidate)
+        name = str(candidate["profile"] if isinstance(candidate, dict) else candidate)
+        if name not in selected_profiles and name not in excluded_from_scope:
+            excluded_from_scope.append(name)
     return {
         "plan_version": FIRST_SNAPSHOT_PROMOTION_PLAN_VERSION,
         "source_project": matrix["source_project"],
@@ -218,8 +199,8 @@ def build_first_snapshot_promotion_plan(
             for candidate in selected_profiles
         ],
         "blocking_reasons": [
-            "Only hk_low_vol_dividend_quality is in the default active live-enable work queue after proxy cycle triage.",
-            "Deferred quality/yield scaffolds remain architecture scaffolds until real point-in-time data and evidence validators pass.",
+            "Only hk_low_vol_dividend_quality_snapshot is retained after proxy cycle triage.",
+            "Rejected snapshot profiles are no longer scaffolded package entrypoints.",
             "Sample artifacts must never be used for scheduled live trading.",
             "This plan is read-only and does not deploy Cloud Run, publish artifacts, or place broker orders.",
         ],
