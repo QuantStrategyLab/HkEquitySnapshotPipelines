@@ -62,12 +62,20 @@ This mode reads these Google Secret Manager secrets by default, matching the HK 
 - `longport-app-secret-hk`
 - `longport_token_hk`
 
-By default the workflow reads these secrets from the `longbridgequant` GCP project and uses the same Workload Identity Federation naming convention as `LongBridgePlatform`. If your secret project or secret names differ, override these workflow inputs:
+The default `longbridge_credentials_mode=secret_manager` reads these secrets from the `longbridgequant` GCP project and uses the same Workload Identity Federation naming convention as `LongBridgePlatform`. If your secret project or secret names differ, override these workflow inputs:
 
 - `longbridge_secret_project_id`
 - `longbridge_app_key_secret_name`
 - `longbridge_app_secret_secret_name`
 - `longbridge_access_token_secret_name`
+
+If the GCP Workload Identity binding is not ready yet, set `longbridge_credentials_mode=github_secrets` and provide these GitHub Actions secrets instead:
+
+- `LONGBRIDGE_APP_KEY_HK` (alias supported: `LONG_BRIDGE_APP_KEY_HK`)
+- `LONGBRIDGE_APP_SECRET_HK` (alias supported: `LONG_BRIDGE_APP_SECRET_HK`)
+- `LONGBRIDGE_ACCESS_TOKEN_HK` (aliases supported: `LONG_BRIDGE_ACCESS_TOKEN_HK`, `LONGPORT_ACCESS_TOKEN_HK`)
+
+In `github_secrets` mode, LongBridge input generation does not require GCP auth unless `universe_path` / `factor_snapshot_path` uses `gs://` or `execute_publish=true` uploads to GCS.
 
 Important: the LongBridge-generated CSV is a real API-backed runtime input and is marked `longbridge_openapi_generated`. After artifact validation and stable GCS publishing, it can serve as runtime artifact evidence for platform wiring, similar to the US snapshot publish flow. It is not final live order approval by itself; that still requires backtest, broker dry-run, notification, rollout, and operator approval evidence.
 

@@ -65,6 +65,14 @@ on:
         description: Optional minimum market-cap filter in HKD.
         required: false
         type: string
+      longbridge_credentials_mode:
+        description: Credential source for LongBridge staging mode. secret_manager uses GCP Secret Manager; github_secrets uses repository or organization secrets.
+        required: true
+        default: secret_manager
+        type: choice
+        options:
+          - secret_manager
+          - github_secrets
       longbridge_app_key_secret_name:
         description: Secret Manager secret name for LongBridge app key in staging mode.
         required: false
@@ -109,10 +117,14 @@ jobs:
       EXECUTE_PUBLISH: ${{ inputs.execute_publish }}
       MIN_ADV20_HKD: ${{ inputs.min_adv20_hkd }}
       MIN_MARKET_CAP_HKD: ${{ inputs.min_market_cap_hkd }}
+      LONGBRIDGE_CREDENTIALS_MODE: ${{ inputs.longbridge_credentials_mode }}
       LONGBRIDGE_APP_KEY_SECRET_NAME: ${{ inputs.longbridge_app_key_secret_name }}
       LONGBRIDGE_APP_SECRET_SECRET_NAME: ${{ inputs.longbridge_app_secret_secret_name }}
       LONGBRIDGE_ACCESS_TOKEN_SECRET_NAME: ${{ inputs.longbridge_access_token_secret_name }}
       LONGBRIDGE_SECRET_PROJECT_ID: ${{ inputs.longbridge_secret_project_id || vars.LONGBRIDGE_SECRET_PROJECT_ID || vars.GCP_PROJECT_ID || 'longbridgequant' }}
+      LONG_BRIDGE_APP_KEY_FROM_GITHUB_SECRET: ${{ secrets.LONGBRIDGE_APP_KEY_HK || secrets.LONG_BRIDGE_APP_KEY_HK }}
+      LONG_BRIDGE_APP_SECRET_FROM_GITHUB_SECRET: ${{ secrets.LONGBRIDGE_APP_SECRET_HK || secrets.LONG_BRIDGE_APP_SECRET_HK }}
+      LONG_BRIDGE_ACCESS_TOKEN_FROM_GITHUB_SECRET: ${{ secrets.LONGBRIDGE_ACCESS_TOKEN_HK || secrets.LONG_BRIDGE_ACCESS_TOKEN_HK || secrets.LONGPORT_ACCESS_TOKEN_HK }}
 
     steps:
       - name: Checkout
@@ -144,7 +156,7 @@ jobs:
           case "${UNIVERSE_PATH:-}" in
             gs://*) needed=true ;;
           esac
-          if [ "${INPUT_SOURCE_MODE}" = "longbridge_openapi_staging" ]; then
+          if [ "${INPUT_SOURCE_MODE}" = "longbridge_openapi_staging" ] && [ "${LONGBRIDGE_CREDENTIALS_MODE:-secret_manager}" = "secret_manager" ]; then
             needed=true
           fi
           if [ "${EXECUTE_PUBLISH}" = "true" ] && [ -n "${GCS_PREFIX:-}" ]; then
@@ -202,9 +214,30 @@ jobs:
               export LONG_BRIDGE_APP_KEY
               export LONG_BRIDGE_APP_SECRET
               export LONG_BRIDGE_ACCESS_TOKEN
-              LONG_BRIDGE_APP_KEY="$(gcloud secrets versions access latest --project="${LONGBRIDGE_SECRET_PROJECT_ID}" --secret="${LONGBRIDGE_APP_KEY_SECRET_NAME}")"
-              LONG_BRIDGE_APP_SECRET="$(gcloud secrets versions access latest --project="${LONGBRIDGE_SECRET_PROJECT_ID}" --secret="${LONGBRIDGE_APP_SECRET_SECRET_NAME}")"
-              LONG_BRIDGE_ACCESS_TOKEN="$(gcloud secrets versions access latest --project="${LONGBRIDGE_SECRET_PROJECT_ID}" --secret="${LONGBRIDGE_ACCESS_TOKEN_SECRET_NAME}")"
+              case "${LONGBRIDGE_CREDENTIALS_MODE:-secret_manager}" in
+                secret_manager)
+                  LONG_BRIDGE_APP_KEY="$(gcloud secrets versions access latest --project="${LONGBRIDGE_SECRET_PROJECT_ID}" --secret="${LONGBRIDGE_APP_KEY_SECRET_NAME}")"
+                  LONG_BRIDGE_APP_SECRET="$(gcloud secrets versions access latest --project="${LONGBRIDGE_SECRET_PROJECT_ID}" --secret="${LONGBRIDGE_APP_SECRET_SECRET_NAME}")"
+                  LONG_BRIDGE_ACCESS_TOKEN="$(gcloud secrets versions access latest --project="${LONGBRIDGE_SECRET_PROJECT_ID}" --secret="${LONGBRIDGE_ACCESS_TOKEN_SECRET_NAME}")"
+                  ;;
+                github_secrets)
+                  LONG_BRIDGE_APP_KEY="${LONG_BRIDGE_APP_KEY_FROM_GITHUB_SECRET:-}"
+                  LONG_BRIDGE_APP_SECRET="${LONG_BRIDGE_APP_SECRET_FROM_GITHUB_SECRET:-}"
+                  LONG_BRIDGE_ACCESS_TOKEN="${LONG_BRIDGE_ACCESS_TOKEN_FROM_GITHUB_SECRET:-}"
+                  missing=()
+                  [ -n "${LONG_BRIDGE_APP_KEY}" ] || missing+=(LONGBRIDGE_APP_KEY_HK)
+                  [ -n "${LONG_BRIDGE_APP_SECRET}" ] || missing+=(LONGBRIDGE_APP_SECRET_HK)
+                  [ -n "${LONG_BRIDGE_ACCESS_TOKEN}" ] || missing+=(LONGBRIDGE_ACCESS_TOKEN_HK)
+                  if [ "${#missing[@]}" -gt 0 ]; then
+                    printf 'Missing GitHub Actions secrets for LongBridge staging mode: %s\n' "${missing[*]}" >&2
+                    exit 1
+                  fi
+                  ;;
+                *)
+                  echo "Unsupported longbridge_credentials_mode: ${LONGBRIDGE_CREDENTIALS_MODE}" >&2
+                  exit 1
+                  ;;
+              esac
 
               generated_dir="data/input/generated/${PROFILE}"
               mkdir -p "${generated_dir}"
@@ -330,6 +363,7 @@ jobs:
             echo "- execute_publish: \`${EXECUTE_PUBLISH}\`"
             echo "- min_adv20_hkd: \`${MIN_ADV20_HKD:-<not set>}\`"
             echo "- min_market_cap_hkd: \`${MIN_MARKET_CAP_HKD:-<not set>}\`"
+            echo "- longbridge_credentials_mode: \`${LONGBRIDGE_CREDENTIALS_MODE:-secret_manager}\`"
             echo "- longbridge_secret_project_id: \`${LONGBRIDGE_SECRET_PROJECT_ID}\`"
             echo "- evidence_boundary: LongBridge generated CSVs are runtime artifact inputs after validation; final live order approval still requires backtest, dry-run, notification, and operator approval evidence."
             echo

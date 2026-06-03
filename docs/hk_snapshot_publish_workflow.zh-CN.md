@@ -62,12 +62,20 @@ gh workflow run publish-hk-snapshot-artifacts.yml \
 - `longport-app-secret-hk`
 - `longport_token_hk`
 
-默认从 `longbridgequant` GCP 项目读取这些 secret，并复用 LongBridgePlatform 的 Workload Identity Federation 命名约定。如果 secret 所在项目或 secret 名称不同，可以在 workflow 输入里覆盖：
+默认 `longbridge_credentials_mode=secret_manager` 会从 `longbridgequant` GCP 项目读取这些 secret，并复用 LongBridgePlatform 的 Workload Identity Federation 命名约定。如果 secret 所在项目或 secret 名称不同，可以在 workflow 输入里覆盖：
 
 - `longbridge_secret_project_id`
 - `longbridge_app_key_secret_name`
 - `longbridge_app_secret_secret_name`
 - `longbridge_access_token_secret_name`
+
+如果 GCP Workload Identity 绑定还没准备好，可以设置 `longbridge_credentials_mode=github_secrets`，并提供以下 GitHub Actions secrets：
+
+- `LONGBRIDGE_APP_KEY_HK`（兼容别名：`LONG_BRIDGE_APP_KEY_HK`）
+- `LONGBRIDGE_APP_SECRET_HK`（兼容别名：`LONG_BRIDGE_APP_SECRET_HK`）
+- `LONGBRIDGE_ACCESS_TOKEN_HK`（兼容别名：`LONG_BRIDGE_ACCESS_TOKEN_HK`、`LONGPORT_ACCESS_TOKEN_HK`）
+
+在 `github_secrets` 模式下，只要 `universe_path` / `factor_snapshot_path` 不使用 `gs://`，并且不设置 `execute_publish=true` 上传 GCS，LongBridge 输入生成不需要 GCP auth。
 
 注意：LongBridge 生成 CSV 是真实接口数据生成的运行输入，并标记为 `longbridge_openapi_generated`。通过 artifact validation 并发布到稳定 GCS 路径后，它可以像美股 snapshot publish flow 一样作为平台接线用的 runtime artifact evidence。但它本身不等于最终实盘下单批准；最终批准仍需要回测、券商 dry-run、通知、rollout 和人工审批 evidence。
 

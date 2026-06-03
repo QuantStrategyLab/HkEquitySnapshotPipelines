@@ -120,7 +120,7 @@ gh workflow run publish-hk-snapshot-artifacts.yml \
 
 该 workflow 不会创建 production 数据、不会批准实盘、不会部署 Cloud Run，也不会下单。
 
-如果还没有 CSV，可以设置 `input_source_mode=longbridge_openapi_staging`；workflow 会用默认 seed universe 和 LongBridge HK Secret Manager 凭据（`longport-app-key-hk`、`longport-app-secret-hk`、`longport_token_hk`）生成 LongBridge API 支撑的 CSV。通过 artifact validation 并发布到稳定 GCS 路径后，它可以作为平台接线用的 runtime artifact evidence。最终实盘下单批准仍需要回测、券商 dry-run、通知、rollout 和人工审批 evidence。
+如果还没有 CSV，可以设置 `input_source_mode=longbridge_openapi_staging`；workflow 会用默认 seed universe 和 LongBridge HK 凭据生成 LongBridge API 支撑的 CSV。使用 `longbridge_credentials_mode=secret_manager` 可读取 GCP Secret Manager；如果 HK snapshot 仓已配置 GitHub Actions secrets，也可以用 `longbridge_credentials_mode=github_secrets`。通过 artifact validation 并发布到稳定 GCS 路径后，它可以作为平台接线用的 runtime artifact evidence。最终实盘下单批准仍需要回测、券商 dry-run、通知、rollout 和人工审批 evidence。
 
 ## Promotion 与 evidence 工具
 
