@@ -71,6 +71,23 @@ By default the workflow reads these secrets from the `longbridgequant` GCP proje
 
 Important: the LongBridge-generated CSV is a real API-backed runtime input and is marked `longbridge_openapi_generated`. After artifact validation and stable GCS publishing, it can serve as runtime artifact evidence for platform wiring, similar to the US snapshot publish flow. It is not final live order approval by itself; that still requires backtest, broker dry-run, notification, rollout, and operator approval evidence.
 
+## GCP Workload Identity prerequisites
+
+For `input_source_mode=longbridge_openapi_staging`, the workflow needs a Google Cloud Workload Identity Provider and service account that explicitly allow this repository: `QuantStrategyLab/HkEquitySnapshotPipelines`. Reusing a provider that is restricted to `LongBridgePlatform` or `UsEquitySnapshotPipelines` will fail at the auth step with `unauthorized_client` / `attribute condition`.
+
+Set these repository variables after the GCP binding is created:
+
+- `GCP_PROJECT_ID`: project used by the publish/auth workflow.
+- `GCP_WORKLOAD_IDENTITY_PROVIDER`: provider whose attribute condition allows `QuantStrategyLab/HkEquitySnapshotPipelines`.
+- `GCP_WORKLOAD_IDENTITY_SERVICE_ACCOUNT`: service account allowed to impersonate through that provider.
+
+The service account needs:
+
+- Secret Manager access to the LongBridge HK secrets in `longbridge_secret_project_id` (`longport-app-key-hk`, `longport-app-secret-hk`, `longport_token_hk` by default).
+- GCS write access to `gcs_prefix` only when `execute_publish=true`.
+
+A workflow smoke test with `input_source_mode=factor_snapshot_csv`, a repository-local sample CSV, and no `gcs_prefix` does not require GCP auth. It proves workflow packaging only; it is not runtime artifact evidence.
+
 ## Manual GitHub Actions run
 
 Open **Actions → Publish HK Snapshot Artifacts → Run workflow** and set:

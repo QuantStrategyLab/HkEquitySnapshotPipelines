@@ -71,6 +71,23 @@ gh workflow run publish-hk-snapshot-artifacts.yml \
 
 注意：LongBridge 生成 CSV 是真实接口数据生成的运行输入，并标记为 `longbridge_openapi_generated`。通过 artifact validation 并发布到稳定 GCS 路径后，它可以像美股 snapshot publish flow 一样作为平台接线用的 runtime artifact evidence。但它本身不等于最终实盘下单批准；最终批准仍需要回测、券商 dry-run、通知、rollout 和人工审批 evidence。
 
+## GCP Workload Identity 前置条件
+
+当 `input_source_mode=longbridge_openapi_staging` 时，workflow 需要一个明确允许本仓库 `QuantStrategyLab/HkEquitySnapshotPipelines` 的 Google Cloud Workload Identity Provider 和 service account。直接复用只允许 `LongBridgePlatform` 或 `UsEquitySnapshotPipelines` 的 provider，会在 auth 步骤报 `unauthorized_client` / `attribute condition`。
+
+GCP 绑定完成后，设置以下 repository variables：
+
+- `GCP_PROJECT_ID`：publish/auth workflow 使用的项目。
+- `GCP_WORKLOAD_IDENTITY_PROVIDER`：attribute condition 允许 `QuantStrategyLab/HkEquitySnapshotPipelines` 的 provider。
+- `GCP_WORKLOAD_IDENTITY_SERVICE_ACCOUNT`：允许通过该 provider impersonate 的 service account。
+
+该 service account 需要：
+
+- 能读取 `longbridge_secret_project_id` 中的 LongBridge HK secrets（默认 `longport-app-key-hk`、`longport-app-secret-hk`、`longport_token_hk`）。
+- 仅在 `execute_publish=true` 时，需要对 `gcs_prefix` 有 GCS 写权限。
+
+使用 `input_source_mode=factor_snapshot_csv`、仓库内 sample CSV 且不设置 `gcs_prefix` 的 workflow smoke test 不需要 GCP auth。它只能证明 workflow 打包路径可用，不能作为 runtime artifact evidence。
+
 ## 手动运行 GitHub Actions
 
 打开 **Actions → Publish HK Snapshot Artifacts → Run workflow**，填写：
