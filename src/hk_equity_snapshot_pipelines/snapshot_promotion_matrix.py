@@ -21,7 +21,7 @@ from .contracts import (
     HK_FREE_CASH_FLOW_QUALITY_PROFILE,
     HK_INDEX_REBALANCE_EVENT_PROFILE,
     HK_LIQUID_MOMENTUM_QUALITY_PROFILE,
-    HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,
+    HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE,
     HK_QUALITY_GROWTH_LOW_VOLATILITY_PROFILE,
     HK_RESIDUAL_MOMENTUM_QUALITY_PROFILE,
     HK_SHAREHOLDER_YIELD_QUALITY_PROFILE,
@@ -324,18 +324,14 @@ SNAPSHOT_PROMOTION_GATE = "blocked_until_production_evidence"
 SNAPSHOT_RUNTIME_ENABLED = False
 FIRST_SNAPSHOT_PROMOTION_SCOPE = "first_snapshot_live_enablement_candidate"
 RESEARCH_ONLY_SCAFFOLD_SCOPE = "research_only_scaffold"
-ACTIVE_SNAPSHOT_LIVE_ENABLEMENT_PROFILES = (HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,)
-DEFERRED_PROXY_RETEST_PROFILES = (
-    HK_SHAREHOLDER_YIELD_QUALITY_PROFILE,
-    HK_FREE_CASH_FLOW_QUALITY_PROFILE,
-)
+ACTIVE_SNAPSHOT_LIVE_ENABLEMENT_PROFILES = (HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE,)
+DEFERRED_PROXY_RETEST_PROFILES: tuple[str, ...] = ()
 RESEARCH_ONLY_NEXT_ACTION = (
-    "Retain the scaffold, sample builder, and basic tests for research only; do not build a full "
-    "walk-forward/live-enable evidence package unless this profile is explicitly reopened."
+    "Rejected after proxy triage; do not expose a package entrypoint or live-enable evidence workflow unless "
+    "a new research PR reopens it with stronger point-in-time evidence."
 )
 DEFERRED_PROXY_RETEST_NEXT_ACTION = (
-    "Keep this profile out of the active live-enable queue; rerun a real point-in-time factor walk-forward "
-    "backtest and reopen only if long, medium, and short cycle max drawdowns all stay at or below 30%."
+    "No deferred profiles are kept in the active package surface after this pruning pass."
 )
 
 GENERIC_REQUIRED_NEXT_EVIDENCE: tuple[str, ...] = (
@@ -576,7 +572,7 @@ NEXT_LIVE_ENABLEMENT_ACTION_BY_BUCKET: dict[str, str] = {
 CURATED_SNAPSHOT_STRATEGY_RANKING: tuple[dict[str, object], ...] = (
     {
         "rank": 1,
-        "profile": HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,
+        "profile": HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE,
         "decision": "active_first_snapshot_candidate_after_proxy_cycle_backtest",
         "why": (
             "Best single-name HK snapshot starting point: low-turnover high-dividend plus low-volatility evidence, "
@@ -2084,8 +2080,8 @@ class SnapshotPromotionCandidate:
 
 
 _CANDIDATES: dict[str, SnapshotPromotionCandidate] = {
-    HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE: SnapshotPromotionCandidate(
-        profile=HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,
+    HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE: SnapshotPromotionCandidate(
+        profile=HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE,
         priority=1,
         promotion_bucket="first_snapshot_candidate",
         snapshot_type="factor_snapshot",
@@ -2636,13 +2632,17 @@ def get_snapshot_promotion_candidate(profile: str) -> SnapshotPromotionCandidate
 def list_snapshot_promotion_candidates() -> tuple[SnapshotPromotionCandidate, ...]:
     contracts = {contract.profile for contract in list_profile_contracts()}
     missing = contracts - set(_CANDIDATES)
-    extra = set(_CANDIDATES) - contracts
-    if missing or extra:
+    if missing:
         raise RuntimeError(
             "Snapshot promotion matrix must match profile contracts; "
-            f"missing={sorted(missing)}, extra={sorted(extra)}"
+            f"missing={sorted(missing)}"
         )
-    return tuple(sorted(_CANDIDATES.values(), key=lambda item: (item.priority, item.profile)))
+    return tuple(
+        sorted(
+            (candidate for candidate in _CANDIDATES.values() if candidate.profile in contracts),
+            key=lambda item: (item.priority, item.profile),
+        )
+    )
 
 
 def _build_momentum_comparison_row(profile: str) -> dict[str, Any]:
@@ -2665,19 +2665,20 @@ def _build_momentum_comparison_row(profile: str) -> dict[str, Any]:
 
 
 def build_momentum_live_enablement_comparison() -> dict[str, Any]:
+    active_contracts = {contract.profile for contract in list_profile_contracts()}
     rows = [
         _build_momentum_comparison_row(profile)
         for profile in sorted(
-            MOMENTUM_STOCK_SELECTION_PROFILES,
+            (profile for profile in MOMENTUM_STOCK_SELECTION_PROFILES if profile in active_contracts),
             key=lambda item: int(MOMENTUM_COMPARISON_BY_PROFILE[item]["momentum_priority"]),
         )
     ]
     return {
         "comparison_version": MOMENTUM_LIVE_ENABLEMENT_COMPARISON_VERSION,
-        "recommended_first_momentum_candidate": HK_RESIDUAL_MOMENTUM_QUALITY_PROFILE,
+        "recommended_first_momentum_candidate": rows[0]["profile"] if rows else None,
         "live_enablement_gate": SNAPSHOT_PROMOTION_GATE,
         "status": SNAPSHOT_STATUS,
-        "must_compare_before_live_enablement": True,
+        "must_compare_before_live_enablement": bool(rows),
         "momentum_live_enablement_policy": build_momentum_live_enablement_policy(),
         "external_evidence_urls": list(MOMENTUM_LIVE_ENABLEMENT_SOURCE_URLS),
         "common_pre_live_requirements": [
@@ -2730,9 +2731,9 @@ def build_curated_snapshot_strategy_ranking() -> dict[str, Any]:
         "future_research_curated_candidate_order": list(future_policy["curated_candidate_order"]),
         "future_research_deprioritized_candidate_order": list(future_policy["deprioritized_candidate_order"]),
         "notes": [
-            "The active live-enable work queue is intentionally limited to hk_low_vol_dividend_quality after proxy cycle triage.",
-            "hk_shareholder_yield_quality and hk_free_cash_flow_quality are retained as deferred retest candidates, not default live-enable work.",
-            "Other scaffolded profiles are retained as research-only artifacts; do not require full backtests or live-enable evidence packages unless explicitly reopened.",
+            "The active package surface is intentionally limited to hk_low_vol_dividend_quality_snapshot after proxy cycle triage.",
+            "Profiles that failed the 30% drawdown gate are listed as rejected decisions only, not package entrypoints.",
+            "New HK snapshot ideas must come through a research PR and pass the same long/medium/short gates before adding a contract.",
             "Every promoted snapshot still needs production evidence, walk-forward backtest, dry-run order preview, bilingual notification, and operator approval.",
         ],
     }
@@ -2844,6 +2845,7 @@ def build_snapshot_promotion_matrix() -> dict[str, Any]:
         "deferred_proxy_retest_candidates": deferred_proxy_retest_candidates,
         "recommended_live_enablement_sequence": first_snapshot_candidates,
         "research_only_scaffold_sequence": research_only_scaffolds,
+        "rejected_snapshot_profiles": [dict(item) for item in DEPRIORITIZED_SNAPSHOT_STRATEGY_PROFILES],
         "curated_snapshot_strategy_ranking": build_curated_snapshot_strategy_ranking(),
         "generic_required_next_evidence": list(GENERIC_REQUIRED_NEXT_EVIDENCE),
         "evidence_uri_policy": EVIDENCE_URI_POLICY,

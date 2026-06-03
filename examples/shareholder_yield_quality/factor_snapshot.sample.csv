@@ -1,8 +1,0 @@
-as_of,symbol,sector,close_hkd,adv20_hkd,market_cap_hkd,dividend_yield_net,buyback_yield_12m,net_payout_yield,free_cash_flow_yield,roe_ttm,debt_to_equity,realized_vol_252,maxdd_252,sma200_gap,suspension_days_63,eligible,southbound_eligible,corporate_action_flag,share_count_change_12m,payout_ratio,earnings_yield,treasury_share_ratio,buyback_days_63,lot_size
-2026-05-29,02800,ETF,20.8,1200000000,350000000000,0.025,0.000,0.025,0.025,0.08,0.20,0.18,-0.16,0.03,0,true,true,false,0.000,0.40,0.04,0.000,0,500
-2026-05-29,00700,Technology,390.0,2500000000,3600000000000,0.010,0.055,0.065,0.060,0.22,0.18,0.28,-0.18,0.14,0,true,true,false,-0.030,0.35,0.050,0.012,38,100
-2026-05-29,01299,Insurance,70.0,1200000000,780000000000,0.025,0.035,0.060,0.045,0.14,0.28,0.22,-0.16,0.08,0,true,true,false,-0.025,0.42,0.055,0.006,24,200
-2026-05-29,00941,Telecommunications,75.0,1300000000,1500000000000,0.060,0.010,0.070,0.080,0.18,0.35,0.16,-0.10,0.10,0,true,true,false,-0.005,0.65,0.080,0.000,6,500
-2026-05-29,00005,Financials,68.0,700000000,1150000000000,0.052,0.000,0.052,0.040,0.10,0.75,0.24,-0.20,0.04,0,true,true,false,0.000,0.55,0.070,0.000,0,400
-2026-05-29,02020,Consumer Discretionary,77.0,260000000,190000000000,0.006,0.020,0.026,0.020,0.07,0.60,0.30,-0.30,-0.04,0,true,true,false,0.080,0.30,0.030,0.000,12,1000
-2026-05-29,09999,Technology,80.0,500000000,300000000000,0.000,0.030,0.030,-0.010,-0.02,1.20,0.45,-0.52,0.04,0,true,true,false,-0.010,0.00,-0.010,0.000,18,100

@@ -5,9 +5,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from .artifacts import write_release_status_summary, write_snapshot_manifest
-from .blue_chip_leader_rotation import SnapshotBuildResult
-from .contracts import HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE, get_profile_contract
+from .artifacts import SnapshotBuildResult, write_release_status_summary, write_snapshot_manifest
+from .contracts import HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE, get_profile_contract
 from .low_vol_dividend_quality_strategy import compute_signals, score_candidates
 
 
@@ -22,7 +21,7 @@ def build_and_write_snapshot(
     min_adv20_hkd: float = 0.0,
     min_market_cap_hkd: float = 0.0,
 ) -> SnapshotBuildResult:
-    contract = get_profile_contract(HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE)
+    contract = get_profile_contract(HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE)
     artifact_paths = contract.artifact_paths(output_dir)
     snapshot = _read_csv(factor_snapshot_path)
     ranking = score_candidates(
@@ -70,7 +69,7 @@ def build_and_write_snapshot(
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--factor-snapshot", required=True, help="CSV with hk_low_vol_dividend_quality factor columns")
+    parser.add_argument("--factor-snapshot", required=True, help="CSV with hk_low_vol_dividend_quality_snapshot factor columns")
     parser.add_argument("--output-dir", default="data/output")
     parser.add_argument("--min-adv20-hkd", type=float, default=0.0)
     parser.add_argument("--min-market-cap-hkd", type=float, default=0.0)

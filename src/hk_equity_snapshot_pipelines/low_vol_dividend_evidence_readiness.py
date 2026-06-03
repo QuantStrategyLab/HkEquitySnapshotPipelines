@@ -15,7 +15,7 @@ from .low_vol_dividend_live_enablement_gate import (
 from .snapshot_readiness import SUPPORTED_SNAPSHOT_PLATFORMS
 
 DEFAULT_OUTPUT_DIR = Path("data/output/low_vol_dividend_live_enablement_readiness")
-READINESS_VERSION = "hk_low_vol_dividend_quality.live_enablement_readiness.v1"
+READINESS_VERSION = "hk_low_vol_dividend_quality_snapshot.live_enablement_readiness.v1"
 
 
 def _blocker_lookup(gate: dict[str, Any]) -> dict[tuple[str, str | None], dict[str, Any]]:

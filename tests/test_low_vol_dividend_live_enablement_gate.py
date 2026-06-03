@@ -44,7 +44,7 @@ def _write_operator_pack(evidence_dir: Path, *, platform: str) -> None:
         confirm_operator_notification=True,
         confirm_severe_weather_trading_runbook=True,
         confirm_vcm_cooling_off_handling=True,
-        approval_reference="operator-approval://hk-low-vol-dividend-quality/20260603",
+        approval_reference="operator-approval://hk-low-vol-dividend-quality-snapshot/20260603",
         confirm_operator_approved=True,
         confirm_strategy_runtime_enablement_approved=True,
         confirm_dry_run_removal_approved=True,
@@ -61,7 +61,7 @@ def test_gate_run_reports_all_missing_convention_files_when_evidence_dir_empty(t
     )
 
     assert payload["gate_runner_version"] == GATE_RUNNER_VERSION
-    assert payload["profile"] == "hk_low_vol_dividend_quality"
+    assert payload["profile"] == "hk_low_vol_dividend_quality_snapshot"
     assert payload["status"] == "blocked"
     assert payload["live_enablement_allowed"] is False
     assert len(payload["missing_files"]) == 15

@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from .artifacts import sha256_file, write_json
-from .contracts import HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE, get_profile_contract
+from .contracts import HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE, get_profile_contract
 from .live_enablement_evidence import (
     validate_live_enablement_evidence,
     build_live_enablement_evidence_template,
@@ -16,12 +16,12 @@ from .notification_audit_policy import NOTIFICATION_SCHEMA_VERSION, SNAPSHOT_DRY
 from .snapshot_readiness import SUPPORTED_SNAPSHOT_PLATFORMS
 
 DEFAULT_OUTPUT_DIR = Path("data/output/low_vol_dividend_platform_evidence")
-DRAFT_VERSION = "hk_low_vol_dividend_quality.platform_evidence_draft.v1"
+DRAFT_VERSION = "hk_low_vol_dividend_quality_snapshot.platform_evidence_draft.v1"
 RUNTIME_REPORT_PLATFORM_ALIASES = {
     "ibkr": {"ibkr", "interactive_brokers"},
     "longbridge": {"longbridge"},
 }
-SUPPORT_ARTIFACT_TYPE_PREFIX = "hk_low_vol_dividend_quality.dry_run_support"
+SUPPORT_ARTIFACT_TYPE_PREFIX = "hk_low_vol_dividend_quality_snapshot.dry_run_support"
 SENSITIVE_NOTIFICATION_FIELD_MARKERS = (
     "api_key",
     "apikey",
@@ -392,7 +392,7 @@ def build_low_vol_dividend_platform_evidence_draft(
     confirm_execution_capacity: bool = False,
 ) -> dict[str, Any]:
     normalized_platform = _normalize_platform(platform)
-    contract = get_profile_contract(HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE)
+    contract = get_profile_contract(HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE)
     runtime_report_path = Path(runtime_report_path)
     runtime_report = _read_json(runtime_report_path)
     reconciliation_record: dict[str, Any] = {}

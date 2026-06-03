@@ -2,7 +2,7 @@
 
 [中文版本](./low_vol_dividend_live_enablement_gate.zh-CN.md)
 
-This command runs the end-to-end evidence gate for `hk_low_vol_dividend_quality`.
+This command runs the end-to-end evidence gate for `hk_low_vol_dividend_quality_snapshot`.
 It reads evidence files from a convention-based directory, assembles LongBridge and IBKR evidence packs, and runs the final live-enable audit.
 
 The command does not deploy Cloud Run, place orders, publish artifacts, approve risk, or remove dry-run controls.

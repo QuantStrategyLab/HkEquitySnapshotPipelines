@@ -2,7 +2,7 @@
 
 [中文版本](./low_vol_dividend_platform_evidence.zh-CN.md)
 
-This tool turns a platform dry-run runtime report into a draft `platform_dry_run_order_preview` evidence section for `hk_low_vol_dividend_quality`.
+This tool turns a platform dry-run runtime report into a draft `platform_dry_run_order_preview` evidence section for `hk_low_vol_dividend_quality_snapshot`.
 It supports LongBridge and IBKR.
 For IBKR, the CLI uses `--platform ibkr` while accepting runtime reports whose top-level `platform` is either `ibkr` or the platform runtime ID `interactive_brokers`.
 
@@ -108,7 +108,7 @@ Use a secret-safe JSON object. The platform evidence draft validates the file in
   "notification_event_type": "hk_snapshot_live_enablement_dry_run",
   "notification_correlation_id": "run-001",
   "locales": ["en", "zh-Hans"],
-  "profile": "hk_low_vol_dividend_quality",
+  "profile": "hk_low_vol_dividend_quality_snapshot",
   "platform": "longbridge",
   "validation_status": "passed",
   "orders_previewed": 2,

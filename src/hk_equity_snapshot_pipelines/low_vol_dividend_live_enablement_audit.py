@@ -7,12 +7,12 @@ from pathlib import Path
 from typing import Any
 
 from .artifact_provenance_policy import MIN_PRODUCTION_ARTIFACT_ROW_COUNT
-from .contracts import HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE, get_profile_contract
+from .contracts import HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE, get_profile_contract
 from .live_enablement_evidence import validate_live_enablement_evidence_file
 from .snapshot_artifact_validation import validate_snapshot_artifact_pack
 
 DEFAULT_PLATFORMS = ("longbridge", "ibkr")
-AUDIT_VERSION = "hk_low_vol_dividend_quality.live_enablement_audit.v1"
+AUDIT_VERSION = "hk_low_vol_dividend_quality_snapshot.live_enablement_audit.v1"
 
 
 def _path_status(path: str | Path | None) -> tuple[str | None, bool]:
@@ -53,7 +53,7 @@ def _artifact_audit(artifact_dir: str | Path | None) -> dict[str, Any]:
             "warnings": [],
             "blockers": ["artifact_pack_validation_missing"],
         }
-    validation = validate_snapshot_artifact_pack(HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE, path)
+    validation = validate_snapshot_artifact_pack(HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE, path)
     errors = list(validation.get("errors") or [])
     warnings = list(validation.get("warnings") or [])
     snapshot_row_count = int(validation.get("snapshot_row_count") or 0)
@@ -139,7 +139,7 @@ def build_low_vol_dividend_live_enablement_audit(
     ibkr_evidence_file: str | Path | None = None,
     validation_as_of: str | None = None,
 ) -> dict[str, Any]:
-    contract = get_profile_contract(HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE)
+    contract = get_profile_contract(HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE)
     artifact = _artifact_audit(artifact_dir)
     evidence_files = {
         "longbridge": longbridge_evidence_file,

@@ -8,10 +8,6 @@ from hk_equity_snapshot_pipelines.live_enablement_evidence import (
     build_live_enablement_evidence_template,
     validate_live_enablement_evidence,
 )
-from hk_equity_snapshot_pipelines.momentum_live_enablement_policy import (
-    MOMENTUM_LIVE_ENABLEMENT_POLICY_VERSION,
-    build_momentum_live_enablement_policy,
-)
 from hk_equity_snapshot_pipelines.quality_yield_live_enablement_policy import (
     QUALITY_YIELD_LIVE_ENABLEMENT_POLICY_VERSION,
     build_quality_yield_live_enablement_policy,
@@ -30,63 +26,7 @@ def _complete_quality_yield_strategy_policy_evidence(**overrides):
         "policy_version": QUALITY_YIELD_LIVE_ENABLEMENT_POLICY_VERSION,
         **{field: True for field in required_bool_fields},
         "evidence_generated_at": "2026-05-10",
-        "evidence_uri": "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality/strategy-policy.json",
-    }
-    payload.update(overrides)
-    return payload
-
-
-def _complete_momentum_strategy_policy_evidence(**overrides):
-    policy = build_momentum_live_enablement_policy()
-    required_bool_fields = (
-        *policy["required_ablation_tests"],
-        *policy["required_stress_tests"],
-        *policy["required_data_provenance"],
-    )
-    payload = {
-        "status": "passed",
-        "policy_version": MOMENTUM_LIVE_ENABLEMENT_POLICY_VERSION,
-        **{field: True for field in required_bool_fields},
-        "evidence_generated_at": "2026-05-10",
-        "evidence_uri": "gs://qsl-hk-evidence/snapshot/hk-liquid-momentum-quality/strategy-policy.json",
-    }
-    payload.update(overrides)
-    return payload
-
-
-def _minimal_momentum_evidence(**overrides):
-    payload = {
-        "evidence_type": "hk_snapshot_live_enablement",
-        "profile": "hk_liquid_momentum_quality",
-        "platform": "longbridge",
-        "validation_as_of": "2026-06-02",
-        "production_snapshot_source_audit": {},
-        "artifact_pack_validation": {},
-        "walk_forward_backtest": {},
-        "platform_dry_run_order_preview": {},
-        "broker_permission_and_fee_verification": {},
-        "paper_or_dry_run_rebalance_window": {},
-        "runtime_rollout_plan": {},
-        "risk_approval": {},
-    }
-    payload.update(overrides)
-    return payload
-
-
-def _minimal_policy_profile_evidence(profile: str, **overrides):
-    payload = {
-        "evidence_type": "hk_snapshot_live_enablement",
-        "profile": profile,
-        "platform": "longbridge",
-        "validation_as_of": "2026-06-02",
-        "production_snapshot_source_audit": {},
-        "artifact_pack_validation": {},
-        "walk_forward_backtest": {},
-        "platform_dry_run_order_preview": {},
-        "broker_permission_and_fee_verification": {},
-        "paper_or_dry_run_rebalance_window": {},
-        "runtime_rollout_plan": {},
-        "risk_approval": {},
+        "evidence_uri": "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/strategy-policy.json",
     }
     payload.update(overrides)
     return payload
@@ -95,7 +35,7 @@ def _minimal_policy_profile_evidence(profile: str, **overrides):
 def _evidence(**overrides):
     payload = {
         "evidence_type": "hk_snapshot_live_enablement",
-        "profile": "hk_low_vol_dividend_quality",
+        "profile": "hk_low_vol_dividend_quality_snapshot",
         "platform": "longbridge",
         "validation_as_of": "2026-06-02",
         "production_snapshot_source_audit": {
@@ -104,13 +44,13 @@ def _evidence(**overrides):
             "source_coverage_start": "2018-01-01",
             "source_coverage_end": "2026-05-29",
             "production_source_uri": (
-                "gs://qsl-hk-prod-sources/factors/hk-low-vol-dividend-quality/20260601/source.parquet"
+                "gs://qsl-hk-prod-sources/factors/hk-low-vol-dividend-quality-snapshot/20260601/source.parquet"
             ),
             "source_quality_report_uri": (
-                "gs://qsl-hk-prod-sources/factors/hk-low-vol-dividend-quality/20260601/source-quality.json"
+                "gs://qsl-hk-prod-sources/factors/hk-low-vol-dividend-quality-snapshot/20260601/source-quality.json"
             ),
             "point_in_time_data_dictionary_uri": (
-                "gs://qsl-hk-prod-sources/factors/hk-low-vol-dividend-quality/20260601/data-dictionary.json"
+                "gs://qsl-hk-prod-sources/factors/hk-low-vol-dividend-quality-snapshot/20260601/data-dictionary.json"
             ),
             "point_in_time_asof": True,
             "adjusted_prices": True,
@@ -141,27 +81,27 @@ def _evidence(**overrides):
             "low_volatility_beta_drawdown_stress": True,
             "sector_concentration_caps": True,
             "evidence_generated_at": "2026-05-20",
-            "evidence_uri": "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality/source-audit.json",
+            "evidence_uri": "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/source-audit.json",
         },
         "artifact_pack_validation": {
             "valid": True,
             "validation_status": "passed",
-            "profile": "hk_low_vol_dividend_quality",
-            "artifact_release_id": "hk-low-vol-dividend-quality-20260601T160000Z",
-            "contract_version": "hk_low_vol_dividend_quality.factor_snapshot.v1",
+            "profile": "hk_low_vol_dividend_quality_snapshot",
+            "artifact_release_id": "hk-low-vol-dividend-quality-snapshot-20260601T160000Z",
+            "contract_version": "hk_low_vol_dividend_quality_snapshot.factor_snapshot.v1",
             "snapshot_sha256": "a" * 64,
             "row_count": 50,
-            "published_snapshot_uri": "gs://qsl-hk-artifacts/snapshot/hk-low-vol-dividend-quality/20260601/hk_low_vol_dividend_quality_factor_snapshot_latest.csv",
-            "published_manifest_uri": "gs://qsl-hk-artifacts/snapshot/hk-low-vol-dividend-quality/20260601/hk_low_vol_dividend_quality_factor_snapshot_latest.csv.manifest.json",
-            "published_ranking_uri": "gs://qsl-hk-artifacts/snapshot/hk-low-vol-dividend-quality/20260601/hk_low_vol_dividend_quality_ranking_latest.csv",
-            "published_release_summary_uri": "gs://qsl-hk-artifacts/snapshot/hk-low-vol-dividend-quality/20260601/release_status_summary.json",
+            "published_snapshot_uri": "gs://qsl-hk-artifacts/snapshot/hk-low-vol-dividend-quality-snapshot/20260601/hk_low_vol_dividend_quality_snapshot_factor_snapshot_latest.csv",
+            "published_manifest_uri": "gs://qsl-hk-artifacts/snapshot/hk-low-vol-dividend-quality-snapshot/20260601/hk_low_vol_dividend_quality_snapshot_factor_snapshot_latest.csv.manifest.json",
+            "published_ranking_uri": "gs://qsl-hk-artifacts/snapshot/hk-low-vol-dividend-quality-snapshot/20260601/hk_low_vol_dividend_quality_snapshot_ranking_latest.csv",
+            "published_release_summary_uri": "gs://qsl-hk-artifacts/snapshot/hk-low-vol-dividend-quality-snapshot/20260601/release_status_summary.json",
             "immutable_release_id": True,
             "published_artifacts_not_sample": True,
             "manifest_snapshot_sha256_verified": True,
             "manifest_row_count_verified": True,
             "release_summary_ready": True,
             "evidence_generated_at": "2026-05-25",
-            "evidence_uri": "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality/artifact-pack.json",
+            "evidence_uri": "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/artifact-pack.json",
         },
         "walk_forward_backtest": {
             "status": "passed",
@@ -197,7 +137,7 @@ def _evidence(**overrides):
             "benchmark_annual_return": 0.06,
             "strategy_excess_return": 0.06,
             "evidence_generated_at": "2026-04-15",
-            "evidence_uri": "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality/backtest.json",
+            "evidence_uri": "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/backtest.json",
         },
         "platform_dry_run_order_preview": {
             "status": "passed",
@@ -216,21 +156,21 @@ def _evidence(**overrides):
             "notification_contains_order_preview_summary": True,
             "notification_redacts_sensitive_fields": True,
             "notification_delivery_log_uri": (
-                "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality/notifications/"
+                "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/notifications/"
                 "20260602-dryrun.json"
             ),
             "dry_run_session_id": "hk-snapshot-low-vol-dividend-longbridge-20260602-dryrun-001",
             "raw_order_preview_uri": (
-                "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality/order-preview/"
+                "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/order-preview/"
                 "raw-order-preview.json"
             ),
             "raw_order_preview_sha256": "b" * 64,
             "quote_snapshot_uri": (
-                "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality/order-preview/quote-snapshot.json"
+                "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/order-preview/quote-snapshot.json"
             ),
             "quote_snapshot_sha256": "c" * 64,
             "fee_breakdown_uri": (
-                "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality/order-preview/fee-breakdown.json"
+                "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/order-preview/fee-breakdown.json"
             ),
             "fee_breakdown_sha256": "d" * 64,
             "order_preview_artifact_not_sample": True,
@@ -248,7 +188,7 @@ def _evidence(**overrides):
             "market_session_routing_verified": True,
             "vcm_price_band_controls_verified": True,
             "evidence_generated_at": "2026-05-28",
-            "evidence_uri": "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality/order-preview.json",
+            "evidence_uri": "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/order-preview.json",
         },
         "broker_permission_and_fee_verification": {
             "status": "passed",
@@ -258,14 +198,14 @@ def _evidence(**overrides):
             "fees_verified": True,
             "stamp_duty_or_exemption_verified": True,
             "evidence_generated_at": "2026-05-20",
-            "evidence_uri": "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality/broker-fees.json",
+            "evidence_uri": "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/broker-fees.json",
         },
         "paper_or_dry_run_rebalance_window": {
             "status": "passed",
             "window_count": 3,
             "rebalance_or_event_window_covered": True,
             "evidence_generated_at": "2026-05-20",
-            "evidence_uri": "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality/rebalance-windows.json",
+            "evidence_uri": "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/rebalance-windows.json",
         },
         "runtime_rollout_plan": {
             "status": "passed",
@@ -282,13 +222,13 @@ def _evidence(**overrides):
             "severe_weather_trading_runbook_ready": True,
             "vcm_cooling_off_handling_ready": True,
             "evidence_generated_at": "2026-05-20",
-            "evidence_uri": "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality/rollout-plan.json",
+            "evidence_uri": "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/rollout-plan.json",
         },
         "risk_approval": {
             "operator_approved": True,
             "strategy_runtime_enablement_approved": True,
             "dry_run_removal_approved": True,
-            "approval_reference": "ops-review-2026-06-hk-low-vol-dividend-quality",
+            "approval_reference": "ops-review-2026-06-hk-low-vol-dividend-quality-snapshot",
         },
         "strategy_policy_evidence": _complete_quality_yield_strategy_policy_evidence(),
     }
@@ -372,11 +312,11 @@ def test_validate_live_enablement_evidence_accepts_complete_pack():
 
 
 def test_build_live_enablement_evidence_template_is_fillable_but_not_preapproved():
-    template = build_live_enablement_evidence_template("hk_dividend_quality", platform="longbridge")
+    template = build_live_enablement_evidence_template("hk_low_vol_dividend_quality_snapshot", platform="longbridge")
 
     assert template["evidence_type"] == "hk_snapshot_live_enablement"
     assert template["template_status"] == "pending_operator_evidence"
-    assert template["profile"] == "hk_low_vol_dividend_quality"
+    assert template["profile"] == "hk_low_vol_dividend_quality_snapshot"
     assert template["platform"] == "longbridge"
     assert template["max_allowed_annualized_turnover"] == 1.0
     assert template["validation_as_of"] == "<YYYY-MM-DD>"
@@ -454,7 +394,7 @@ def test_build_live_enablement_evidence_template_is_fillable_but_not_preapproved
     assert template["walk_forward_backtest"]["portfolio_correlation_and_aggregate_risk_budget_controls"] is False
     assert template["walk_forward_backtest"]["benchmark_symbol"] == "02800"
     assert template["walk_forward_backtest"]["strategy_excess_return"] is None
-    assert template["artifact_pack_validation"]["contract_version"] == "hk_low_vol_dividend_quality.factor_snapshot.v1"
+    assert template["artifact_pack_validation"]["contract_version"] == "hk_low_vol_dividend_quality_snapshot.factor_snapshot.v1"
     assert template["artifact_pack_validation"]["published_artifacts_not_sample"] is False
     assert template["artifact_pack_validation"]["snapshot_sha256"] == ""
     assert template["evidence_uri_policy"]["required"] is True
@@ -475,392 +415,6 @@ def test_build_live_enablement_evidence_template_is_fillable_but_not_preapproved
     assert template["runtime_rollout_plan"]["initial_capital_fraction"] is None
     assert template["risk_approval"]["operator_approved"] is False
     assert "hkeq-validate-snapshot-artifact-pack" in template["artifact_pack_validation"]["validator_command"]
-
-
-def test_build_live_enablement_evidence_template_for_special_situation_policy():
-    template = build_live_enablement_evidence_template("hk_southbound_momentum", platform="ibkr")
-
-    assert template["profile"] == "hk_southbound_flow_momentum"
-    assert template["platform"] == "ibkr"
-    assert template["special_situation_live_enablement_policy"]["policy_version"] == (
-        "hk_snapshot_special_situation_live_enablement_policy.v1"
-    )
-    assert "stock_connect_daily_turnover" in template["production_source_audit_policy"]["required_boolean_fields"]
-    assert "stock_connect_holding_history" in template["production_source_audit_policy"]["required_boolean_fields"]
-    assert "connect_trading_calendar_alignment" in (
-        template["production_source_audit_policy"]["required_boolean_fields"]
-    )
-    assert "signal_decay_window_and_rebalance_frequency_ablation" in (
-        template["special_situation_live_enablement_policy"]["required_ablation_tests"]
-    )
-    assert template["strategy_policy_evidence"]["policy_version"] == (
-        "hk_snapshot_special_situation_live_enablement_policy.v1"
-    )
-    assert template["strategy_policy_evidence"]["status"] == "pending"
-    assert template["strategy_policy_evidence"]["southbound_flow_vs_price_momentum_same_universe"] is False
-    assert template["strategy_policy_evidence"]["stock_connect_holiday_quota_or_trading_suspension_window"] is False
-    assert template["strategy_policy_evidence"]["hkex_stock_connect_turnover_and_holding_history"] is False
-    assert template["strategy_policy_evidence"]["market_on_close_vs_next_open_execution_window_ablation"] is False
-    assert template["strategy_policy_evidence"]["official_schedule_vs_press_release_event_source_reconciliation"] is False
-    assert template["strategy_policy_evidence"]["cas_random_close_price_limit_and_order_rejection_window"] is False
-    assert template["strategy_policy_evidence"]["hsi_review_schedule_file_version_and_effective_date_history"] is False
-    assert (
-        template["strategy_policy_evidence"][
-            "hsi_review_result_timestamp_constituent_weight_and_proforma_history"
-        ]
-        is False
-    )
-    assert (
-        template["strategy_policy_evidence"][
-            "hkex_cas_order_type_random_close_price_limit_and_rejection_history"
-        ]
-        is False
-    )
-    assert template["production_snapshot_source_audit"]["stock_connect_daily_turnover"] is False
-    assert template["production_snapshot_source_audit"]["southbound_policy_event_stress_controls"] is False
-    assert template["dry_run_order_preview_policy"]["policy_version"] == "hk_dry_run_order_preview_provenance.v1"
-
-
-def test_build_live_enablement_evidence_template_for_baseline_rotation_policy():
-    template = build_live_enablement_evidence_template("hk_leader_rotation", platform="longbridge")
-
-    assert template["profile"] == "hk_blue_chip_leader_rotation"
-    assert template["platform"] == "longbridge"
-    assert template["baseline_rotation_live_enablement_policy"]["policy_version"] == (
-        "hk_snapshot_baseline_rotation_live_enablement_policy.v1"
-    )
-    assert "hsi_constituent_history" in template["production_source_audit_policy"]["required_boolean_fields"]
-    assert "hsi_methodology_and_review_history" in (
-        template["production_source_audit_policy"]["required_boolean_fields"]
-    )
-    assert "board_lot_vcm_and_trading_session_rule_history" in (
-        template["production_source_audit_policy"]["required_boolean_fields"]
-    )
-    assert "blue_chip_rotation_vs_hsi_tracker_same_universe" in (
-        template["baseline_rotation_live_enablement_policy"]["required_ablation_tests"]
-    )
-    assert template["strategy_policy_evidence"]["policy_version"] == (
-        "hk_snapshot_baseline_rotation_live_enablement_policy.v1"
-    )
-    assert template["strategy_policy_evidence"]["status"] == "pending"
-    assert template["strategy_policy_evidence"]["blue_chip_rotation_vs_hsi_tracker_same_universe"] is False
-    assert template["strategy_policy_evidence"]["hsi_hstech_leadership_reversal_window"] is False
-    assert template["strategy_policy_evidence"]["point_in_time_hsi_constituent_history"] is False
-    assert template["production_snapshot_source_audit"]["hsi_constituent_history"] is False
-    assert template["production_snapshot_source_audit"]["board_lot_vcm_and_trading_session_rule_history"] is False
-
-
-def test_build_live_enablement_evidence_template_for_quality_growth_policy():
-    template = build_live_enablement_evidence_template("hk_qglv", platform="longbridge")
-
-    assert template["profile"] == "hk_quality_growth_low_volatility"
-    assert template["platform"] == "longbridge"
-    assert template["max_allowed_annualized_turnover"] == 1.0
-    assert template["quality_growth_live_enablement_policy"]["policy_version"] == (
-        "hk_snapshot_quality_growth_live_enablement_policy.v1"
-    )
-    assert "revenue_earnings_roa_growth_history" in (
-        template["production_source_audit_policy"]["required_boolean_fields"]
-    )
-    assert "hsi_qglv_roe_accruals_cash_flow_to_debt_growth_in_roa_pb_component_history" in (
-        template["production_source_audit_policy"]["required_boolean_fields"]
-    )
-    assert "hsi_qglv_negative_equity_financials_and_missing_factor_policy_history" in (
-        template["production_source_audit_policy"]["required_boolean_fields"]
-    )
-    assert "hsi_low_vol_quality_screen_roe_de_epsvar_and_12mvol_history" in (
-        template["production_source_audit_policy"]["required_boolean_fields"]
-    )
-    assert "quality_growth_low_vol_factor_ablation" in (
-        template["production_source_audit_policy"]["required_boolean_fields"]
-    )
-    assert "quality_growth_vs_quality_only_vs_growth_only_vs_low_vol_only" in (
-        template["quality_growth_live_enablement_policy"]["required_ablation_tests"]
-    )
-    assert template["strategy_policy_evidence"]["policy_version"] == (
-        "hk_snapshot_quality_growth_live_enablement_policy.v1"
-    )
-    assert template["strategy_policy_evidence"]["status"] == "pending"
-    assert template["strategy_policy_evidence"]["quality_growth_vs_quality_only_vs_growth_only_vs_low_vol_only"] is False
-    assert template["strategy_policy_evidence"]["hsi_qglv_four_component_score_vs_raw_quality_growth_inputs"] is False
-    assert template["strategy_policy_evidence"]["growth_deceleration_and_earnings_revision_window"] is False
-    assert template["strategy_policy_evidence"]["qglv_component_missingness_restatement_and_negative_equity_window"] is False
-    assert template["strategy_policy_evidence"]["point_in_time_revenue_earnings_roa_growth_history"] is False
-    assert (
-        template["strategy_policy_evidence"][
-            "hsi_qglv_roe_accruals_cash_flow_to_debt_growth_in_roa_pb_component_history"
-        ]
-        is False
-    )
-    assert template["production_snapshot_source_audit"]["revenue_earnings_roa_growth_history"] is False
-    assert template["production_snapshot_source_audit"]["sector_neutralization_policy"] is False
-
-
-def test_build_live_enablement_evidence_template_for_factor_mix_policy():
-    template = build_live_enablement_evidence_template("hk_qvlm_risk_parity", platform="longbridge")
-
-    assert template["profile"] == "hk_factor_mix_qvlm_risk_parity"
-    assert template["platform"] == "longbridge"
-    assert template["max_allowed_annualized_turnover"] == 1.20
-    assert template["factor_mix_live_enablement_policy"]["policy_version"] == (
-        "hk_snapshot_factor_mix_live_enablement_policy.v1"
-    )
-    assert "risk_parity_weighting_history" in (
-        template["production_source_audit_policy"]["required_boolean_fields"]
-    )
-    assert "hsi_qvlm_quality_value_low_vol_momentum_component_index_return_history" in (
-        template["production_source_audit_policy"]["required_boolean_fields"]
-    )
-    assert "msci_hk_factor_mix_component_index_equal_weight_and_capped_methodology_history" in (
-        template["production_source_audit_policy"]["required_boolean_fields"]
-    )
-    assert "factor_mix_leave_one_out_ablation" in (
-        template["production_source_audit_policy"]["required_boolean_fields"]
-    )
-    assert "qvlm_risk_parity_vs_equal_weight_factor_mix_same_universe" in (
-        template["factor_mix_live_enablement_policy"]["required_ablation_tests"]
-    )
-    assert template["strategy_policy_evidence"]["policy_version"] == (
-        "hk_snapshot_factor_mix_live_enablement_policy.v1"
-    )
-    assert template["strategy_policy_evidence"]["status"] == "pending"
-    assert template["strategy_policy_evidence"]["qvlm_risk_parity_vs_equal_weight_factor_mix_same_universe"] is False
-    assert (
-        template["strategy_policy_evidence"][
-            "msci_hk_factor_mix_equal_weight_qvl_vs_hsi_risk_parity_qvlm_without_momentum"
-        ]
-        is False
-    )
-    assert template["strategy_policy_evidence"]["factor_crowding_and_low_volatility_reversal_window"] is False
-    assert template["strategy_policy_evidence"]["component_index_overlap_and_capping_turnover_spike_window"] is False
-    assert template["strategy_policy_evidence"]["factor_volatility_and_risk_parity_weight_history"] is False
-    assert (
-        template["strategy_policy_evidence"][
-            "msci_hk_factor_mix_component_index_equal_weight_and_capped_methodology_history"
-        ]
-        is False
-    )
-    assert template["production_snapshot_source_audit"]["risk_parity_weighting_history"] is False
-    assert template["production_snapshot_source_audit"]["factor_mix_leave_one_out_ablation"] is False
-
-
-def test_build_live_enablement_evidence_template_for_momentum_policy():
-    template = build_live_enablement_evidence_template("hk_industry_neutral_momentum", platform="longbridge")
-
-    assert template["profile"] == "hk_residual_momentum_quality"
-    assert template["platform"] == "longbridge"
-    assert template["max_allowed_annualized_turnover"] == 1.20
-    assert template["momentum_live_enablement_policy"]["policy_version"] == (
-        "hk_snapshot_momentum_live_enablement_policy.v1"
-    )
-    assert "residual_vs_liquid_vs_composite_same_universe" in (
-        template["momentum_live_enablement_policy"]["required_ablation_tests"]
-    )
-    assert "msci_6_12_month_vs_hsi_52_week_high_descriptor_same_universe" in (
-        template["momentum_live_enablement_policy"]["required_ablation_tests"]
-    )
-    assert "hsi_hstech_sharp_reversal_window" in (
-        template["momentum_live_enablement_policy"]["required_stress_tests"]
-    )
-    assert "risk_adjusted_momentum_volatility_normalization_history" in (
-        template["momentum_live_enablement_policy"]["required_data_provenance"]
-    )
-    assert template["strategy_policy_evidence"]["policy_version"] == "hk_snapshot_momentum_live_enablement_policy.v1"
-    assert template["strategy_policy_evidence"]["status"] == "pending"
-    assert template["strategy_policy_evidence"]["residual_vs_liquid_vs_composite_same_universe"] is False
-    assert template["strategy_policy_evidence"]["hsi_hstech_sharp_reversal_window"] is False
-    assert template["strategy_policy_evidence"]["risk_adjusted_momentum_volatility_normalization_history"] is False
-    assert template["strategy_policy_evidence"]["evidence_uri"] == ""
-    assert "momentum_6m_12m_one_month_skip_history" in (
-        template["production_source_audit_policy"]["required_boolean_fields"]
-    )
-    assert template["production_snapshot_source_audit"]["residual_model_reproducible"] is False
-    assert template["production_snapshot_source_audit"]["momentum_turnover_buffer_and_capacity_history"] is False
-
-
-def test_validate_live_enablement_evidence_result_includes_momentum_policy_for_momentum_profile():
-    result = validate_live_enablement_evidence(
-        {
-            "evidence_type": "hk_snapshot_live_enablement",
-            "profile": "hk_liquid_momentum_quality",
-            "platform": "longbridge",
-            "validation_as_of": "2026-06-02",
-        }
-    )
-
-    assert result["profile"] == "hk_liquid_momentum_quality"
-    assert result["live_enablement_allowed"] is False
-    assert result["momentum_live_enablement_policy"]["policy_version"] == (
-        "hk_snapshot_momentum_live_enablement_policy.v1"
-    )
-    assert result["momentum_live_enablement_policy"]["required_profile_order"] == [
-        "hk_residual_momentum_quality",
-        "hk_liquid_momentum_quality",
-        "hk_composite_factor_quality_value_momentum",
-    ]
-    assert any("missing required evidence section" in error for error in result["errors"])
-
-
-def test_validate_live_enablement_evidence_requires_momentum_strategy_policy_section():
-    result = validate_live_enablement_evidence(_minimal_momentum_evidence())
-
-    assert result["live_enablement_allowed"] is False
-    assert any(
-        "missing required evidence section for momentum profile: strategy_policy_evidence" in error
-        for error in result["errors"]
-    )
-
-
-def test_validate_live_enablement_evidence_requires_momentum_ablation_and_stress_evidence():
-    result = validate_live_enablement_evidence(
-        _minimal_momentum_evidence(
-            strategy_policy_evidence=_complete_momentum_strategy_policy_evidence(
-                residual_vs_liquid_vs_composite_same_universe=False,
-                hsi_hstech_sharp_reversal_window=False,
-            )
-        )
-    )
-
-    assert result["live_enablement_allowed"] is False
-    assert any(
-        "strategy_policy_evidence.residual_vs_liquid_vs_composite_same_universe must be true" in error
-        for error in result["errors"]
-    )
-    assert any(
-        "strategy_policy_evidence.hsi_hstech_sharp_reversal_window must be true" in error
-        for error in result["errors"]
-    )
-
-
-def test_validate_live_enablement_evidence_rejects_stale_momentum_policy_evidence():
-    result = validate_live_enablement_evidence(
-        _minimal_momentum_evidence(
-            strategy_policy_evidence=_complete_momentum_strategy_policy_evidence(
-                evidence_generated_at="2026-01-01"
-            )
-        )
-    )
-
-    assert result["live_enablement_allowed"] is False
-    assert any("strategy_policy_evidence.evidence_generated_at is stale" in error for error in result["errors"])
-
-
-def test_validate_live_enablement_evidence_requires_quality_yield_strategy_policy_section():
-    payload = _evidence()
-    payload.pop("strategy_policy_evidence")
-
-    result = validate_live_enablement_evidence(payload)
-
-    assert result["live_enablement_allowed"] is False
-    assert any(
-        "missing required evidence section for quality/yield profile: strategy_policy_evidence" in error
-        for error in result["errors"]
-    )
-
-
-def test_validate_live_enablement_evidence_requires_quality_yield_ablation_and_stress_evidence():
-    payload = _evidence(
-        strategy_policy_evidence=_complete_quality_yield_strategy_policy_evidence(
-            low_vol_dividend_vs_shareholder_yield_vs_fcf_same_universe=False,
-            dividend_yield_trap_and_payout_cut_window=False,
-        )
-    )
-
-    result = validate_live_enablement_evidence(payload)
-
-    assert result["live_enablement_allowed"] is False
-    assert any(
-        "strategy_policy_evidence.low_vol_dividend_vs_shareholder_yield_vs_fcf_same_universe must be true" in error
-        for error in result["errors"]
-    )
-    assert any(
-        "strategy_policy_evidence.dividend_yield_trap_and_payout_cut_window must be true" in error
-        for error in result["errors"]
-    )
-
-
-def test_validate_live_enablement_evidence_rejects_stale_quality_yield_policy_evidence():
-    payload = _evidence(
-        strategy_policy_evidence=_complete_quality_yield_strategy_policy_evidence(
-            evidence_generated_at="2026-01-01"
-        )
-    )
-
-    result = validate_live_enablement_evidence(payload)
-
-    assert result["live_enablement_allowed"] is False
-    assert any("strategy_policy_evidence.evidence_generated_at is stale" in error for error in result["errors"])
-
-
-def test_validate_live_enablement_evidence_requires_strategy_policy_for_remaining_policy_families():
-    profile_labels = {
-        "hk_blue_chip_leader_rotation": "baseline-rotation",
-        "hk_quality_growth_low_volatility": "quality-growth",
-        "hk_factor_mix_qvlm_risk_parity": "factor-mix",
-        "hk_central_soe_value_quality_select": "policy-value",
-        "hk_southbound_flow_momentum": "special-situation",
-    }
-
-    for profile, label in profile_labels.items():
-        result = validate_live_enablement_evidence(_minimal_policy_profile_evidence(profile))
-
-        assert result["live_enablement_allowed"] is False
-        assert any(
-            f"missing required evidence section for {label} profile: strategy_policy_evidence" in error
-            for error in result["errors"]
-        )
-
-
-
-def test_build_live_enablement_evidence_template_for_policy_value_policy():
-    template = build_live_enablement_evidence_template("hk_policy_value_quality", platform="ibkr")
-
-    assert template["profile"] == "hk_central_soe_value_quality_select"
-    assert template["platform"] == "ibkr"
-    assert template["max_allowed_annualized_turnover"] == 1.0
-    assert template["policy_value_live_enablement_policy"]["policy_version"] == (
-        "hk_snapshot_policy_value_live_enablement_policy.v1"
-    )
-    assert "central_soe_flag_methodology_version_history" in (
-        template["production_source_audit_policy"]["required_boolean_fields"]
-    )
-    assert "sasac_central_soe_parent_list_effective_date_history" in (
-        template["production_source_audit_policy"]["required_boolean_fields"]
-    )
-    assert "hsi_40pct_factor_screening_and_buffer_rule_history" in (
-        template["production_source_audit_policy"]["required_boolean_fields"]
-    )
-    assert "hsi_factor_index_5pct_cap_and_base_index_10pct_cap_history" in (
-        template["production_source_audit_policy"]["required_boolean_fields"]
-    )
-    assert "central_soe_largest_shareholder_source_list_effective_date_drift_history" in (
-        template["production_source_audit_policy"]["required_boolean_fields"]
-    )
-    assert "hkex_southbound_eligible_security_point_in_time_history" in (
-        template["production_source_audit_policy"]["required_boolean_fields"]
-    )
-    assert "policy_event_and_governance_risk_controls" in (
-        template["production_source_audit_policy"]["required_boolean_fields"]
-    )
-    assert "central_soe_value_quality_vs_broad_value_quality_same_universe" in (
-        template["policy_value_live_enablement_policy"]["required_ablation_tests"]
-    )
-    assert "central_soe_value_quality_vs_hsi_value_and_quality_factor_indexes_same_universe" in (
-        template["policy_value_live_enablement_policy"]["required_ablation_tests"]
-    )
-    assert template["strategy_policy_evidence"]["policy_version"] == (
-        "hk_snapshot_policy_value_live_enablement_policy.v1"
-    )
-    assert template["strategy_policy_evidence"]["status"] == "pending"
-    assert template["strategy_policy_evidence"]["central_soe_value_quality_vs_broad_value_quality_same_universe"] is False
-    assert template["strategy_policy_evidence"]["hsi_40pct_factor_screening_vs_unbuffered_top_rank_selection"] is False
-    assert template["strategy_policy_evidence"]["policy_event_and_state_ownership_reform_window"] is False
-    assert template["strategy_policy_evidence"]["hsi_factor_screening_cap_and_rebalance_turnover_spike_window"] is False
-    assert template["strategy_policy_evidence"]["government_shareholder_classification_history"] is False
-    assert template["strategy_policy_evidence"]["hsi_factor_index_5pct_cap_and_base_index_10pct_cap_history"] is False
-    assert template["production_snapshot_source_audit"]["central_soe_flag_methodology_version_history"] is False
-    assert template["production_snapshot_source_audit"]["sasac_central_soe_parent_list_effective_date_history"] is False
-    assert template["production_snapshot_source_audit"]["policy_event_and_governance_risk_controls"] is False
 
 
 def test_validate_live_enablement_evidence_rejects_drawdown_above_30_percent():
@@ -1064,7 +618,7 @@ def test_validate_live_enablement_evidence_rejects_unstable_published_artifact_u
     payload = _evidence(
         artifact_pack_validation={
             **_evidence()["artifact_pack_validation"],
-            "published_manifest_uri": "hk_low_vol_dividend_quality_factor_snapshot_latest.csv.manifest.json",
+            "published_manifest_uri": "hk_low_vol_dividend_quality_snapshot_factor_snapshot_latest.csv.manifest.json",
         }
     )
 
@@ -1414,7 +968,7 @@ def test_validate_live_enablement_evidence_cli_json(tmp_path):
     payload = json.loads(completed.stdout)
 
     assert payload["live_enablement_allowed"] is True
-    assert payload["profile"] == "hk_low_vol_dividend_quality"
+    assert payload["profile"] == "hk_low_vol_dividend_quality_snapshot"
     assert "dividend_history" in payload["production_source_audit_policy"]["required_boolean_fields"]
     assert payload["evidence_uri_policy"]["allowed_schemes"] == ["gs://", "https://", "s3://"]
     assert payload["evidence_freshness_policy"]["required_field"] == "evidence_generated_at"
@@ -1435,7 +989,7 @@ def test_print_live_enablement_evidence_template_cli():
             "hk_equity_snapshot_pipelines.live_enablement_evidence",
             "--print-template",
             "--profile",
-            "hk_low_vol_dividend_quality",
+            "hk_low_vol_dividend_quality_snapshot",
             "--platform",
             "ibkr",
             "--json",
@@ -1446,7 +1000,7 @@ def test_print_live_enablement_evidence_template_cli():
     )
     payload = json.loads(completed.stdout)
 
-    assert payload["profile"] == "hk_low_vol_dividend_quality"
+    assert payload["profile"] == "hk_low_vol_dividend_quality_snapshot"
     assert payload["platform"] == "ibkr"
     assert payload["template_status"] == "pending_operator_evidence"
     assert payload["evidence_uri_policy"]["required"] is True

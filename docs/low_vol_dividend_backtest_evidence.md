@@ -2,7 +2,7 @@
 
 [中文版本](./low_vol_dividend_backtest_evidence.zh-CN.md)
 
-This tool drafts the `walk_forward_backtest` evidence section for `hk_low_vol_dividend_quality`.
+This tool drafts the `walk_forward_backtest` evidence section for `hk_low_vol_dividend_quality_snapshot`.
 It accepts an operator-supplied walk-forward summary JSON and checks the main live-enable gates locally.
 
 It does not run a production backtest, does not mark the evidence as passed, and does not live-enable the strategy.

@@ -2,7 +2,7 @@
 
 [English version](./low_vol_dividend_artifact_evidence.md)
 
-该工具把已通过本地校验的 `hk_low_vol_dividend_quality` artifact 目录转换为 `artifact_pack_validation` evidence 草稿。
+该工具把已通过本地校验的 `hk_low_vol_dividend_quality_snapshot` artifact 目录转换为 `artifact_pack_validation` evidence 草稿。
 它连接 `hkeq-validate-snapshot-artifact-pack` 和完整 live-enable evidence validator。
 
 该命令不会发布 artifact、不会部署 Cloud Run、不会批准 live trading，也不会把 sample artifact 标记为 production evidence。
@@ -12,10 +12,10 @@
 ```bash
 python scripts/draft_low_vol_dividend_artifact_evidence.py \
   --artifact-dir data/output/low_vol_dividend_quality \
-  --artifact-release-id hk-low-vol-dividend-quality-20260603-001 \
-  --published-snapshot-uri gs://.../hk_low_vol_dividend_quality_factor_snapshot_latest.csv \
-  --published-manifest-uri gs://.../hk_low_vol_dividend_quality_factor_snapshot_latest.csv.manifest.json \
-  --published-ranking-uri gs://.../hk_low_vol_dividend_quality_ranking_latest.csv \
+  --artifact-release-id hk-low-vol-dividend-quality-snapshot-20260603-001 \
+  --published-snapshot-uri gs://.../hk_low_vol_dividend_quality_snapshot_factor_snapshot_latest.csv \
+  --published-manifest-uri gs://.../hk_low_vol_dividend_quality_snapshot_factor_snapshot_latest.csv.manifest.json \
+  --published-ranking-uri gs://.../hk_low_vol_dividend_quality_snapshot_ranking_latest.csv \
   --published-release-summary-uri gs://.../release_status_summary.json \
   --evidence-uri gs://.../artifact_pack_validation.json \
   --evidence-generated-at 2026-06-03 \

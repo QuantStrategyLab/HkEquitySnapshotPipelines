@@ -23,7 +23,7 @@ def _runtime_report(tmp_path: Path, *, platform: str = "ibkr", dry_run: bool = T
             {
                 "schema_version": "runtime_report.v1",
                 "platform": platform,
-                "strategy_profile": "hk_low_vol_dividend_quality",
+                "strategy_profile": "hk_low_vol_dividend_quality_snapshot",
                 "strategy_domain": "hk_equity",
                 "run_id": f"{platform}-run-001",
                 "run_source": "cloud_run",
@@ -56,7 +56,7 @@ def _notification_log(path: Path, *, platform: str = "ibkr", correlation_id: str
             "notification_event_type": "hk_snapshot_live_enablement_dry_run",
             "notification_correlation_id": correlation_id,
             "locales": ["en", "zh-Hans"],
-            "profile": "hk_low_vol_dividend_quality",
+            "profile": "hk_low_vol_dividend_quality_snapshot",
             "platform": platform,
             "validation_status": "passed",
             "orders_previewed": 2,
@@ -156,14 +156,14 @@ def test_platform_evidence_rejects_missing_support_artifact_status_even_with_con
     quote_path = _artifact(
         tmp_path / "quotes.json",
         {
-            "artifact_type": "hk_low_vol_dividend_quality.dry_run_support.quote_snapshot.v1",
+            "artifact_type": "hk_low_vol_dividend_quality_snapshot.dry_run_support.quote_snapshot.v1",
             "status": "missing",
         },
     )
     fee_path = _artifact(
         tmp_path / "fees.json",
         {
-            "artifact_type": "hk_low_vol_dividend_quality.dry_run_support.fee_breakdown.v1",
+            "artifact_type": "hk_low_vol_dividend_quality_snapshot.dry_run_support.fee_breakdown.v1",
             "status": "missing",
         },
     )
@@ -274,7 +274,7 @@ def test_platform_evidence_accepts_passed_notification_support_artifact(tmp_path
     notification_support_path = _artifact(
         tmp_path / "notification-support.json",
         {
-            "artifact_type": "hk_low_vol_dividend_quality.dry_run_support.notification_delivery_log.v1",
+            "artifact_type": "hk_low_vol_dividend_quality_snapshot.dry_run_support.notification_delivery_log.v1",
             "status": "passed",
             "notification_delivery_log": notification_log,
         },

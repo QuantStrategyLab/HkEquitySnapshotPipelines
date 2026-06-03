@@ -59,7 +59,7 @@ def test_analyze_low_vol_dividend_backtest_summary_accepts_complete_summary():
     result = analyze_low_vol_dividend_backtest_summary(_summary())
 
     assert result["draft_version"] == LOW_VOL_DIVIDEND_BACKTEST_DRAFT_VERSION
-    assert result["profile"] == "hk_low_vol_dividend_quality"
+    assert result["profile"] == "hk_low_vol_dividend_quality_snapshot"
     assert result["local_backtest_summary_status"] == "passed_with_warnings"
     assert result["missing_fields"] == []
     assert result["missing_boolean_controls"] == []
@@ -141,7 +141,7 @@ def test_low_vol_dividend_backtest_evidence_cli_json(tmp_path):
     )
     payload = json.loads(completed.stdout)
 
-    assert payload["profile"] == "hk_low_vol_dividend_quality"
+    assert payload["profile"] == "hk_low_vol_dividend_quality_snapshot"
     assert payload["walk_forward_backtest_draft"]["status"] == "pending"
     assert payload["walk_forward_backtest_draft"]["benchmark_symbol"] == "02800"
     assert Path(payload["draft_path"]).exists()

@@ -2,16 +2,15 @@
 
 [English version](./first_snapshot_promotion_runbook.md)
 
-本 runbook 将港股 snapshot promotion 工作收口到 1 个 active evidence-gated 候选：
+本 runbook 将港股 snapshot promotion 工作限定到 1 个保留的 evidence-gated 候选：
 
-1. `hk_low_vol_dividend_quality`
-Deferred 重新回测 profile：`hk_shareholder_yield_quality` 和 `hk_free_cash_flow_quality`。
+1. `hk_low_vol_dividend_quality_snapshot`
 
-这些 profile 仍然是 `architecture_scaffold` 候选。本 runbook 不会 live-enable、不发布 production artifact、不部署 Cloud Run，也不会下券商订单。
+其他 snapshot scaffold 已经在 proxy triage 后从 package entrypoint 中剔除或拒绝。本 runbook 不会 live-enable、不发布 production artifact、不部署 Cloud Run，也不会下券商订单。
 
-## 为什么先推进这三个
+## 为什么先推进这个 profile
 
-它们是低换手、质量/收益类候选，更符合当前港股最大回撤控制目标；相比事件、资金流、AH 溢价或高换手动量 scaffold，生产数据和执行风险更可控。但它们仍必须证明最大回撤 `<= 30%`、至少 3 个独立样本外 fold、扣费后收益、港股流动性/容量、artifact provenance、dry-run order preview、双语通知证据和人工审批。
+`hk_low_vol_dividend_quality_snapshot` 是低换手、质量/收益类候选，更符合当前港股最大回撤控制目标；相比事件、资金流、AH 溢价或高换手动量 scaffold，生产数据和执行风险更可控。但它仍必须证明最大回撤 `<= 30%`、至少 3 个独立样本外 fold、扣费后收益、港股流动性/容量、artifact provenance、dry-run order preview、双语通知证据和人工审批。
 
 ## 打印 promotion plan
 
@@ -25,7 +24,7 @@ python scripts/print_first_snapshot_promotion_plan.py --json
 
 ```bash
 python scripts/print_first_snapshot_promotion_plan.py \
-  --profile hk_low_vol_dividend_quality \
+  --profile hk_low_vol_dividend_quality_snapshot \
   --platform longbridge \
   --json
 ```
@@ -40,8 +39,6 @@ python scripts/print_first_snapshot_promotion_plan.py \
 
 ```bash
 PYTHONPATH=src python scripts/build_low_vol_dividend_sample.py
-PYTHONPATH=src python scripts/build_shareholder_yield_sample.py
-PYTHONPATH=src python scripts/build_free_cash_flow_sample.py
 ```
 
 样例 artifact 不是生产数据，不能用于计划任务或实盘交易。
@@ -54,7 +51,7 @@ PYTHONPATH=src python scripts/build_free_cash_flow_sample.py
 - source quality report URI
 - corporate actions、停牌、stale quote、缺失字段、symbol mapping
 - fundamentals 的 reporting-date / availability-date lineage
-- dividend、buyback、share-count、FCF、EV、ROE、debt、FX、sector-normalization lineage
+- dividend、payout、volatility、liquidity、corporate action、停牌、可选 ROE/FCF 质量字段和 sector lineage
 - evidence URI 不得包含 token/password/signature 等 secret-like query 参数
 
 ### 3. Walk-forward backtest
@@ -65,9 +62,9 @@ PYTHONPATH=src python scripts/build_free_cash_flow_sample.py
 - 最大回撤 `<= 30%`，若 profile 有更严格阈值则按更严格阈值
 - 年化收益 / 最大回撤比 `>= 0.50`
 - 单一周期收益贡献 `<= 60%`
-- 首批三个候选的年化换手 `<= 100%`
+- 保留候选的年化换手 `<= 100%`
 - 覆盖港股费用、征费、滑点、bid/ask spread、lot-size、停牌、VCM、CAS 和容量压力
-- 同 universe 比较低波红利、股东收益和 FCF 质量三类信号
+- 如果未来重新加入新 snapshot contract，需要同 universe 对比被剔除的 quality/yield 变体
 
 ### 4. Artifact-pack validation
 
@@ -75,12 +72,12 @@ PYTHONPATH=src python scripts/build_free_cash_flow_sample.py
 
 ```bash
 hkeq-validate-snapshot-artifact-pack \
-  --profile hk_low_vol_dividend_quality \
-  --artifact-dir data/output/hk_low_vol_dividend_quality \
+  --profile hk_low_vol_dividend_quality_snapshot \
+  --artifact-dir data/output/hk_low_vol_dividend_quality_snapshot \
   --json
 ```
 
-`hk_shareholder_yield_quality` 和 `hk_free_cash_flow_quality` 也需要重复执行。
+被剔除的 profile 已不再是 package contract，因此不在这里校验。
 
 ### 5. Platform dry-run evidence
 
@@ -88,7 +85,7 @@ hkeq-validate-snapshot-artifact-pack \
 
 ```bash
 python scripts/print_snapshot_readiness.py \
-  --profile hk_low_vol_dividend_quality \
+  --profile hk_low_vol_dividend_quality_snapshot \
   --platform longbridge \
   --json
 ```
@@ -98,7 +95,7 @@ python scripts/print_snapshot_readiness.py \
 ```bash
 hkeq-validate-live-enable-evidence \
   --print-template \
-  --profile hk_low_vol_dividend_quality \
+  --profile hk_low_vol_dividend_quality_snapshot \
   --platform longbridge \
   --json > snapshot-live-enable-evidence.json
 ```
@@ -117,9 +114,7 @@ Dry-run evidence 必须包括 raw order preview、quote snapshot、fee breakdown
 
 | Profile | Promotion 前重点 |
 | --- | --- |
-| `hk_low_vol_dividend_quality` | forecast vs trailing dividend yield ablation、yield-trap 控制、南向 eligible、三年现金分红记录、payout-ratio、price-crash screen、高波动剔除和财务稳健 screen。 |
-| `hk_shareholder_yield_quality` | HKEX buyback ingestion、treasury-share retention/cancellation/resale、share-count 对账、dilution 控制、blackout/moratorium 控制、post-buyback financing 检查和 stale estimate-revision 控制。 |
-| `hk_free_cash_flow_quality` | FCF 公式 lineage、EV 的 market-cap/debt/cash/FX 输入、reporting-date availability、restatement/as-of 处理、sector normalization、negative-FCF / financial-sector exception。 |
+| `hk_low_vol_dividend_quality_snapshot` | forecast vs trailing dividend yield ablation、yield-trap 控制、南向 eligible、三年现金分红记录、payout-ratio、price-crash screen、高波动剔除和财务稳健 screen。 |
 
 ## 停止条件
 

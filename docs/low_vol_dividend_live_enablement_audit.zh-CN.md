@@ -2,7 +2,7 @@
 
 [English version](./low_vol_dividend_live_enablement_audit.md)
 
-该工具是 `hk_low_vol_dividend_quality` 进入真正 live-enable 前的最终机器校验入口。
+该工具是 `hk_low_vol_dividend_quality_snapshot` 进入真正 live-enable 前的最终机器校验入口。
 它合并检查三个独立 gate：
 
 1. production snapshot artifact pack 校验；

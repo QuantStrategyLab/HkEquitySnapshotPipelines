@@ -10,7 +10,7 @@
 
 当前支持的 profile：
 
-- `hk_low_vol_dividend_quality`
+- `hk_low_vol_dividend_quality_snapshot`
 
 该 workflow 只支持手动触发。在生产级港股数据源 refresh 完成并通过审计前，不启用定时发布。
 
@@ -48,9 +48,9 @@ free_cash_flow_yield, realized_vol_252, corporate_action_flag
 ```bash
 gh workflow run publish-hk-snapshot-artifacts.yml \
   --repo QuantStrategyLab/HkEquitySnapshotPipelines \
-  -f profile=hk_low_vol_dividend_quality \
+  -f profile=hk_low_vol_dividend_quality_snapshot \
   -f input_source_mode=public_yfinance_staging \
-  -f gcs_prefix=gs://<bucket>/strategy-artifacts/hk_equity/hk_low_vol_dividend_quality_staging \
+  -f gcs_prefix=gs://<bucket>/strategy-artifacts/hk_equity/hk_low_vol_dividend_quality_snapshot_staging \
   -f execute_publish=false
 ```
 
@@ -61,9 +61,9 @@ LongBridge OpenAPI 模式仍然保留，适用于账号已经开通 HK 历史行
 ```bash
 gh workflow run publish-hk-snapshot-artifacts.yml \
   --repo QuantStrategyLab/HkEquitySnapshotPipelines \
-  -f profile=hk_low_vol_dividend_quality \
+  -f profile=hk_low_vol_dividend_quality_snapshot \
   -f input_source_mode=longbridge_openapi_staging \
-  -f gcs_prefix=gs://<bucket>/strategy-artifacts/hk_equity/hk_low_vol_dividend_quality_staging \
+  -f gcs_prefix=gs://<bucket>/strategy-artifacts/hk_equity/hk_low_vol_dividend_quality_snapshot_staging \
   -f execute_publish=false
 ```
 
@@ -112,9 +112,9 @@ GCP 绑定完成后，设置以下 repository variables：
 打开 **Actions → Publish HK Snapshot Artifacts → Run workflow**，填写：
 
 ```text
-profile=hk_low_vol_dividend_quality
-factor_snapshot_path=gs://<bucket>/hk_equity/inputs/hk_low_vol_dividend_quality/factor_snapshot_YYYYMMDD.csv
-gcs_prefix=gs://<bucket>/strategy-artifacts/hk_equity/hk_low_vol_dividend_quality_staging
+profile=hk_low_vol_dividend_quality_snapshot
+factor_snapshot_path=gs://<bucket>/hk_equity/inputs/hk_low_vol_dividend_quality_snapshot/factor_snapshot_YYYYMMDD.csv
+gcs_prefix=gs://<bucket>/strategy-artifacts/hk_equity/hk_low_vol_dividend_quality_snapshot_staging
 execute_publish=false
 ```
 
@@ -122,9 +122,9 @@ execute_publish=false
 
 确认生成文件没问题后，再用 `execute_publish=true` 重新运行并上传到 GCS。发布计划包含：
 
-- `hk_low_vol_dividend_quality_factor_snapshot_latest.csv`
-- `hk_low_vol_dividend_quality_factor_snapshot_latest.csv.manifest.json`
-- `hk_low_vol_dividend_quality_ranking_latest.csv`
+- `hk_low_vol_dividend_quality_snapshot_factor_snapshot_latest.csv`
+- `hk_low_vol_dividend_quality_snapshot_factor_snapshot_latest.csv.manifest.json`
+- `hk_low_vol_dividend_quality_snapshot_ranking_latest.csv`
 - `release_status_summary.json`
 - `artifact_pack_validation.json`
 - 如果 workflow 从 public yfinance 或 LongBridge OpenAPI 生成输入，还会包含可选的 `source_input_summary.json`
@@ -135,8 +135,8 @@ execute_publish=false
 
 ```bash
 python scripts/resolve_hk_snapshot_inputs.py \
-  --factor-snapshot gs://<bucket>/hk_equity/inputs/hk_low_vol_dividend_quality/factor_snapshot_YYYYMMDD.csv \
-  --output-dir data/input/resolved/hk_low_vol_dividend_quality \
+  --factor-snapshot gs://<bucket>/hk_equity/inputs/hk_low_vol_dividend_quality_snapshot/factor_snapshot_YYYYMMDD.csv \
+  --output-dir data/input/resolved/hk_low_vol_dividend_quality_snapshot \
   --env-output /tmp/resolved_hk_snapshot_inputs.env
 source /tmp/resolved_hk_snapshot_inputs.env
 ```
@@ -151,7 +151,7 @@ hkeq-build-low-vol-dividend-quality-snapshot \
   --min-market-cap-hkd 2000000000
 
 hkeq-validate-snapshot-artifact-pack \
-  --profile hk_low_vol_dividend_quality \
+  --profile hk_low_vol_dividend_quality_snapshot \
   --artifact-dir data/output/low_vol_dividend_quality \
   --json > data/output/low_vol_dividend_quality/artifact_pack_validation.json
 ```
@@ -160,18 +160,18 @@ hkeq-validate-snapshot-artifact-pack \
 
 ```bash
 python scripts/publish_hk_snapshot_artifacts.py \
-  --profile hk_low_vol_dividend_quality \
+  --profile hk_low_vol_dividend_quality_snapshot \
   --artifact-dir data/output/low_vol_dividend_quality \
-  --gcs-prefix gs://<bucket>/strategy-artifacts/hk_equity/hk_low_vol_dividend_quality_staging
+  --gcs-prefix gs://<bucket>/strategy-artifacts/hk_equity/hk_low_vol_dividend_quality_snapshot_staging
 ```
 
 审查通过后再上传：
 
 ```bash
 python scripts/publish_hk_snapshot_artifacts.py \
-  --profile hk_low_vol_dividend_quality \
+  --profile hk_low_vol_dividend_quality_snapshot \
   --artifact-dir data/output/low_vol_dividend_quality \
-  --gcs-prefix gs://<bucket>/strategy-artifacts/hk_equity/hk_low_vol_dividend_quality_staging \
+  --gcs-prefix gs://<bucket>/strategy-artifacts/hk_equity/hk_low_vol_dividend_quality_snapshot_staging \
   --execute
 ```
 

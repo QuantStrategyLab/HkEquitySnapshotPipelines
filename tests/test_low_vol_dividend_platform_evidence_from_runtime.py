@@ -33,7 +33,7 @@ def _runtime_report(tmp_path: Path, *, include_fee: bool = True) -> Path:
             "notification_event_type": "hk_snapshot_live_enablement_dry_run",
             "notification_correlation_id": "longbridge-dry-run-001",
             "locales": ["en", "zh-Hans"],
-            "profile": "hk_low_vol_dividend_quality",
+            "profile": "hk_low_vol_dividend_quality_snapshot",
             "platform": "longbridge",
             "validation_status": "passed",
             "orders_previewed": 2,
@@ -62,7 +62,7 @@ def _runtime_report(tmp_path: Path, *, include_fee: bool = True) -> Path:
             {
                 "schema_version": "runtime_report.v1",
                 "platform": "longbridge",
-                "strategy_profile": "hk_low_vol_dividend_quality",
+                "strategy_profile": "hk_low_vol_dividend_quality_snapshot",
                 "strategy_domain": "hk_equity",
                 "run_id": "longbridge-dry-run-001",
                 "run_source": "cloud_run",

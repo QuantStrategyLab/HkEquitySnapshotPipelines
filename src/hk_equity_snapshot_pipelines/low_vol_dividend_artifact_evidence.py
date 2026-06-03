@@ -7,12 +7,12 @@ from typing import Any
 
 from .artifact_provenance_policy import MIN_PRODUCTION_ARTIFACT_ROW_COUNT
 from .artifacts import write_json
-from .contracts import HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE, get_profile_contract
+from .contracts import HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE, get_profile_contract
 from .live_enablement_evidence import build_live_enablement_evidence_template, validate_live_enablement_evidence
 from .snapshot_artifact_validation import validate_snapshot_artifact_pack
 
 DEFAULT_OUTPUT_DIR = Path("data/output/low_vol_dividend_artifact_evidence")
-DRAFT_VERSION = "hk_low_vol_dividend_quality.artifact_evidence_draft.v1"
+DRAFT_VERSION = "hk_low_vol_dividend_quality_snapshot.artifact_evidence_draft.v1"
 MUTABLE_RELEASE_IDS = {"latest", "sample", "dev", "test"}
 
 
@@ -70,7 +70,7 @@ def build_low_vol_dividend_artifact_evidence_draft(
     confirm_manifest_provenance: bool = False,
     confirm_release_summary_ready: bool = False,
 ) -> dict[str, Any]:
-    contract = get_profile_contract(HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE)
+    contract = get_profile_contract(HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE)
     validation = validate_snapshot_artifact_pack(contract.profile, artifact_dir)
     local_valid = validation.get("valid") is True
     release_id = _stable(artifact_release_id)

@@ -6,10 +6,10 @@ on:
       profile:
         description: HK snapshot profile to build
         required: true
-        default: hk_low_vol_dividend_quality
+        default: hk_low_vol_dividend_quality_snapshot
         type: choice
         options:
-          - hk_low_vol_dividend_quality
+          - hk_low_vol_dividend_quality_snapshot
       input_source_mode:
         description: Use an existing CSV or generate a runtime artifact input from public yfinance data or LongBridge OpenAPI
         required: true
@@ -328,7 +328,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
           case "${PROFILE}" in
-            hk_low_vol_dividend_quality)
+            hk_low_vol_dividend_quality_snapshot)
               build_args=(
                 --factor-snapshot "${{ steps.factor-snapshot.outputs.factor_snapshot_path }}"
                 --output-dir "${artifact_dir}"

@@ -24,7 +24,7 @@ from .contracts import (
     HK_FREE_CASH_FLOW_QUALITY_PROFILE,
     HK_INDEX_REBALANCE_EVENT_PROFILE,
     HK_LIQUID_MOMENTUM_QUALITY_PROFILE,
-    HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,
+    HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE,
     HK_QUALITY_GROWTH_LOW_VOLATILITY_PROFILE,
     HK_RESIDUAL_MOMENTUM_QUALITY_PROFILE,
     HK_SHAREHOLDER_YIELD_QUALITY_PROFILE,
@@ -77,7 +77,7 @@ class ProxyProfile:
 
 PROXY_PROFILES: tuple[ProxyProfile, ...] = (
     ProxyProfile(
-        HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,
+        HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE,
         FIRST_SNAPSHOT_PROMOTION_SCOPE,
         "price_proxy_plus_simulated_dividend_quality",
         "Low realized volatility, smaller drawdown, mild momentum, and deterministic simulated dividend-quality factor.",
@@ -388,7 +388,7 @@ def _feature_frame(close: pd.DataFrame, as_of: pd.Timestamp, benchmark_symbol: s
 
 
 def _profile_score(profile: str, features: pd.DataFrame) -> pd.Series:
-    if profile == HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE:
+    if profile == HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE:
         return (
             0.50 * features["z_dividend_quality"]
             + 0.30 * features["z_low_vol"]

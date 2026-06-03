@@ -2,12 +2,12 @@
 
 [English version](./low_vol_dividend_live_enablement_package.md)
 
-本文档定义 `hk_low_vol_dividend_quality` 的首个 live-enable evidence package。
+本文档定义 `hk_low_vol_dividend_quality_snapshot` 的首个 live-enable evidence package。
 它不会 live-enable 策略、不会部署 Cloud Run、不会发布生产 artifact，也不会下券商订单。
 
 ## 为什么先推进这个 profile
 
-`hk_low_vol_dividend_quality` 是首个港股 snapshot 候选，因为它属于低换手的质量/收益类 profile。
+`hk_low_vol_dividend_quality_snapshot` 是首个港股 snapshot 候选，因为它属于低换手的质量/收益类 profile。
 相比事件、AH 溢价、资金流或高换手动量 scaffold，它更容易控制回撤、换手和港股执行摩擦。
 
 ## Package 命令

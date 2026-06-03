@@ -2,7 +2,7 @@
 
 [中文版本](./low_vol_dividend_production_source_audit.zh-CN.md)
 
-This tool starts the real-evidence phase for `hk_low_vol_dividend_quality`.
+This tool starts the real-evidence phase for `hk_low_vol_dividend_quality_snapshot`.
 It checks an operator-supplied factor snapshot CSV for local schema quality and creates a pending production source audit draft.
 
 It does not prove point-in-time lineage by itself, does not mark the source audit as passed, and does not live-enable the strategy.

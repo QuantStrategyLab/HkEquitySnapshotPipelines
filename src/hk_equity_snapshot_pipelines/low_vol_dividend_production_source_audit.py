@@ -8,7 +8,7 @@ from typing import Any
 
 import pandas as pd
 
-from .contracts import HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE, get_profile_contract
+from .contracts import HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE, get_profile_contract
 from .live_enablement_evidence import build_live_enablement_evidence_template
 from .low_vol_dividend_quality_strategy import REQUIRED_FACTOR_COLUMNS, normalize_symbol
 
@@ -131,7 +131,7 @@ def analyze_low_vol_dividend_production_source(
 
     return {
         "audit_draft_version": LOW_VOL_DIVIDEND_SOURCE_AUDIT_DRAFT_VERSION,
-        "profile": HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,
+        "profile": HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE,
         "factor_snapshot_path": str(path),
         "local_schema_status": "failed" if errors else "passed_with_warnings" if warnings else "passed",
         "row_count": int(len(frame)),
@@ -158,7 +158,7 @@ def build_low_vol_dividend_production_source_audit_draft(
     evidence_uri: str = "",
     evidence_generated_at: str | None = None,
 ) -> dict[str, Any]:
-    contract = get_profile_contract(HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE)
+    contract = get_profile_contract(HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE)
     analysis = analyze_low_vol_dividend_production_source(factor_snapshot_path)
     template = build_live_enablement_evidence_template(contract.profile, platform="longbridge")
     draft = dict(template["production_snapshot_source_audit"])

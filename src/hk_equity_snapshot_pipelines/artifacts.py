@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping
@@ -11,6 +12,16 @@ import pandas as pd
 from .contracts import SOURCE_PROJECT, SnapshotProfileContract
 
 EMPTY_CONFIG_SHA256 = hashlib.sha256(b"").hexdigest()
+
+
+@dataclass(frozen=True)
+class SnapshotBuildResult:
+    snapshot: pd.DataFrame
+    ranking: pd.DataFrame
+    artifact_paths: dict[str, Path]
+    signal_description: str
+    status_description: str
+    diagnostics: dict[str, Any]
 
 
 def sha256_file(path: str | Path) -> str:

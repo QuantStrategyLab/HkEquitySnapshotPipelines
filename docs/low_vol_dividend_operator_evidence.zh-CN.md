@@ -2,7 +2,7 @@
 
 [English version](./low_vol_dividend_operator_evidence.md)
 
-该工具为 `hk_low_vol_dividend_quality` 生成 operator 控制的 live-enable evidence section 草稿。
+该工具为 `hk_low_vol_dividend_quality_snapshot` 生成 operator 控制的 live-enable evidence section 草稿。
 它覆盖 artifact validation、production-source audit、walk-forward backtest、broker dry-run runtime report 不能直接生成的部分。
 
 该命令不会部署 Cloud Run、不会下单、不会上传 artifact、不会批准风险，也不会移除 dry-run 控制。
@@ -48,7 +48,7 @@ python scripts/draft_low_vol_dividend_operator_evidence.py \
   --confirm-operator-notification \
   --confirm-severe-weather-trading-runbook \
   --confirm-vcm-cooling-off-handling \
-  --approval-reference operator-approval://hk-low-vol-dividend-quality/20260603 \
+  --approval-reference operator-approval://hk-low-vol-dividend-quality-snapshot/20260603 \
   --confirm-operator-approved \
   --confirm-strategy-runtime-enablement-approved \
   --confirm-dry-run-removal-approved \

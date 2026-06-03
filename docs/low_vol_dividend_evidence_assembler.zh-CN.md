@@ -2,7 +2,7 @@
 
 [English version](./low_vol_dividend_evidence_assembler.md)
 
-该工具把 section 级 evidence 草稿组装成 `hk_low_vol_dividend_quality` 按平台区分的 live-enable evidence pack。
+该工具把 section 级 evidence 草稿组装成 `hk_low_vol_dividend_quality_snapshot` 按平台区分的 live-enable evidence pack。
 它是 operator 采集证据之后、执行最终 `hkeq-validate-live-enable-evidence` / `hkeq-audit-low-vol-dividend-live-enable` 之前的交接点。
 
 该命令不会部署 Cloud Run、不会下单、不会上传 artifact、不会合并审批，也不会移除 dry-run 控制。
@@ -10,7 +10,7 @@
 
 ## 输入
 
-组装工具会从 `hk_low_vol_dividend_quality` 标准 live-enable template 开始，并可合并以下文件：
+组装工具会从 `hk_low_vol_dividend_quality_snapshot` 标准 live-enable template 开始，并可合并以下文件：
 
 - production source audit：`--production-source-audit-file`
 - artifact-pack validation：`--artifact-pack-validation-file`

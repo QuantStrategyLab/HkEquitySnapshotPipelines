@@ -2,7 +2,7 @@
 
 [中文版本](./low_vol_dividend_operator_evidence.zh-CN.md)
 
-This tool drafts the operator-controlled live-enable evidence sections for `hk_low_vol_dividend_quality`.
+This tool drafts the operator-controlled live-enable evidence sections for `hk_low_vol_dividend_quality_snapshot`.
 It covers the sections that are not produced directly by artifact validation, production-source audit, walk-forward backtest, or broker dry-run runtime reports.
 
 The command does not deploy Cloud Run, place orders, upload artifacts, approve risk, or remove dry-run controls.
@@ -48,7 +48,7 @@ python scripts/draft_low_vol_dividend_operator_evidence.py \
   --confirm-operator-notification \
   --confirm-severe-weather-trading-runbook \
   --confirm-vcm-cooling-off-handling \
-  --approval-reference operator-approval://hk-low-vol-dividend-quality/20260603 \
+  --approval-reference operator-approval://hk-low-vol-dividend-quality-snapshot/20260603 \
   --confirm-operator-approved \
   --confirm-strategy-runtime-enablement-approved \
   --confirm-dry-run-removal-approved \

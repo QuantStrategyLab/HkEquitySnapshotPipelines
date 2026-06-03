@@ -10,7 +10,7 @@ from .baseline_rotation_live_enablement_policy import (
     build_baseline_rotation_live_enablement_policy,
 )
 from .contracts import (
-    HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,
+    HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE,
     SnapshotProfileContract,
     get_profile_contract,
     list_profile_contracts,
@@ -53,7 +53,7 @@ FIRST_SNAPSHOT_PROMOTION_SCOPE = "first_snapshot_live_enablement_candidate"
 RESEARCH_ONLY_SCAFFOLD_SCOPE = "research_only_scaffold"
 FIRST_SNAPSHOT_READINESS_PROFILES = frozenset(
     {
-        HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,
+        HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE,
     }
 )
 
@@ -149,7 +149,7 @@ SNAPSHOT_PROFILE_PROMOTION_REQUIREMENTS: dict[str, tuple[str, ...]] = {
         "Validate quality-growth low-vol ranks with same-universe factor ablation and profile annualized turnover <= 100%.",
         "Run walk-forward tests with HK costs, lot sizes, suspensions, sector caps, real-estate/financial concentration checks, and growth-deceleration stress windows.",
     ),
-    "hk_low_vol_dividend_quality": (
+    "hk_low_vol_dividend_quality_snapshot": (
         "Audit fundamentals, Southbound eligibility, large/mid-cap shortlist, forecast-dividend-yield estimate history, three-year cash-dividend records, payout-ratio bounds, earnings-positive flags, and corporate-action adjustments.",
         "Ablate forecast dividend yield versus trailing dividend yield and reject stale estimate revisions before accepting forward-yield signals.",
         "Validate yield-trap filters, price-crash screens, one-year high-volatility exclusion, financial-soundness screens, sector caps, and dividend cash treatment against broker reporting.",
@@ -297,6 +297,12 @@ def build_snapshot_readiness_matrix(*, platform_id: str) -> dict[str, Any]:
         for contract in sorted(list_profile_contracts(), key=lambda item: item.profile)
     ]
     blocked_profiles = [item["profile"] for item in profiles if not item["runtime_enabled"]]
+    first_snapshot_candidates = [
+        item["profile"] for item in profiles if item["promotion_scope"] == FIRST_SNAPSHOT_PROMOTION_SCOPE
+    ]
+    research_only_scaffolds = [
+        item["profile"] for item in profiles if item["promotion_scope"] == RESEARCH_ONLY_SCAFFOLD_SCOPE
+    ]
     return {
         "platform": platform,
         "status": SNAPSHOT_STATUS,
@@ -305,6 +311,10 @@ def build_snapshot_readiness_matrix(*, platform_id: str) -> dict[str, Any]:
         "blocked_profile_count": len(blocked_profiles),
         "blocked_profiles": blocked_profiles,
         "profile_count": len(profiles),
+        "first_snapshot_candidate_count": len(first_snapshot_candidates),
+        "research_only_scaffold_count": len(research_only_scaffolds),
+        "recommended_live_enablement_sequence": first_snapshot_candidates,
+        "research_only_scaffold_sequence": research_only_scaffolds,
         "profiles": profiles,
         "evidence_uri_policy": build_evidence_uri_policy(),
         "artifact_provenance_policy": build_artifact_provenance_policy(),

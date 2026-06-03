@@ -26,7 +26,7 @@ def test_operator_evidence_draft_stays_pending_without_confirmations():
     )
 
     assert payload["draft_version"] == DRAFT_VERSION
-    assert payload["profile"] == "hk_low_vol_dividend_quality"
+    assert payload["profile"] == "hk_low_vol_dividend_quality_snapshot"
     assert payload["platform"] == "longbridge"
     assert payload["operator_sections_can_pass"] is False
     assert payload["section_statuses"] == {
@@ -68,7 +68,7 @@ def test_operator_evidence_draft_can_complete_operator_sections():
         confirm_operator_notification=True,
         confirm_severe_weather_trading_runbook=True,
         confirm_vcm_cooling_off_handling=True,
-        approval_reference="operator-approval://hk-low-vol-dividend-quality/20260603",
+        approval_reference="operator-approval://hk-low-vol-dividend-quality-snapshot/20260603",
         confirm_operator_approved=True,
         confirm_strategy_runtime_enablement_approved=True,
         confirm_dry_run_removal_approved=True,
@@ -160,7 +160,7 @@ def test_operator_output_can_feed_assembler(tmp_path):
         confirm_operator_notification=True,
         confirm_severe_weather_trading_runbook=True,
         confirm_vcm_cooling_off_handling=True,
-        approval_reference="operator-approval://hk-low-vol-dividend-quality/20260603",
+        approval_reference="operator-approval://hk-low-vol-dividend-quality-snapshot/20260603",
         confirm_operator_approved=True,
         confirm_strategy_runtime_enablement_approved=True,
         confirm_dry_run_removal_approved=True,

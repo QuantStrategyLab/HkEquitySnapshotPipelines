@@ -4,7 +4,7 @@ from typing import Any
 
 from .contracts import (
     HK_FREE_CASH_FLOW_QUALITY_PROFILE,
-    HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,
+    HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE,
     HK_SHAREHOLDER_YIELD_QUALITY_PROFILE,
 )
 from .dry_run_order_preview_policy import build_dry_run_order_preview_policy
@@ -12,7 +12,7 @@ from .dry_run_order_preview_policy import build_dry_run_order_preview_policy
 QUALITY_YIELD_LIVE_ENABLEMENT_POLICY_VERSION = "hk_snapshot_quality_yield_live_enablement_policy.v1"
 
 QUALITY_YIELD_STOCK_SELECTION_PROFILES: tuple[str, ...] = (
-    HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE,
+    HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE,
     HK_SHAREHOLDER_YIELD_QUALITY_PROFILE,
     HK_FREE_CASH_FLOW_QUALITY_PROFILE,
 )

@@ -26,7 +26,7 @@ def test_build_and_write_low_vol_dividend_outputs_artifact_contract(tmp_path):
         factor_snapshot_path=FACTOR_SNAPSHOT,
         output_dir=tmp_path,
     )
-    contract = get_profile_contract("hk_low_vol_dividend_quality")
+    contract = get_profile_contract("hk_low_vol_dividend_quality_snapshot")
     paths = contract.artifact_paths(tmp_path)
 
     for path in paths.values():

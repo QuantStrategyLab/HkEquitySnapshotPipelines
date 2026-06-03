@@ -25,7 +25,7 @@ def test_analyze_low_vol_dividend_production_source_accepts_schema_but_warns_sam
     result = analyze_low_vol_dividend_production_source(SAMPLE_SOURCE)
 
     assert result["audit_draft_version"] == LOW_VOL_DIVIDEND_SOURCE_AUDIT_DRAFT_VERSION
-    assert result["profile"] == "hk_low_vol_dividend_quality"
+    assert result["profile"] == "hk_low_vol_dividend_quality_snapshot"
     assert result["local_schema_status"] == "passed_with_warnings"
     assert result["row_count"] == 6
     assert result["symbol_count"] == 6
@@ -107,7 +107,7 @@ def test_low_vol_dividend_production_source_audit_cli_json_writes_files(tmp_path
     )
     payload = json.loads(completed.stdout)
 
-    assert payload["profile"] == "hk_low_vol_dividend_quality"
+    assert payload["profile"] == "hk_low_vol_dividend_quality_snapshot"
     assert payload["production_source_audit_draft"]["status"] == "pending"
     assert payload["local_schema_validation"]["row_count"] == 6
     assert Path(payload["draft_path"]).exists()

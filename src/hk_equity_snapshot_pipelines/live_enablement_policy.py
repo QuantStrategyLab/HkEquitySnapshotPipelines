@@ -21,7 +21,7 @@ MAX_ALLOWED_ANNUALIZED_TURNOVER_BY_PROFILE: dict[str, float] = {
     "hk_free_cash_flow_quality": 1.00,
     "hk_index_rebalance_event": 2.00,
     "hk_liquid_momentum_quality": 1.50,
-    "hk_low_vol_dividend_quality": 1.00,
+    "hk_low_vol_dividend_quality_snapshot": 1.00,
     "hk_quality_growth_low_volatility": 1.00,
     "hk_residual_momentum_quality": 1.20,
     "hk_shareholder_yield_quality": 1.00,
@@ -53,7 +53,7 @@ REQUIRED_BENCHMARK_SYMBOL_BY_PROFILE: dict[str, str] = {
     "hk_free_cash_flow_quality": "02800",
     "hk_index_rebalance_event": "02800",
     "hk_liquid_momentum_quality": "02800",
-    "hk_low_vol_dividend_quality": "02800",
+    "hk_low_vol_dividend_quality_snapshot": "02800",
     "hk_quality_growth_low_volatility": "02800",
     "hk_residual_momentum_quality": "02800",
     "hk_shareholder_yield_quality": "02800",
@@ -249,7 +249,7 @@ REQUIRED_PRODUCTION_SOURCE_AUDIT_FIELDS_BY_PROFILE: dict[str, tuple[str, ...]] =
         "market_cap_history",
         "high_watermark_history",
     ),
-    "hk_low_vol_dividend_quality": (
+    "hk_low_vol_dividend_quality_snapshot": (
         "fundamentals_point_in_time",
         "southbound_trading_eligibility_history",
         "dividend_history",
@@ -437,7 +437,7 @@ PRODUCTION_SOURCE_REFERENCE_URLS_BY_PROFILE: dict[str, tuple[str, ...]] = {
         "https://www.msci.com/indexes/documents/methodology/2_MSCI_Momentum_Indexes_Methodology_20250417.pdf",
         "https://www.msci.com/documents/10199/a79b1588-26c8-5224-d68b-269b256ba22c",
     ),
-    "hk_low_vol_dividend_quality": (
+    "hk_low_vol_dividend_quality_snapshot": (
         "https://www.spglobal.com/market-intelligence/en/news-insights/research/forecast-dividend-yield-strategy-outperforms-hong-kong-sar",
         "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/factsheets/hslvie.pdf",
         "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/factsheets/hshdyie.pdf",

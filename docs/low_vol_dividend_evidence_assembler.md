@@ -2,7 +2,7 @@
 
 [中文版本](./low_vol_dividend_evidence_assembler.zh-CN.md)
 
-This tool assembles section-level evidence drafts into a platform-specific live-enable evidence pack for `hk_low_vol_dividend_quality`.
+This tool assembles section-level evidence drafts into a platform-specific live-enable evidence pack for `hk_low_vol_dividend_quality_snapshot`.
 It is the handoff point between operator evidence collection and the final `hkeq-validate-live-enable-evidence` / `hkeq-audit-low-vol-dividend-live-enable` gates.
 
 The command does not deploy Cloud Run, place orders, upload artifacts, merge approvals, or remove dry-run controls.
@@ -10,7 +10,7 @@ It only writes evidence JSON, validation JSON, and a small summary file.
 
 ## Inputs
 
-The assembler starts from the canonical `hk_low_vol_dividend_quality` live-enable template and can merge these files:
+The assembler starts from the canonical `hk_low_vol_dividend_quality_snapshot` live-enable template and can merge these files:
 
 - production source audit: `--production-source-audit-file`
 - artifact-pack validation: `--artifact-pack-validation-file`

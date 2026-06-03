@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from .artifacts import write_json
-from .contracts import HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE, get_profile_contract
+from .contracts import HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE, get_profile_contract
 from .live_enablement_evidence import (
     STRATEGY_POLICY_EVIDENCE_SECTION,
     build_live_enablement_evidence_template,
@@ -19,7 +19,7 @@ from .rollout_risk_policy import REQUIRED_ROLLOUT_RISK_FIELDS, build_rollout_ris
 from .snapshot_readiness import SUPPORTED_SNAPSHOT_PLATFORMS
 
 DEFAULT_OUTPUT_DIR = Path("data/output/low_vol_dividend_operator_evidence")
-DRAFT_VERSION = "hk_low_vol_dividend_quality.operator_evidence_draft.v1"
+DRAFT_VERSION = "hk_low_vol_dividend_quality_snapshot.operator_evidence_draft.v1"
 BROKER_PERMISSION_FIELDS = (
     "hk_market_data",
     "sehk_trading_permission",
@@ -142,7 +142,7 @@ def build_low_vol_dividend_operator_evidence_draft(
     confirm_all_strategy_policy_evidence: bool = False,
 ) -> dict[str, Any]:
     normalized_platform = _normalize_platform(platform)
-    contract = get_profile_contract(HK_LOW_VOL_DIVIDEND_QUALITY_PROFILE)
+    contract = get_profile_contract(HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE)
     template = build_live_enablement_evidence_template(contract.profile, platform=normalized_platform)
     template["validation_as_of"] = evidence_generated_at
 

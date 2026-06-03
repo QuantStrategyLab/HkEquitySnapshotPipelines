@@ -14,7 +14,7 @@ from hk_equity_snapshot_pipelines.low_vol_dividend_evidence_assembler import (
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "assemble_low_vol_dividend_live_enablement_evidence.py"
-PROFILE = "hk_low_vol_dividend_quality"
+PROFILE = "hk_low_vol_dividend_quality_snapshot"
 DATE = "2026-06-03"
 HEX = "a" * 64
 
@@ -56,8 +56,8 @@ def _passing_evidence(platform: str = "longbridge") -> dict:
         {
             "valid": True,
             "validation_status": "passed",
-            "artifact_dir": "gs://qsl-evidence/hk-low-vol/artifacts/hk-low-vol-dividend-quality-20260603-001",
-            "artifact_release_id": "hk-low-vol-dividend-quality-20260603-001",
+            "artifact_dir": "gs://qsl-evidence/hk-low-vol/artifacts/hk-low-vol-dividend-quality-snapshot-20260603-001",
+            "artifact_release_id": "hk-low-vol-dividend-quality-snapshot-20260603-001",
             "snapshot_sha256": HEX,
             "row_count": 50,
             "published_snapshot_uri": "gs://qsl-evidence/hk-low-vol/artifacts/snapshot.csv",
@@ -158,7 +158,7 @@ def _passing_evidence(platform: str = "longbridge") -> dict:
             "operator_approved": True,
             "strategy_runtime_enablement_approved": True,
             "dry_run_removal_approved": True,
-            "approval_reference": "operator-approval://hk-low-vol-dividend-quality/20260603",
+            "approval_reference": "operator-approval://hk-low-vol-dividend-quality-snapshot/20260603",
         }
     )
 

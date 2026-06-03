@@ -2,7 +2,7 @@
 
 [English version](./low_vol_dividend_platform_evidence.md)
 
-该工具把平台 dry-run runtime report 转成 `hk_low_vol_dividend_quality` 的 `platform_dry_run_order_preview` evidence 草稿。
+该工具把平台 dry-run runtime report 转成 `hk_low_vol_dividend_quality_snapshot` 的 `platform_dry_run_order_preview` evidence 草稿。
 支持 LongBridge 和 IBKR。
 IBKR 在 CLI 中使用 `--platform ibkr`，同时兼容 runtime report 顶层 `platform` 为 `ibkr` 或平台运行时 ID `interactive_brokers`。
 
@@ -108,7 +108,7 @@ python scripts/draft_low_vol_dividend_platform_evidence.py \
   "notification_event_type": "hk_snapshot_live_enablement_dry_run",
   "notification_correlation_id": "run-001",
   "locales": ["en", "zh-Hans"],
-  "profile": "hk_low_vol_dividend_quality",
+  "profile": "hk_low_vol_dividend_quality_snapshot",
   "platform": "longbridge",
   "validation_status": "passed",
   "orders_previewed": 2,
