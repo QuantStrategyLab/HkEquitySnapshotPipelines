@@ -585,6 +585,8 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     import json
     import os
+    import sys
+    from contextlib import redirect_stdout
 
     args = build_parser().parse_args(argv)
     as_of = _parse_date(args.as_of, default=datetime.now(timezone.utc).date())
@@ -595,15 +597,23 @@ def main(argv: list[str] | None = None) -> int:
     missing = [name for name, value in (("app_key", app_key), ("app_secret", app_secret), ("access_token", access_token)) if not value]
     if missing:
         raise EnvironmentError(f"missing LongBridge credentials: {', '.join(missing)}")
-    payload = write_low_vol_dividend_longbridge_factor_snapshot(
-        universe_path=args.universe,
-        output_path=args.output,
-        provider=LongBridgeOpenApiProvider(app_key=app_key, app_secret=app_secret, access_token=access_token),
-        as_of=as_of,
-        history_start=history_start,
-        benchmark_symbol=args.benchmark_symbol,
-        allow_research_defaults=args.allow_research_defaults,
-    )
+    def _build_payload() -> dict[str, Any]:
+        return write_low_vol_dividend_longbridge_factor_snapshot(
+            universe_path=args.universe,
+            output_path=args.output,
+            provider=LongBridgeOpenApiProvider(app_key=app_key, app_secret=app_secret, access_token=access_token),
+            as_of=as_of,
+            history_start=history_start,
+            benchmark_symbol=args.benchmark_symbol,
+            allow_research_defaults=args.allow_research_defaults,
+        )
+
+    if args.json:
+        # Some LongBridge SDK diagnostics are printed to stdout. Keep --json stdout machine-readable.
+        with redirect_stdout(sys.stderr):
+            payload = _build_payload()
+    else:
+        payload = _build_payload()
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:

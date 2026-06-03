@@ -145,3 +145,43 @@ def test_build_longbridge_factor_snapshot_requires_symbol_column(tmp_path):
             as_of=date(2026, 6, 3),
             history_start=date(2025, 1, 1),
         )
+
+
+def test_main_json_stdout_stays_machine_readable_when_provider_writes_stdout(tmp_path, monkeypatch, capsys):
+    import json
+
+    from hk_equity_snapshot_pipelines import low_vol_dividend_longbridge_snapshot as module
+
+    class NoisyProvider(FakeProvider):
+        def __init__(self, *, app_key: str, app_secret: str, access_token: str) -> None:
+            print("LongBridge SDK stdout diagnostic")
+            super().__init__()
+
+    monkeypatch.setattr(module, "LongBridgeOpenApiProvider", NoisyProvider)
+
+    status = module.main(
+        [
+            "--universe",
+            str(_universe(tmp_path / "universe.csv")),
+            "--output",
+            str(tmp_path / "factor_snapshot.csv"),
+            "--as-of",
+            "2026-06-03",
+            "--history-start",
+            "2025-01-01",
+            "--app-key",
+            "dummy-app-key",
+            "--app-secret",
+            "dummy-app-secret",
+            "--access-token",
+            "dummy-access-token",
+            "--json",
+        ]
+    )
+
+    captured = capsys.readouterr()
+    assert status == 0
+    payload = json.loads(captured.out)
+    assert payload["row_count"] == 2
+    assert "LongBridge SDK stdout diagnostic" not in captured.out
+    assert "LongBridge SDK stdout diagnostic" in captured.err
