@@ -11,23 +11,24 @@ on:
         options:
           - hk_low_vol_dividend_quality
       input_source_mode:
-        description: Use an existing CSV or generate a runtime artifact input from LongBridge OpenAPI
+        description: Use an existing CSV or generate a runtime artifact input from public yfinance data or LongBridge OpenAPI
         required: true
         default: factor_snapshot_csv
         type: choice
         options:
           - factor_snapshot_csv
+          - public_yfinance_staging
           - longbridge_openapi_staging
       factor_snapshot_path:
         description: Local, gs://, or https:// factor snapshot CSV. Required when input_source_mode=factor_snapshot_csv.
         required: false
         type: string
       universe_path:
-        description: Optional local, gs://, or https:// universe CSV for LongBridge staging mode.
+        description: Optional local, gs://, or https:// universe CSV for public yfinance or LongBridge staging mode.
         required: false
         type: string
       history_start:
-        description: Optional LongBridge staging history start date, for example 2025-01-01.
+        description: Optional generated-staging history start date, for example 2025-01-01.
         required: false
         type: string
       as_of_date:
@@ -139,11 +140,17 @@ jobs:
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip
-          if [ "${INPUT_SOURCE_MODE}" = "longbridge_openapi_staging" ]; then
-            python -m pip install -e '.[longbridge]'
-          else
-            python -m pip install -e .
-          fi
+          case "${INPUT_SOURCE_MODE}" in
+            longbridge_openapi_staging)
+              python -m pip install -e '.[longbridge]'
+              ;;
+            public_yfinance_staging)
+              python -m pip install -e '.[public-data]'
+              ;;
+            *)
+              python -m pip install -e .
+              ;;
+          esac
 
       - name: Check whether Google Cloud auth is needed
         id: gcp-auth-check
@@ -197,6 +204,41 @@ jobs:
                 --env-output "${resolved_env}"
               # shellcheck disable=SC1090
               source "${resolved_env}"
+              ;;
+            public_yfinance_staging)
+              universe_path="${UNIVERSE_PATH:-examples/low_vol_dividend_quality/longbridge_universe.seed.csv}"
+              if [ -n "${UNIVERSE_PATH:-}" ]; then
+                resolved_universe_dir="data/input/resolved/${PROFILE}/universe"
+                python scripts/resolve_hk_snapshot_inputs.py \
+                  --factor-snapshot "${UNIVERSE_PATH}" \
+                  --output-dir "${resolved_universe_dir}" \
+                  --env-output "${RUNNER_TEMP:-/tmp}/resolved_hk_universe.env"
+                # shellcheck disable=SC1090
+                source "${RUNNER_TEMP:-/tmp}/resolved_hk_universe.env"
+                universe_path="${FACTOR_SNAPSHOT_PATH}"
+              fi
+
+              generated_dir="data/input/generated/${PROFILE}"
+              mkdir -p "${generated_dir}"
+              generated_path="${generated_dir}/factor_snapshot.public_yfinance_staging.csv"
+              generator_args=(
+                --universe "${universe_path}"
+                --output "${generated_path}"
+                --benchmark-symbol "${BENCHMARK_SYMBOL:-2800.HK}"
+                --json
+              )
+              if [ -n "${AS_OF_DATE:-}" ]; then
+                generator_args+=(--as-of "${AS_OF_DATE}")
+              fi
+              if [ -n "${HISTORY_START:-}" ]; then
+                generator_args+=(--history-start "${HISTORY_START}")
+              fi
+              if [ "${ALLOW_RESEARCH_DEFAULTS}" = "true" ]; then
+                generator_args+=(--allow-research-defaults)
+              fi
+              python scripts/build_low_vol_dividend_public_factor_snapshot.py "${generator_args[@]}" > "${generated_dir}/generation_summary.json"
+              FACTOR_SNAPSHOT_PATH="${generated_path}"
+              SOURCE_INPUT_SUMMARY_PATH="${generated_dir}/generation_summary.json"
               ;;
             longbridge_openapi_staging)
               universe_path="${UNIVERSE_PATH:-examples/low_vol_dividend_quality/longbridge_universe.seed.csv}"
@@ -341,7 +383,7 @@ jobs:
           retention-days: 14
 
       - name: Upload generated input snapshot
-        if: inputs.input_source_mode == 'longbridge_openapi_staging'
+        if: inputs.input_source_mode == 'longbridge_openapi_staging' || inputs.input_source_mode == 'public_yfinance_staging'
         uses: actions/upload-artifact@v7
         with:
           name: hk-equity-generated-input-${{ github.run_id }}
@@ -365,7 +407,7 @@ jobs:
             echo "- min_market_cap_hkd: \`${MIN_MARKET_CAP_HKD:-<not set>}\`"
             echo "- longbridge_credentials_mode: \`${LONGBRIDGE_CREDENTIALS_MODE:-secret_manager}\`"
             echo "- longbridge_secret_project_id: \`${LONGBRIDGE_SECRET_PROJECT_ID}\`"
-            echo "- evidence_boundary: LongBridge generated CSVs are runtime artifact inputs after validation; final live order approval still requires backtest, dry-run, notification, and operator approval evidence."
+            echo "- evidence_boundary: generated CSVs are runtime artifact inputs after validation when allow_research_defaults=false; final live order approval still requires backtest, dry-run, notification, and operator approval evidence."
             echo
             echo "Generated files:"
             find "${{ steps.build.outputs.artifact_dir }}" -maxdepth 1 -type f -print | sort | sed 's/^/- /'

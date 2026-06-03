@@ -6,7 +6,7 @@ import re
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any, Callable, Protocol
 
 import pandas as pd
 
@@ -356,31 +356,38 @@ def build_low_vol_dividend_factor_snapshot_from_provider(
     benchmark_symbol: str = DEFAULT_BENCHMARK_SYMBOL,
     allow_research_defaults: bool = False,
     source_name: str = STAGING_SOURCE_NAME,
+    source_quality: str | None = None,
+    artifact_evidence_role: str | None = None,
+    symbol_formatter: Callable[[str], str] = _longbridge_symbol,
 ) -> tuple[pd.DataFrame, SnapshotBuildDiagnostics]:
     universe = _read_universe(universe_path)
     benchmark_history: pd.DataFrame | None = None
     try:
-        benchmark_history = _prepare_history(provider.price_history(_longbridge_symbol(benchmark_symbol), start=history_start, end=as_of))
+        benchmark_history = _prepare_history(
+            provider.price_history(symbol_formatter(benchmark_symbol), start=history_start, end=as_of)
+        )
     except Exception:
         benchmark_history = None
 
     rows: list[dict[str, Any]] = []
     failed: list[str] = []
-    source_quality = _source_quality(allow_research_defaults=allow_research_defaults)
-    artifact_evidence_role = _artifact_evidence_role(allow_research_defaults=allow_research_defaults)
+    source_quality_label = source_quality or _source_quality(allow_research_defaults=allow_research_defaults)
+    artifact_evidence_role_label = artifact_evidence_role or _artifact_evidence_role(
+        allow_research_defaults=allow_research_defaults
+    )
     for _, item in universe.iterrows():
         symbol = str(item["symbol"])
-        lb_symbol = _longbridge_symbol(symbol)
+        provider_symbol = symbol_formatter(symbol)
         try:
-            history = _prepare_history(provider.price_history(lb_symbol, start=history_start, end=as_of))
+            history = _prepare_history(provider.price_history(provider_symbol, start=history_start, end=as_of))
             price = _price_metrics(history, benchmark_history)
-            dividends = provider.dividends(lb_symbol)
-            valuation = provider.valuation(lb_symbol)
+            dividends = provider.dividends(provider_symbol)
+            valuation = provider.valuation(provider_symbol)
             dividend = _dividend_metrics(dividends, as_of=as_of, close_hkd=float(price["close_hkd"]))
             if dividend["dividend_yield_net"] <= 0:
                 provider_yield = _lookup_number(
                     valuation,
-                    ("dividend_yield", "div_yld", "dvd_yld", "trailing_annual_dividend_yield"),
+                    ("dividend_yield", "dividendYield", "div_yld", "dvd_yld", "trailing_annual_dividend_yield"),
                 )
                 if provider_yield is not None:
                     dividend["dividend_yield_net"] = provider_yield / 100.0 if provider_yield > 1.0 else provider_yield
@@ -390,7 +397,7 @@ def build_low_vol_dividend_factor_snapshot_from_provider(
                 field="market_cap_hkd",
                 row=item,
                 valuation=valuation,
-                valuation_keys=("market_cap", "market_cap_hkd", "marketCapitalization"),
+                valuation_keys=("market_cap", "marketCap", "market_cap_hkd", "marketCapitalization"),
                 allow_research_defaults=allow_research_defaults,
                 research_default=0.0,
                 missing=missing,
@@ -399,7 +406,7 @@ def build_low_vol_dividend_factor_snapshot_from_provider(
                 field="payout_ratio",
                 row=item,
                 valuation=valuation,
-                valuation_keys=("payout_ratio", "div_payout_ratio", "dividend_payout_ratio"),
+                valuation_keys=("payout_ratio", "payoutRatio", "div_payout_ratio", "dividend_payout_ratio"),
                 allow_research_defaults=allow_research_defaults,
                 research_default=0.55,
                 missing=missing,
@@ -417,7 +424,7 @@ def build_low_vol_dividend_factor_snapshot_from_provider(
 
             pe_ratio = _metadata_number(item, "pe_ratio")
             if pe_ratio is None:
-                pe_ratio = _lookup_number(valuation, ("pe", "pe_ratio", "trailing_pe"))
+                pe_ratio = _lookup_number(valuation, ("pe", "pe_ratio", "trailing_pe", "trailingPE"))
             fcf_yield = _metadata_number(item, "free_cash_flow_yield")
             lot_size = _metadata_number(item, "lot_size")
 
@@ -438,8 +445,8 @@ def build_low_vol_dividend_factor_snapshot_from_provider(
                     "free_cash_flow_yield": fcf_yield if fcf_yield is not None else "",
                     "corporate_action_flag": str(item.get("corporate_action_flag") or ""),
                     "source_name": source_name,
-                    "source_quality": source_quality,
-                    "artifact_evidence_role": artifact_evidence_role,
+                    "source_quality": source_quality_label,
+                    "artifact_evidence_role": artifact_evidence_role_label,
                     "live_order_approval_status": FINAL_LIVE_ORDER_APPROVAL_STATUS,
                     "requires_operator_audit": True,
                 }
@@ -454,7 +461,7 @@ def build_low_vol_dividend_factor_snapshot_from_provider(
         symbols_failed=int(len(failed)),
         failed_symbols=tuple(failed),
         source_name=source_name,
-        source_quality=source_quality,
+        source_quality=source_quality_label,
         allow_research_defaults=bool(allow_research_defaults),
     )
     return output, diagnostics

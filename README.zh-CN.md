@@ -103,7 +103,7 @@ hkeq-build-free-cash-flow-quality-snapshot \
 
 ## 港股 snapshot artifact 发布
 
-手动 workflow [`Publish HK Snapshot Artifacts`](./.github/workflows/publish-hk-snapshot-artifacts.yml) 可以把运营侧提供的真实 CSV 或 LongBridge OpenAPI 生成的 runtime input 构建并校验为 active 港股 snapshot artifact pack。它只支持手动触发，默认只打印 dry-run 发布计划。
+手动 workflow [`Publish HK Snapshot Artifacts`](./.github/workflows/publish-hk-snapshot-artifacts.yml) 可以把运营侧提供的真实 CSV、public yfinance 生成的 runtime input，或 LongBridge OpenAPI 生成的 runtime input 构建并校验为 active 港股 snapshot artifact pack。它只支持手动触发，默认只打印 dry-run 发布计划。
 
 先使用生产 CSV 表头模板 [`examples/low_vol_dividend_quality/production_factor_snapshot.template.csv`](./examples/low_vol_dividend_quality/production_factor_snapshot.template.csv)，再按照 [`docs/hk_snapshot_publish_workflow.zh-CN.md`](./docs/hk_snapshot_publish_workflow.zh-CN.md) 操作。
 
@@ -120,7 +120,7 @@ gh workflow run publish-hk-snapshot-artifacts.yml \
 
 该 workflow 不会创建 production 数据、不会批准实盘、不会部署 Cloud Run，也不会下单。
 
-如果还没有 CSV，可以设置 `input_source_mode=longbridge_openapi_staging`；workflow 会用默认 seed universe 和 LongBridge HK 凭据生成 LongBridge API 支撑的 CSV。使用 `longbridge_credentials_mode=secret_manager` 可读取 GCP Secret Manager；如果 HK snapshot 仓已配置 GitHub Actions secrets，也可以用 `longbridge_credentials_mode=github_secrets`。通过 artifact validation 并发布到稳定 GCS 路径后，它可以作为平台接线用的 runtime artifact evidence。最终实盘下单批准仍需要回测、券商 dry-run、通知、rollout 和人工审批 evidence。
+如果还没有 CSV，优先设置 `input_source_mode=public_yfinance_staging`；workflow 会用默认 seed universe 和 public yfinance 数据生成一份不依赖券商历史行情权限的 CSV。LongBridge OpenAPI 仍保留为 `input_source_mode=longbridge_openapi_staging`，适用于账号已开通对应 market-data entitlement 的情况。通过 artifact validation 并发布到稳定 GCS 路径后，`allow_research_defaults=false` 的生成 CSV 可以作为平台接线用的 runtime artifact evidence。最终实盘下单批准仍需要回测、券商 dry-run、通知、rollout 和人工审批 evidence。
 
 ## Promotion 与 evidence 工具
 

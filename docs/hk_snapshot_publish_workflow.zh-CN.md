@@ -2,9 +2,9 @@
 
 [English version](./hk_snapshot_publish_workflow.md)
 
-本文档说明：当运营侧已经准备好真实 factor snapshot CSV，或 workflow 从 LongBridge OpenAPI 生成输入时，如何构建、校验并可选发布 active 港股 snapshot artifact pack。
+本文档说明：当运营侧已经准备好真实 factor snapshot CSV，或 workflow 从 public yfinance 数据、LongBridge OpenAPI 生成输入时，如何构建、校验并可选发布 active 港股 snapshot artifact pack。
 
-该 workflow **不会**批准实盘、不会部署 Cloud Run、不会向券商下单。它只把真实 CSV 或 LongBridge 生成的 runtime input 转换成已校验的 artifact pack；只有显式设置时才上传到 GCS。
+该 workflow **不会**批准实盘、不会部署 Cloud Run、不会向券商下单。它只把真实 CSV 或生成的 runtime input 转换成已校验的 artifact pack；只有显式设置时才上传到 GCS。
 
 ## 范围
 
@@ -41,9 +41,22 @@ free_cash_flow_yield, realized_vol_252, corporate_action_flag
 - walk-forward 样本外回测证据；
 - 券商 dry-run order preview、quote、fee、双语通知、rollout 和人工审批证据。
 
-## 不会手工准备 CSV 时：LongBridge 生成输入模式
+## 不会手工准备 CSV 时：生成输入模式
 
-如果你还没有真实 factor snapshot CSV，可以先用 `input_source_mode=longbridge_openapi_staging` 让 workflow 从 LongBridge OpenAPI 生成一份 API 支撑的 runtime input CSV：
+如果还没有真实 factor snapshot CSV，优先使用 `input_source_mode=public_yfinance_staging`。它可以从 public yfinance 数据生成 runtime input CSV，不依赖 LongBridge 历史行情权限：
+
+```bash
+gh workflow run publish-hk-snapshot-artifacts.yml \
+  --repo QuantStrategyLab/HkEquitySnapshotPipelines \
+  -f profile=hk_low_vol_dividend_quality \
+  -f input_source_mode=public_yfinance_staging \
+  -f gcs_prefix=gs://<bucket>/strategy-artifacts/hk_equity/hk_low_vol_dividend_quality_staging \
+  -f execute_publish=false
+```
+
+默认 universe 是 [`../examples/low_vol_dividend_quality/longbridge_universe.seed.csv`](../examples/low_vol_dividend_quality/longbridge_universe.seed.csv)。也可以用 `universe_path=gs://.../universe.csv` 指定自己的 universe。public yfinance 模式在 `allow_research_defaults=false` 时会写入 `source_name=public_yfinance_staging`、`source_quality=public_yfinance_generated`。
+
+LongBridge OpenAPI 模式仍然保留，适用于账号已经开通 HK 历史行情权限的情况：
 
 ```bash
 gh workflow run publish-hk-snapshot-artifacts.yml \
@@ -54,9 +67,7 @@ gh workflow run publish-hk-snapshot-artifacts.yml \
   -f execute_publish=false
 ```
 
-默认 universe 是 [`../examples/low_vol_dividend_quality/longbridge_universe.seed.csv`](../examples/low_vol_dividend_quality/longbridge_universe.seed.csv)。也可以用 `universe_path=gs://.../universe.csv` 指定自己的 universe。
-
-该模式会从 Google Secret Manager 读取以下 secret，默认名称和 LongBridgePlatform 的 HK 配置一致：
+LongBridge 模式会从 Google Secret Manager 读取以下 secret，默认名称和 LongBridgePlatform 的 HK 配置一致：
 
 - `longport-app-key-hk`
 - `longport-app-secret-hk`
@@ -77,11 +88,11 @@ gh workflow run publish-hk-snapshot-artifacts.yml \
 
 在 `github_secrets` 模式下，只要 `universe_path` / `factor_snapshot_path` 不使用 `gs://`，并且不设置 `execute_publish=true` 上传 GCS，LongBridge 输入生成不需要 GCP auth。
 
-注意：LongBridge 生成 CSV 是真实接口数据生成的运行输入，并标记为 `longbridge_openapi_generated`。通过 artifact validation 并发布到稳定 GCS 路径后，它可以像美股 snapshot publish flow 一样作为平台接线用的 runtime artifact evidence。但它本身不等于最终实盘下单批准；最终批准仍需要回测、券商 dry-run、通知、rollout 和人工审批 evidence。
+注意：`allow_research_defaults=false` 的生成 CSV 通过 artifact validation 并发布到稳定 GCS 路径后，可以像美股 snapshot publish flow 一样作为平台接线用的 runtime artifact evidence。但它本身不等于最终实盘下单批准；最终批准仍需要回测、券商 dry-run、通知、rollout 和人工审批 evidence。`allow_research_defaults=true` 仍然只能作为 research smoke。
 
 ## GCP Workload Identity 前置条件
 
-当 `input_source_mode=longbridge_openapi_staging` 时，workflow 需要一个明确允许本仓库 `QuantStrategyLab/HkEquitySnapshotPipelines` 的 Google Cloud Workload Identity Provider 和 service account。直接复用只允许 `LongBridgePlatform` 或 `UsEquitySnapshotPipelines` 的 provider，会在 auth 步骤报 `unauthorized_client` / `attribute condition`。
+当 `input_source_mode=longbridge_openapi_staging`，或任何 run 需要读取 `gs://` 输入、发布到 GCS 时，workflow 需要一个明确允许本仓库 `QuantStrategyLab/HkEquitySnapshotPipelines` 的 Google Cloud Workload Identity Provider 和 service account。直接复用只允许 `LongBridgePlatform` 或 `UsEquitySnapshotPipelines` 的 provider，会在 auth 步骤报 `unauthorized_client` / `attribute condition`。不读取 `gs://` 且不设置 `execute_publish=true` 时，public yfinance 模式不需要 GCP auth。
 
 GCP 绑定完成后，设置以下 repository variables：
 
@@ -116,7 +127,7 @@ execute_publish=false
 - `hk_low_vol_dividend_quality_ranking_latest.csv`
 - `release_status_summary.json`
 - `artifact_pack_validation.json`
-- 如果 workflow 从 LongBridge OpenAPI 生成输入，还会包含可选的 `source_input_summary.json`
+- 如果 workflow 从 public yfinance 或 LongBridge OpenAPI 生成输入，还会包含可选的 `source_input_summary.json`
 
 ## 本地等价命令
 
