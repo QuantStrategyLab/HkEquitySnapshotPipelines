@@ -121,7 +121,7 @@ gh workflow run publish-hk-snapshot-artifacts.yml \
 
 This workflow does not create production data, approve live trading, deploy Cloud Run, or place orders.
 
-If no CSV exists yet, set `input_source_mode=longbridge_openapi_staging`; the workflow will use the default seed universe and LongBridge HK Secret Manager credentials (`longport-app-key-hk`, `longport-app-secret-hk`, `longport_token_hk`) to generate a LongBridge API-backed CSV. After artifact validation and stable GCS publishing, this can serve as runtime artifact evidence for platform wiring. Final live order approval still requires backtest, broker dry-run, notification, rollout, and operator approval evidence.
+If no CSV exists yet, set `input_source_mode=longbridge_openapi_staging`; the workflow will use the default seed universe and LongBridge HK credentials to generate a LongBridge API-backed CSV. Use `longbridge_credentials_mode=secret_manager` for GCP Secret Manager or `longbridge_credentials_mode=github_secrets` when the HK snapshot repo has GitHub Actions secrets. After artifact validation and stable GCS publishing, this can serve as runtime artifact evidence for platform wiring. Final live order approval still requires backtest, broker dry-run, notification, rollout, and operator approval evidence.
 
 ## Promotion and evidence tools
 
