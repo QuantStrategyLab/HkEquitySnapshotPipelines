@@ -10,6 +10,8 @@ import pandas as pd
 
 from .contracts import SOURCE_PROJECT, SnapshotProfileContract
 
+EMPTY_CONFIG_SHA256 = hashlib.sha256(b"").hexdigest()
+
 
 def sha256_file(path: str | Path) -> str:
     hasher = hashlib.sha256()
@@ -49,13 +51,14 @@ def write_snapshot_manifest(
 ) -> Path:
     resolved_snapshot = Path(snapshot_path)
     resolved_config = Path(config_path) if config_path else None
+    config_sha256 = sha256_file(resolved_config) if resolved_config is not None and resolved_config.exists() else EMPTY_CONFIG_SHA256
     payload = {
         "manifest_type": "feature_snapshot",
         "contract_version": contract.contract_version,
         "strategy_profile": contract.profile,
         "config_name": config_name or contract.profile,
         "config_path": str(resolved_config) if resolved_config is not None else None,
-        "config_sha256": sha256_file(resolved_config) if resolved_config is not None and resolved_config.exists() else None,
+        "config_sha256": config_sha256,
         "snapshot_path": str(resolved_snapshot),
         "snapshot_sha256": sha256_file(resolved_snapshot),
         "snapshot_as_of": resolve_snapshot_as_of(snapshot),
