@@ -62,8 +62,9 @@ This mode reads these Google Secret Manager secrets by default, matching the HK 
 - `longport-app-secret-hk`
 - `longport_token_hk`
 
-If your secret names differ, override these workflow inputs:
+By default the workflow reads these secrets from the `longbridgequant` GCP project and uses the same Workload Identity Federation naming convention as `LongBridgePlatform`. If your secret project or secret names differ, override these workflow inputs:
 
+- `longbridge_secret_project_id`
 - `longbridge_app_key_secret_name`
 - `longbridge_app_secret_secret_name`
 - `longbridge_access_token_secret_name`
