@@ -147,14 +147,17 @@ def test_build_longbridge_factor_snapshot_requires_symbol_column(tmp_path):
         )
 
 
-def test_main_json_stdout_stays_machine_readable_when_provider_writes_stdout(tmp_path, monkeypatch, capsys):
+def test_main_json_stdout_stays_machine_readable_when_provider_writes_stdout(tmp_path, monkeypatch, capfd):
     import json
+    import os
+    import sys
 
     from hk_equity_snapshot_pipelines import low_vol_dividend_longbridge_snapshot as module
 
     class NoisyProvider(FakeProvider):
         def __init__(self, *, app_key: str, app_secret: str, access_token: str) -> None:
             print("LongBridge SDK stdout diagnostic")
+            os.write(sys.stdout.fileno(), b"LongBridge SDK fd stdout diagnostic\n")
             super().__init__()
 
     monkeypatch.setattr(module, "LongBridgeOpenApiProvider", NoisyProvider)
@@ -179,9 +182,11 @@ def test_main_json_stdout_stays_machine_readable_when_provider_writes_stdout(tmp
         ]
     )
 
-    captured = capsys.readouterr()
+    captured = capfd.readouterr()
     assert status == 0
     payload = json.loads(captured.out)
     assert payload["row_count"] == 2
     assert "LongBridge SDK stdout diagnostic" not in captured.out
+    assert "LongBridge SDK fd stdout diagnostic" not in captured.out
     assert "LongBridge SDK stdout diagnostic" in captured.err
+    assert "LongBridge SDK fd stdout diagnostic" in captured.err
