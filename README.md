@@ -1,5 +1,36 @@
 # HkEquitySnapshotPipelines
 
+<!-- qsl-doc-overview:start -->
+
+> ⚠️ 投资有风险，不构成投资建议，仅供学习交流用途。
+> ⚠️ Investing involves risk. This project does not provide investment advice and is for educational and research purposes only.
+
+## Open-source overview / 开源项目入口
+
+| Item | Description |
+| --- | --- |
+| Project type | snapshot pipeline |
+| What it does | Builds Hong Kong equity snapshot artifacts and scaffold helpers for HK strategy runtimes. |
+| 中文说明 | 港股 snapshot 上游管线，负责生成策略运行所需的 feature snapshot 和 artifact contract。 |
+| Current status | Snapshot producer/research pipeline. It should publish artifacts only after dry-run and artifact validation pass. |
+
+### Quick start
+
+- `python -m pip install -e '.[test]'`
+- `python -m pytest -q`
+
+### Deploy / operate safely
+
+Use repository GitHub Actions or local dry-runs first; only enable artifact publication after checking GCS target and source data freshness.
+
+### Strategy performance / evidence boundary
+
+Backtest and artifact evidence is kept in README/docs and generated `data/output` summaries; do not infer live suitability from a single artifact build.
+
+> Detailed runbooks, migration notes, workflow internals, and historical decisions are kept below. Start with this overview before using the lower-level operational sections.
+
+<!-- qsl-doc-overview:end -->
+
 [Chinese README](./README.zh-CN.md)
 
 > Investment risk notice: this repository is for engineering, research, and operational review only. It is not investment advice.
