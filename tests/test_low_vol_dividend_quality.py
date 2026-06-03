@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from hk_equity_snapshot_pipelines.artifacts import EMPTY_CONFIG_SHA256
 from hk_equity_snapshot_pipelines.contracts import get_profile_contract
 from hk_equity_snapshot_pipelines.low_vol_dividend_quality import build_and_write_snapshot
 
@@ -35,6 +36,7 @@ def test_build_and_write_low_vol_dividend_outputs_artifact_contract(tmp_path):
     assert manifest["contract_version"] == contract.contract_version
     assert manifest["row_count"] == len(result.snapshot)
     assert manifest["snapshot_sha256"]
+    assert manifest["config_sha256"] == EMPTY_CONFIG_SHA256
 
     summary = json.loads(paths["release_summary"].read_text())
     assert summary["release_status"] == "ready"
