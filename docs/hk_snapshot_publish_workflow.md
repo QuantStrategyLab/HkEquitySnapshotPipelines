@@ -2,9 +2,9 @@
 
 [中文版本](./hk_snapshot_publish_workflow.zh-CN.md)
 
-This runbook explains how to build, validate, and optionally publish the active HK snapshot artifact pack when an operator has prepared a real factor snapshot CSV or the workflow generates one from LongBridge OpenAPI.
+This runbook explains how to build, validate, and optionally publish the active HK snapshot artifact pack when an operator has prepared a real factor snapshot CSV, or when the workflow generates one from public yfinance data or LongBridge OpenAPI.
 
-The workflow does **not** approve live trading, deploy Cloud Run, or place broker orders. It only turns a real CSV or LongBridge-generated runtime input into a validated artifact pack and, when explicitly requested, uploads the pack to GCS.
+The workflow does **not** approve live trading, deploy Cloud Run, or place broker orders. It only turns a real CSV or generated runtime input into a validated artifact pack and, when explicitly requested, uploads the pack to GCS.
 
 ## Scope
 
@@ -41,9 +41,22 @@ Final live order approval still requires more than a valid CSV:
 - walk-forward out-of-sample backtest evidence;
 - broker dry-run order preview, quote, fee, bilingual notification, rollout, and operator approval evidence.
 
-## If you do not know how to prepare the CSV: LongBridge generated input mode
+## If you do not know how to prepare the CSV: generated input modes
 
-If no real factor snapshot CSV exists yet, run the workflow with `input_source_mode=longbridge_openapi_staging` so it can generate a LongBridge API-backed runtime input CSV:
+If no real factor snapshot CSV exists yet, prefer `input_source_mode=public_yfinance_staging`. It generates a public-data runtime input CSV without requiring LongBridge historical market-data permission:
+
+```bash
+gh workflow run publish-hk-snapshot-artifacts.yml \
+  --repo QuantStrategyLab/HkEquitySnapshotPipelines \
+  -f profile=hk_low_vol_dividend_quality \
+  -f input_source_mode=public_yfinance_staging \
+  -f gcs_prefix=gs://<bucket>/strategy-artifacts/hk_equity/hk_low_vol_dividend_quality_staging \
+  -f execute_publish=false
+```
+
+The default universe is [`../examples/low_vol_dividend_quality/longbridge_universe.seed.csv`](../examples/low_vol_dividend_quality/longbridge_universe.seed.csv). You may override it with `universe_path=gs://.../universe.csv`. Public yfinance mode stores `source_name=public_yfinance_staging` and `source_quality=public_yfinance_generated` when `allow_research_defaults=false`.
+
+LongBridge OpenAPI mode remains available when the account has the required HK historical market-data entitlement:
 
 ```bash
 gh workflow run publish-hk-snapshot-artifacts.yml \
@@ -54,9 +67,7 @@ gh workflow run publish-hk-snapshot-artifacts.yml \
   -f execute_publish=false
 ```
 
-The default universe is [`../examples/low_vol_dividend_quality/longbridge_universe.seed.csv`](../examples/low_vol_dividend_quality/longbridge_universe.seed.csv). You may override it with `universe_path=gs://.../universe.csv`.
-
-This mode reads these Google Secret Manager secrets by default, matching the HK LongBridgePlatform naming convention:
+LongBridge mode reads these Google Secret Manager secrets by default, matching the HK LongBridgePlatform naming convention:
 
 - `longport-app-key-hk`
 - `longport-app-secret-hk`
@@ -77,11 +88,11 @@ If the GCP Workload Identity binding is not ready yet, set `longbridge_credentia
 
 In `github_secrets` mode, LongBridge input generation does not require GCP auth unless `universe_path` / `factor_snapshot_path` uses `gs://` or `execute_publish=true` uploads to GCS.
 
-Important: the LongBridge-generated CSV is a real API-backed runtime input and is marked `longbridge_openapi_generated`. After artifact validation and stable GCS publishing, it can serve as runtime artifact evidence for platform wiring, similar to the US snapshot publish flow. It is not final live order approval by itself; that still requires backtest, broker dry-run, notification, rollout, and operator approval evidence.
+Important: generated CSVs with `allow_research_defaults=false` can be runtime artifact inputs after artifact validation and stable GCS publishing, similar to the US snapshot publish flow. They are not final live order approval by themselves; that still requires backtest, broker dry-run, notification, rollout, and operator approval evidence. `allow_research_defaults=true` remains research smoke only.
 
 ## GCP Workload Identity prerequisites
 
-For `input_source_mode=longbridge_openapi_staging`, the workflow needs a Google Cloud Workload Identity Provider and service account that explicitly allow this repository: `QuantStrategyLab/HkEquitySnapshotPipelines`. Reusing a provider that is restricted to `LongBridgePlatform` or `UsEquitySnapshotPipelines` will fail at the auth step with `unauthorized_client` / `attribute condition`.
+For `input_source_mode=longbridge_openapi_staging`, or any run that reads `gs://` inputs or publishes to GCS, the workflow needs a Google Cloud Workload Identity Provider and service account that explicitly allow this repository: `QuantStrategyLab/HkEquitySnapshotPipelines`. Reusing a provider that is restricted to `LongBridgePlatform` or `UsEquitySnapshotPipelines` will fail at the auth step with `unauthorized_client` / `attribute condition`. Public yfinance mode without `gs://` inputs and without `execute_publish=true` does not need GCP auth.
 
 Set these repository variables after the GCP binding is created:
 
@@ -116,7 +127,7 @@ After reviewing the generated files, re-run with `execute_publish=true` to uploa
 - `hk_low_vol_dividend_quality_ranking_latest.csv`
 - `release_status_summary.json`
 - `artifact_pack_validation.json`
-- optional `source_input_summary.json` when the workflow generated the input from LongBridge OpenAPI
+- optional `source_input_summary.json` when the workflow generated the input from public yfinance or LongBridge OpenAPI
 
 ## Local equivalent
 

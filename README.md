@@ -104,7 +104,7 @@ Other sample scripts live in [`scripts/`](./scripts/).
 
 ## HK snapshot artifact publishing
 
-The manual [`Publish HK Snapshot Artifacts`](./.github/workflows/publish-hk-snapshot-artifacts.yml) workflow builds and validates the active HK snapshot artifact pack from an operator-supplied real CSV or a LongBridge OpenAPI generated runtime input. It is manual-only and defaults to a dry-run publish plan.
+The manual [`Publish HK Snapshot Artifacts`](./.github/workflows/publish-hk-snapshot-artifacts.yml) workflow builds and validates the active HK snapshot artifact pack from an operator-supplied real CSV, a public yfinance-generated runtime input, or a LongBridge OpenAPI generated runtime input. It is manual-only and defaults to a dry-run publish plan.
 
 Use the production CSV header template at [`examples/low_vol_dividend_quality/production_factor_snapshot.template.csv`](./examples/low_vol_dividend_quality/production_factor_snapshot.template.csv), then follow [`docs/hk_snapshot_publish_workflow.md`](./docs/hk_snapshot_publish_workflow.md).
 
@@ -121,7 +121,7 @@ gh workflow run publish-hk-snapshot-artifacts.yml \
 
 This workflow does not create production data, approve live trading, deploy Cloud Run, or place orders.
 
-If no CSV exists yet, set `input_source_mode=longbridge_openapi_staging`; the workflow will use the default seed universe and LongBridge HK credentials to generate a LongBridge API-backed CSV. Use `longbridge_credentials_mode=secret_manager` for GCP Secret Manager or `longbridge_credentials_mode=github_secrets` when the HK snapshot repo has GitHub Actions secrets. After artifact validation and stable GCS publishing, this can serve as runtime artifact evidence for platform wiring. Final live order approval still requires backtest, broker dry-run, notification, rollout, and operator approval evidence.
+If no CSV exists yet, prefer `input_source_mode=public_yfinance_staging`; the workflow will use the default seed universe and public yfinance data to generate a data-source-independent CSV, without requiring broker historical-data permission. LongBridge OpenAPI remains available as `input_source_mode=longbridge_openapi_staging` when the account has the required market-data entitlement. After artifact validation and stable GCS publishing, generated CSVs with `allow_research_defaults=false` can serve as runtime artifact evidence for platform wiring. Final live order approval still requires backtest, broker dry-run, notification, rollout, and operator approval evidence.
 
 ## Promotion and evidence tools
 
