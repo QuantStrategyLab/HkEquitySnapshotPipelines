@@ -139,6 +139,12 @@ It only writes an audit package under `data/output/monthly_snapshot_audit`; it d
 - Prefer reproducible commands and explicit output directories.
 - Do not promote a research artifact to live use without validated production data, backtests, dry-run evidence, bilingual notifications, rollout controls, and operator approval.
 
+## Community and security
+
+- See [CONTRIBUTING.md](CONTRIBUTING.md) for pull request scope, local verification, and documentation expectations.
+- Follow [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for maintainer and contributor conduct.
+- Report credential, automation, broker, exchange, or cloud-resource vulnerabilities through [SECURITY.md](SECURITY.md); do not open public issues for secrets or live-execution risk.
+
 ## License
 
 See [LICENSE](LICENSE).
