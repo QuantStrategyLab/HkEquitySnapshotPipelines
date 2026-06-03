@@ -14,6 +14,7 @@ dependencies = [
 
 [project.optional-dependencies]
 test = ["pytest>=8"]
+longbridge = ["longbridge>=4.2,<5"]
 
 [project.scripts]
 hkeq-build-blue-chip-leader-snapshot = "hk_equity_snapshot_pipelines.blue_chip_leader_rotation:main"
@@ -51,6 +52,9 @@ hkeq-build-first-snapshot-evidence-bundles = "hk_equity_snapshot_pipelines.first
 hkeq-draft-first-snapshot-production-source-audit = "hk_equity_snapshot_pipelines.first_snapshot_production_source_audit:main"
 hkeq-draft-first-snapshot-backtest-evidence = "hk_equity_snapshot_pipelines.first_snapshot_backtest_evidence:main"
 hkeq-research-snapshot-proxy-cycle-backtest = "hk_equity_snapshot_pipelines.snapshot_proxy_backtest:main"
+hkeq-resolve-hk-snapshot-inputs = "hk_equity_snapshot_pipelines.input_sources:main"
+hkeq-publish-hk-snapshot-artifacts = "hk_equity_snapshot_pipelines.publish:main"
+hkeq-build-low-vol-dividend-longbridge-factor-snapshot = "hk_equity_snapshot_pipelines.low_vol_dividend_longbridge_snapshot:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

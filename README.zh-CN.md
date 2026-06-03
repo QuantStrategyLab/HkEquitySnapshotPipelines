@@ -101,6 +101,27 @@ hkeq-build-free-cash-flow-quality-snapshot \
 
 其他样例脚本在 [`scripts/`](./scripts/) 下。
 
+## 港股 snapshot artifact 发布
+
+手动 workflow [`Publish HK Snapshot Artifacts`](./.github/workflows/publish-hk-snapshot-artifacts.yml) 可以把运营侧提供的真实 CSV 或 LongBridge OpenAPI 生成的 runtime input 构建并校验为 active 港股 snapshot artifact pack。它只支持手动触发，默认只打印 dry-run 发布计划。
+
+先使用生产 CSV 表头模板 [`examples/low_vol_dividend_quality/production_factor_snapshot.template.csv`](./examples/low_vol_dividend_quality/production_factor_snapshot.template.csv)，再按照 [`docs/hk_snapshot_publish_workflow.zh-CN.md`](./docs/hk_snapshot_publish_workflow.zh-CN.md) 操作。
+
+示例 dry-run 触发：
+
+```bash
+gh workflow run publish-hk-snapshot-artifacts.yml \
+  --repo QuantStrategyLab/HkEquitySnapshotPipelines \
+  -f profile=hk_low_vol_dividend_quality \
+  -f factor_snapshot_path=gs://<bucket>/hk_equity/inputs/hk_low_vol_dividend_quality/factor_snapshot_YYYYMMDD.csv \
+  -f gcs_prefix=gs://<bucket>/strategy-artifacts/hk_equity/hk_low_vol_dividend_quality_staging \
+  -f execute_publish=false
+```
+
+该 workflow 不会创建 production 数据、不会批准实盘、不会部署 Cloud Run，也不会下单。
+
+如果还没有 CSV，可以设置 `input_source_mode=longbridge_openapi_staging`；workflow 会用默认 seed universe 和 LongBridge HK Secret Manager 凭据（`longport-app-key-hk`、`longport-app-secret-hk`、`longport_token_hk`）生成 LongBridge API 支撑的 CSV。通过 artifact validation 并发布到稳定 GCS 路径后，它可以作为平台接线用的 runtime artifact evidence。最终实盘下单批准仍需要回测、券商 dry-run、通知、rollout 和人工审批 evidence。
+
 ## Promotion 与 evidence 工具
 
 修改平台配置前，先用只读工具查看 promotion 状态：
@@ -211,6 +232,7 @@ python -m pytest -q
 ## 文档
 
 - [`docs/artifact_contract.md`](./docs/artifact_contract.md)：snapshot artifact schema 和 manifest contract。
+- [`docs/hk_snapshot_publish_workflow.zh-CN.md`](./docs/hk_snapshot_publish_workflow.zh-CN.md)：港股 snapshot artifact 手动构建、校验和可选 GCS 发布 workflow。
 - [`docs/first_snapshot_promotion_runbook.md`](./docs/first_snapshot_promotion_runbook.md)：当前 active 港股 snapshot 候选的 promotion runbook。
 - [`docs/first_snapshot_evidence_tools.zh-CN.md`](./docs/first_snapshot_evidence_tools.zh-CN.md)：active/deferred quality-yield 候选共用的 evidence package、bundle、source-audit 和 backtest draft 工具。
 - [`docs/low_vol_dividend_live_enablement_package.zh-CN.md`](./docs/low_vol_dividend_live_enablement_package.zh-CN.md)：`hk_low_vol_dividend_quality` 首个候选 evidence package。

@@ -1,0 +1,33 @@
+symbol,sector,eligible,lot_size
+00001,Industrials,true,500
+00002,Utilities,true,500
+00003,Utilities,true,1000
+00005,Financials,true,400
+00006,Utilities,true,500
+00011,Financials,true,500
+00012,Real Estate,true,1000
+00016,Real Estate,true,1000
+00019,Conglomerates,true,500
+00066,Industrials,true,500
+00101,Real Estate,true,1000
+00175,Consumer Discretionary,true,1000
+00267,Conglomerates,true,1000
+00288,Financials,true,1000
+00386,Energy,true,2000
+00388,Financials,true,100
+00669,Technology,true,100
+00700,Technology,true,100
+00823,REITs,true,100
+00883,Energy,true,1000
+00939,Financials,true,1000
+00941,Telecommunications,true,500
+01038,Utilities,true,500
+01044,Consumer Staples,true,500
+01299,Financials,true,200
+01398,Financials,true,1000
+01928,Consumer Staples,true,500
+02020,Consumer Discretionary,true,200
+02318,Financials,true,500
+02388,Financials,true,500
+02628,Financials,true,1000
+03988,Financials,true,1000

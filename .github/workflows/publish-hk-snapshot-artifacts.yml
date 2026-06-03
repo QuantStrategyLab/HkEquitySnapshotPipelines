@@ -1,0 +1,331 @@
+name: Publish HK Snapshot Artifacts
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: HK snapshot profile to build
+        required: true
+        default: hk_low_vol_dividend_quality
+        type: choice
+        options:
+          - hk_low_vol_dividend_quality
+      input_source_mode:
+        description: Use an existing CSV or generate a runtime artifact input from LongBridge OpenAPI
+        required: true
+        default: factor_snapshot_csv
+        type: choice
+        options:
+          - factor_snapshot_csv
+          - longbridge_openapi_staging
+      factor_snapshot_path:
+        description: Local, gs://, or https:// factor snapshot CSV. Required when input_source_mode=factor_snapshot_csv.
+        required: false
+        type: string
+      universe_path:
+        description: Optional local, gs://, or https:// universe CSV for LongBridge staging mode.
+        required: false
+        type: string
+      history_start:
+        description: Optional LongBridge staging history start date, for example 2025-01-01.
+        required: false
+        type: string
+      as_of_date:
+        description: Optional snapshot date, for example 2026-06-03.
+        required: false
+        type: string
+      benchmark_symbol:
+        description: Optional HK benchmark for beta/suspension metrics.
+        required: false
+        default: 2800.HK
+        type: string
+      allow_research_defaults:
+        description: Fill missing non-price fields for research smoke only. Not valid as runtime artifact evidence.
+        required: true
+        default: false
+        type: boolean
+      artifact_dir:
+        description: Optional artifact output directory; defaults to data/output/<profile>
+        required: false
+        type: string
+      gcs_prefix:
+        description: Optional GCS prefix. Leave blank to only build and upload GitHub artifact.
+        required: false
+        type: string
+      execute_publish:
+        description: Actually upload to GCS. false only prints the publish plan.
+        required: true
+        default: false
+        type: boolean
+      min_adv20_hkd:
+        description: Optional minimum 20-day ADV filter in HKD.
+        required: false
+        type: string
+      min_market_cap_hkd:
+        description: Optional minimum market-cap filter in HKD.
+        required: false
+        type: string
+      longbridge_app_key_secret_name:
+        description: Secret Manager secret name for LongBridge app key in staging mode.
+        required: false
+        default: longport-app-key-hk
+        type: string
+      longbridge_app_secret_secret_name:
+        description: Secret Manager secret name for LongBridge app secret in staging mode.
+        required: false
+        default: longport-app-secret-hk
+        type: string
+      longbridge_access_token_secret_name:
+        description: Secret Manager secret name for LongBridge access token in staging mode.
+        required: false
+        default: longport_token_hk
+        type: string
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID || 'interactivebrokersquant' }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      GCP_WORKLOAD_IDENTITY_SERVICE_ACCOUNT: ${{ vars.GCP_WORKLOAD_IDENTITY_SERVICE_ACCOUNT }}
+      PROFILE: ${{ inputs.profile }}
+      INPUT_SOURCE_MODE: ${{ inputs.input_source_mode }}
+      FACTOR_SNAPSHOT_PATH: ${{ inputs.factor_snapshot_path }}
+      UNIVERSE_PATH: ${{ inputs.universe_path }}
+      HISTORY_START: ${{ inputs.history_start }}
+      AS_OF_DATE: ${{ inputs.as_of_date }}
+      BENCHMARK_SYMBOL: ${{ inputs.benchmark_symbol }}
+      ALLOW_RESEARCH_DEFAULTS: ${{ inputs.allow_research_defaults }}
+      ARTIFACT_DIR_INPUT: ${{ inputs.artifact_dir }}
+      GCS_PREFIX: ${{ inputs.gcs_prefix }}
+      EXECUTE_PUBLISH: ${{ inputs.execute_publish }}
+      MIN_ADV20_HKD: ${{ inputs.min_adv20_hkd }}
+      MIN_MARKET_CAP_HKD: ${{ inputs.min_market_cap_hkd }}
+      LONGBRIDGE_APP_KEY_SECRET_NAME: ${{ inputs.longbridge_app_key_secret_name }}
+      LONGBRIDGE_APP_SECRET_SECRET_NAME: ${{ inputs.longbridge_app_secret_secret_name }}
+      LONGBRIDGE_ACCESS_TOKEN_SECRET_NAME: ${{ inputs.longbridge_access_token_secret_name }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install package
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          if [ "${INPUT_SOURCE_MODE}" = "longbridge_openapi_staging" ]; then
+            python -m pip install -e '.[longbridge]'
+          else
+            python -m pip install -e .
+          fi
+
+      - name: Check whether Google Cloud auth is needed
+        id: gcp-auth-check
+        run: |
+          set -euo pipefail
+          needed=false
+          case "${FACTOR_SNAPSHOT_PATH:-}" in
+            gs://*) needed=true ;;
+          esac
+          case "${UNIVERSE_PATH:-}" in
+            gs://*) needed=true ;;
+          esac
+          if [ "${INPUT_SOURCE_MODE}" = "longbridge_openapi_staging" ]; then
+            needed=true
+          fi
+          if [ "${EXECUTE_PUBLISH}" = "true" ] && [ -n "${GCS_PREFIX:-}" ]; then
+            needed=true
+          fi
+          echo "needed=${needed}" >> "$GITHUB_OUTPUT"
+
+      - name: Authenticate to Google Cloud
+        if: steps.gcp-auth-check.outputs.needed == 'true'
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ env.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.GCP_WORKLOAD_IDENTITY_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        if: steps.gcp-auth-check.outputs.needed == 'true'
+        uses: google-github-actions/setup-gcloud@v3
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          version: '>= 416.0.0'
+
+      - name: Resolve or generate factor snapshot CSV
+        id: factor-snapshot
+        run: |
+          set -euo pipefail
+          SOURCE_INPUT_SUMMARY_PATH=""
+          case "${INPUT_SOURCE_MODE}" in
+            factor_snapshot_csv)
+              if [ -z "${FACTOR_SNAPSHOT_PATH:-}" ]; then
+                echo "factor_snapshot_path is required when input_source_mode=factor_snapshot_csv." >&2
+                exit 1
+              fi
+              resolved_input_dir="data/input/resolved/${PROFILE}"
+              resolved_env="${RUNNER_TEMP:-/tmp}/resolved_hk_snapshot_inputs.env"
+              python scripts/resolve_hk_snapshot_inputs.py \
+                --factor-snapshot "${FACTOR_SNAPSHOT_PATH}" \
+                --output-dir "${resolved_input_dir}" \
+                --env-output "${resolved_env}"
+              # shellcheck disable=SC1090
+              source "${resolved_env}"
+              ;;
+            longbridge_openapi_staging)
+              universe_path="${UNIVERSE_PATH:-examples/low_vol_dividend_quality/longbridge_universe.seed.csv}"
+              if [ -n "${UNIVERSE_PATH:-}" ]; then
+                resolved_universe_dir="data/input/resolved/${PROFILE}/universe"
+                python scripts/resolve_hk_snapshot_inputs.py \
+                  --factor-snapshot "${UNIVERSE_PATH}" \
+                  --output-dir "${resolved_universe_dir}" \
+                  --env-output "${RUNNER_TEMP:-/tmp}/resolved_hk_universe.env"
+                # shellcheck disable=SC1090
+                source "${RUNNER_TEMP:-/tmp}/resolved_hk_universe.env"
+                universe_path="${FACTOR_SNAPSHOT_PATH}"
+              fi
+
+              export LONG_BRIDGE_APP_KEY
+              export LONG_BRIDGE_APP_SECRET
+              export LONG_BRIDGE_ACCESS_TOKEN
+              LONG_BRIDGE_APP_KEY="$(gcloud secrets versions access latest --secret="${LONGBRIDGE_APP_KEY_SECRET_NAME}")"
+              LONG_BRIDGE_APP_SECRET="$(gcloud secrets versions access latest --secret="${LONGBRIDGE_APP_SECRET_SECRET_NAME}")"
+              LONG_BRIDGE_ACCESS_TOKEN="$(gcloud secrets versions access latest --secret="${LONGBRIDGE_ACCESS_TOKEN_SECRET_NAME}")"
+
+              generated_dir="data/input/generated/${PROFILE}"
+              mkdir -p "${generated_dir}"
+              generated_path="${generated_dir}/factor_snapshot.longbridge_staging.csv"
+              generator_args=(
+                --universe "${universe_path}"
+                --output "${generated_path}"
+                --benchmark-symbol "${BENCHMARK_SYMBOL:-2800.HK}"
+                --json
+              )
+              if [ -n "${AS_OF_DATE:-}" ]; then
+                generator_args+=(--as-of "${AS_OF_DATE}")
+              fi
+              if [ -n "${HISTORY_START:-}" ]; then
+                generator_args+=(--history-start "${HISTORY_START}")
+              fi
+              if [ "${ALLOW_RESEARCH_DEFAULTS}" = "true" ]; then
+                generator_args+=(--allow-research-defaults)
+              fi
+              python scripts/build_low_vol_dividend_longbridge_factor_snapshot.py "${generator_args[@]}" > "${generated_dir}/generation_summary.json"
+              FACTOR_SNAPSHOT_PATH="${generated_path}"
+              SOURCE_INPUT_SUMMARY_PATH="${generated_dir}/generation_summary.json"
+              ;;
+            *)
+              echo "Unsupported input_source_mode: ${INPUT_SOURCE_MODE}" >&2
+              exit 1
+              ;;
+          esac
+
+          if [ -z "${FACTOR_SNAPSHOT_PATH:-}" ] || [ ! -f "${FACTOR_SNAPSHOT_PATH}" ]; then
+            echo "factor snapshot must resolve to a local CSV file: ${FACTOR_SNAPSHOT_PATH:-<empty>}" >&2
+            exit 1
+          fi
+          echo "factor_snapshot_path=${FACTOR_SNAPSHOT_PATH}" >> "$GITHUB_OUTPUT"
+          echo "source_input_summary_path=${SOURCE_INPUT_SUMMARY_PATH}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and validate HK snapshot artifacts
+        id: build
+        run: |
+          set -euo pipefail
+          artifact_dir="${ARTIFACT_DIR_INPUT:-data/output/${PROFILE}}"
+          mkdir -p "${artifact_dir}"
+          {
+            echo "artifact_dir=${artifact_dir}"
+            echo "artifact_name=hk-equity-snapshot-${PROFILE}-${GITHUB_RUN_ID}"
+          } >> "$GITHUB_OUTPUT"
+
+          case "${PROFILE}" in
+            hk_low_vol_dividend_quality)
+              build_args=(
+                --factor-snapshot "${{ steps.factor-snapshot.outputs.factor_snapshot_path }}"
+                --output-dir "${artifact_dir}"
+              )
+              if [ -n "${MIN_ADV20_HKD:-}" ]; then
+                build_args+=(--min-adv20-hkd "${MIN_ADV20_HKD}")
+              fi
+              if [ -n "${MIN_MARKET_CAP_HKD:-}" ]; then
+                build_args+=(--min-market-cap-hkd "${MIN_MARKET_CAP_HKD}")
+              fi
+              hkeq-build-low-vol-dividend-quality-snapshot "${build_args[@]}"
+              ;;
+            *)
+              echo "Unsupported HK snapshot profile: ${PROFILE}" >&2
+              exit 1
+              ;;
+          esac
+
+          hkeq-validate-snapshot-artifact-pack \
+            --profile "${PROFILE}" \
+            --artifact-dir "${artifact_dir}" \
+            --json > "${artifact_dir}/artifact_pack_validation.json"
+
+          source_input_summary="${{ steps.factor-snapshot.outputs.source_input_summary_path }}"
+          if [ -n "${source_input_summary:-}" ] && [ -f "${source_input_summary}" ]; then
+            cp "${source_input_summary}" "${artifact_dir}/source_input_summary.json"
+          fi
+
+      - name: Publish or print GCS plan
+        run: |
+          set -euo pipefail
+          if [ -z "${GCS_PREFIX:-}" ]; then
+            echo "gcs_prefix is not set; skipping GCS publish."
+            exit 0
+          fi
+          args=(
+            --profile "${PROFILE}"
+            --artifact-dir "${{ steps.build.outputs.artifact_dir }}"
+            --gcs-prefix "${GCS_PREFIX}"
+          )
+          if [ "${EXECUTE_PUBLISH}" = "true" ]; then
+            args+=(--execute)
+          fi
+          python scripts/publish_hk_snapshot_artifacts.py "${args[@]}"
+
+      - name: Upload generated artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.build.outputs.artifact_name }}
+          path: ${{ steps.build.outputs.artifact_dir }}
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload generated input snapshot
+        if: inputs.input_source_mode == 'longbridge_openapi_staging'
+        uses: actions/upload-artifact@v7
+        with:
+          name: hk-equity-generated-input-${{ github.run_id }}
+          path: data/input/generated/${{ inputs.profile }}
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Append job summary
+        run: |
+          set -euo pipefail
+          {
+            echo "## HK snapshot artifact run"
+            echo
+            echo "- profile: \`${PROFILE}\`"
+            echo "- input_source_mode: \`${INPUT_SOURCE_MODE}\`"
+            echo "- factor_snapshot_path: \`${{ steps.factor-snapshot.outputs.factor_snapshot_path }}\`"
+            echo "- artifact_dir: \`${{ steps.build.outputs.artifact_dir }}\`"
+            echo "- gcs_prefix: \`${GCS_PREFIX:-<not set>}\`"
+            echo "- execute_publish: \`${EXECUTE_PUBLISH}\`"
+            echo "- min_adv20_hkd: \`${MIN_ADV20_HKD:-<not set>}\`"
+            echo "- min_market_cap_hkd: \`${MIN_MARKET_CAP_HKD:-<not set>}\`"
+            echo "- evidence_boundary: LongBridge generated CSVs are runtime artifact inputs after validation; final live order approval still requires backtest, dry-run, notification, and operator approval evidence."
+            echo
+            echo "Generated files:"
+            find "${{ steps.build.outputs.artifact_dir }}" -maxdepth 1 -type f -print | sort | sed 's/^/- /'
+          } >> "$GITHUB_STEP_SUMMARY"

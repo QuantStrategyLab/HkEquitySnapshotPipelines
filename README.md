@@ -102,6 +102,27 @@ hkeq-build-free-cash-flow-quality-snapshot \
 
 Other sample scripts live in [`scripts/`](./scripts/).
 
+## HK snapshot artifact publishing
+
+The manual [`Publish HK Snapshot Artifacts`](./.github/workflows/publish-hk-snapshot-artifacts.yml) workflow builds and validates the active HK snapshot artifact pack from an operator-supplied real CSV or a LongBridge OpenAPI generated runtime input. It is manual-only and defaults to a dry-run publish plan.
+
+Use the production CSV header template at [`examples/low_vol_dividend_quality/production_factor_snapshot.template.csv`](./examples/low_vol_dividend_quality/production_factor_snapshot.template.csv), then follow [`docs/hk_snapshot_publish_workflow.md`](./docs/hk_snapshot_publish_workflow.md).
+
+Example dry-run dispatch:
+
+```bash
+gh workflow run publish-hk-snapshot-artifacts.yml \
+  --repo QuantStrategyLab/HkEquitySnapshotPipelines \
+  -f profile=hk_low_vol_dividend_quality \
+  -f factor_snapshot_path=gs://<bucket>/hk_equity/inputs/hk_low_vol_dividend_quality/factor_snapshot_YYYYMMDD.csv \
+  -f gcs_prefix=gs://<bucket>/strategy-artifacts/hk_equity/hk_low_vol_dividend_quality_staging \
+  -f execute_publish=false
+```
+
+This workflow does not create production data, approve live trading, deploy Cloud Run, or place orders.
+
+If no CSV exists yet, set `input_source_mode=longbridge_openapi_staging`; the workflow will use the default seed universe and LongBridge HK Secret Manager credentials (`longport-app-key-hk`, `longport-app-secret-hk`, `longport_token_hk`) to generate a LongBridge API-backed CSV. After artifact validation and stable GCS publishing, this can serve as runtime artifact evidence for platform wiring. Final live order approval still requires backtest, broker dry-run, notification, rollout, and operator approval evidence.
+
 ## Promotion and evidence tools
 
 Use these read-only tools to inspect promotion state before touching platform configuration:
@@ -299,6 +320,7 @@ python -m pytest -q
 ## Documentation
 
 - [`docs/artifact_contract.md`](./docs/artifact_contract.md): snapshot artifact schema and manifest contract.
+- [`docs/hk_snapshot_publish_workflow.md`](./docs/hk_snapshot_publish_workflow.md): manual HK snapshot artifact build, validation, and optional GCS publish workflow.
 - [`docs/first_snapshot_promotion_runbook.md`](./docs/first_snapshot_promotion_runbook.md): promotion runbook for the active HK snapshot candidate.
 - [`docs/first_snapshot_evidence_tools.md`](./docs/first_snapshot_evidence_tools.md): shared evidence package, bundle, source-audit, and backtest draft tools for active/deferred quality-yield candidates.
 - [`docs/low_vol_dividend_live_enablement_package.md`](./docs/low_vol_dividend_live_enablement_package.md): first-candidate evidence package for `hk_low_vol_dividend_quality`.
