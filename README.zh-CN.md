@@ -1,113 +1,101 @@
 # HkEquitySnapshotPipelines
 
-[English README](./README.md)
+[English README](README.md)
 
-> 风险提示：本仓库仅用于工程实现、研究和运行审查，不构成投资建议。
+> 投资有风险。本项目不构成投资建议，仅用于学习、研究和工程审阅。
 
-`HkEquitySnapshotPipelines` 是 QuantStrategyLab 港股 snapshot-backed 策略管线仓库。
-它和 `HkEquityStrategies` 明确分开：`HkEquityStrategies` 只负责直接消费 `market_history` 的非 snapshot runtime 策略。
+## 这个仓库是什么
 
-## 仓库边界
+`HkEquitySnapshotPipelines` 是 QuantStrategyLab 的港股 snapshot 与证据流水线，用于生成 snapshot-backed 港股策略所需的 feature、factor、flow、valuation 和 event-calendar artifact。
 
-本仓库负责：
+本仓库产出证据和 artifact，不负责券商下单，不保存券商凭据，不部署 runtime 服务，也不会单独把某个策略变成 live。
 
-- 港股 snapshot strategy scaffold 的 artifact contract
-- feature / factor / flow / valuation / event-calendar snapshot 的样例/参考 builder
-- ranking artifact 与 release-status summary 生成
-- snapshot readiness、artifact-pack validation、promotion matrix、live-enable evidence validator
-- snapshot-backed 港股策略候选研究记录
+## 策略和证据边界
 
-本仓库不负责：
+### 普通 runtime 策略
 
-- 非 snapshot runtime 策略
-- 券商 API、下单或账户对账
-- Cloud Run / Google Run 服务配置
-- 平台通知或券商专项执行报告
-- 生产级港股行情、fundamentals 或披露数据源
+直接使用 market-history 的港股策略在 `HkEquityStrategies`。本仓库不应该重复实现这些 runtime 逻辑，也不应该维护平台配置。
 
-非 snapshot 港股 runtime profile 统一保留在 [`../HkEquityStrategies`](../HkEquityStrategies)。Snapshot profile 文档放在本仓库，非 snapshot runtime 文档放在策略仓库，避免混在一起。
+### 本仓库处理的 snapshot-backed 工作
 
-## 当前状态
+本仓库负责 snapshot-backed 港股策略的 artifact 部分：
 
-本仓库全部 profile 都还是 `architecture_scaffold` / evidence-gated 候选，本身不是平台 live profile。
-只有在补齐 production 数据、point-in-time 回测、artifact-pack 校验、券商 dry-run 证据、双语通知证据和人工审批后，才允许推动 promotion。
+- snapshot profile contract 和 manifest
+- 样例 builder 和参考 builder
+- ranking 输出和 release-status summary
+- artifact validation、promotion matrix 和 readiness check
+- 供策略仓和平台仓使用的 live-enablement evidence 模板
 
-当前 active snapshot live-enable 工作队列：
+### 下游如何使用
 
-1. `hk_low_vol_dividend_quality`
+`HkEquityStrategies`、`InteractiveBrokersPlatform` 和 `LongBridgePlatform` 只应消费已验证 artifact 和 runtime-enabled profile。不能只根据一次样例构建或 README 描述判断某个策略适合 live。
 
-保留但仅用于重新回测的 quality/yield scaffold：`hk_shareholder_yield_quality` 和 `hk_free_cash_flow_quality`。
-它们在 proxy 周期回测里长周期回撤超过 30%，因此不进入默认 live-enable 工作队列。
-这些只是工作状态，不是 live 开关。
+## 当前 snapshot 工作队列
 
-## Snapshot profile 索引
+| 范围 | Profile | 含义 |
+| --- | --- | --- |
+| 首个 active snapshot 候选 | `hk_low_vol_dividend_quality` | 正在准备 runtime evidence review 的第一个 snapshot-backed 港股 profile。 |
+| 延后 proxy retest | `hk_shareholder_yield_quality`, `hk_free_cash_flow_quality` | 保留给后续真实数据复测；不在默认 live-enable 队列。 |
+| research-only scaffold | `hk_quality_growth_low_volatility`, `hk_factor_mix_qvlm_risk_parity`, `hk_central_soe_value_quality_select`, `hk_residual_momentum_quality`, `hk_liquid_momentum_quality`, `hk_composite_factor_quality_value_momentum`, `hk_southbound_flow_momentum`, `hk_ah_premium_relative_value`, `hk_blue_chip_leader_rotation`, `hk_index_rebalance_event` | 保留 builder 和 contract test；除非明确重新打开，否则不要求补完整 live evidence。 |
 
-当前只有 `hk_low_vol_dividend_quality` 进入 active live-enable 工作队列。其他已 scaffold 的 profile 保留为 research-only 资产：保留 sample builder 和基础测试，但除非明确重新打开，不要求现在补完整 walk-forward 回测或 live-enable evidence package。
+Promotion 状态由代码生成，不由 README 文本决定。改策略仓或平台配置前，请先查看 matrix 命令输出。
 
-| Profile | Snapshot 类型 | Builder 命令 | 工作范围 | 状态 |
-| --- | --- | --- | --- | --- |
-| `hk_low_vol_dividend_quality` | `factor_snapshot` | `hkeq-build-low-vol-dividend-quality-snapshot` | active first snapshot candidate | `architecture_scaffold` |
-| `hk_shareholder_yield_quality` | `factor_snapshot` | `hkeq-build-shareholder-yield-quality-snapshot` | deferred proxy retest scaffold | `architecture_scaffold` |
-| `hk_free_cash_flow_quality` | `factor_snapshot` | `hkeq-build-free-cash-flow-quality-snapshot` | deferred proxy retest scaffold | `architecture_scaffold` |
-| `hk_quality_growth_low_volatility` | `factor_snapshot` | `hkeq-build-quality-growth-low-volatility-snapshot` | research-only scaffold | `architecture_scaffold` |
-| `hk_factor_mix_qvlm_risk_parity` | `factor_snapshot` | `hkeq-build-factor-mix-qvlm-risk-parity-snapshot` | research-only scaffold | `architecture_scaffold` |
-| `hk_central_soe_value_quality_select` | `factor_snapshot` | `hkeq-build-central-soe-value-quality-select-snapshot` | research-only scaffold | `architecture_scaffold` |
-| `hk_residual_momentum_quality` | `factor_snapshot` | `hkeq-build-residual-momentum-quality-snapshot` | research-only scaffold | `architecture_scaffold` |
-| `hk_liquid_momentum_quality` | `feature_snapshot` | `hkeq-build-liquid-momentum-quality-snapshot` | research-only scaffold | `architecture_scaffold` |
-| `hk_composite_factor_quality_value_momentum` | `factor_snapshot` | `hkeq-build-composite-factor-qvm-snapshot` | research-only scaffold | `architecture_scaffold` |
-| `hk_southbound_flow_momentum` | `flow_snapshot` | `hkeq-build-southbound-flow-momentum-snapshot` | research-only scaffold | `architecture_scaffold` |
-| `hk_ah_premium_relative_value` | `valuation_snapshot` | `hkeq-build-ah-premium-relative-value-snapshot` | research-only scaffold | `architecture_scaffold` |
-| `hk_blue_chip_leader_rotation` | `feature_snapshot` | `hkeq-build-blue-chip-leader-snapshot` | research-only baseline scaffold | `architecture_scaffold` |
-| `hk_index_rebalance_event` | `event_calendar_snapshot` | `hkeq-build-index-rebalance-event-snapshot` | research-only scaffold | `architecture_scaffold` |
+## 这些 artifact 用来做什么
 
-Active promotion 顺序由 promotion matrix 命令输出，不应该硬编码到平台仓库。保留的非首批 scaffold 使用 `research_only_scaffold_sequence` 查看。
-
-## Artifact contract
-
-每个 builder 生成对应策略的 snapshot pack：
+Snapshot artifact 的作用是让策略判断可复现。一次典型发布包含：
 
 - `<profile>_<snapshot_type>_latest.csv`
 - `<profile>_<snapshot_type>_latest.csv.manifest.json`
 - `<profile>_ranking_latest.csv`
 - `release_status_summary.json`
 
-Contract 细节见 [`docs/artifact_contract.md`](./docs/artifact_contract.md)。不要在 `HkEquityStrategies` 里重复维护 snapshot column contract。
+这些文件是证据输入，不是收益宣传。下游仓库提升或执行 snapshot-backed profile 前，需要在适用场景下检查最新短、中、长周期表现，以及数据 lineage、成本、回撤、换手、artifact 新鲜度、dry-run 订单、通知、上线控制和人工审批。
 
-## 本地样例构建
+## 快速开始
 
-直接从源码运行样例 builder：
+```bash
+python -m pip install -e '.[test]'
+python -m pytest -q
+```
+
+## 本地构建和检查 artifact
+
+运行样例构建：
 
 ```bash
 PYTHONPATH=src python scripts/build_low_vol_dividend_sample.py
-PYTHONPATH=src python scripts/build_shareholder_yield_sample.py
-PYTHONPATH=src python scripts/build_free_cash_flow_sample.py
 ```
 
-或调用安装后的 package entrypoint：
+查看 promotion 和 readiness 状态：
 
 ```bash
-hkeq-build-low-vol-dividend-quality-snapshot \
-  --factor-snapshot examples/low_vol_dividend_quality/factor_snapshot.sample.csv \
-  --output-dir data/output/low_vol_dividend_quality
-
-hkeq-build-shareholder-yield-quality-snapshot \
-  --factor-snapshot examples/shareholder_yield_quality/factor_snapshot.sample.csv \
-  --output-dir data/output/shareholder_yield_quality
-
-hkeq-build-free-cash-flow-quality-snapshot \
-  --factor-snapshot examples/free_cash_flow_quality/factor_snapshot.sample.csv \
-  --output-dir data/output/free_cash_flow_quality
+python scripts/print_first_snapshot_promotion_plan.py --json
+python scripts/print_snapshot_promotion_matrix.py --json
+python scripts/print_snapshot_readiness.py --profile hk_low_vol_dividend_quality --json
 ```
 
-其他样例脚本在 [`scripts/`](./scripts/) 下。
+校验 artifact pack：
 
-## 港股 snapshot artifact 发布
+```bash
+hkeq-validate-snapshot-artifact-pack \
+  --artifact-dir data/output/low_vol_dividend_quality \
+  --profile hk_low_vol_dividend_quality \
+  --json
+```
 
-手动 workflow [`Publish HK Snapshot Artifacts`](./.github/workflows/publish-hk-snapshot-artifacts.yml) 可以把运营侧提供的真实 CSV、public yfinance 生成的 runtime input，或 LongBridge OpenAPI 生成的 runtime input 构建并校验为 active 港股 snapshot artifact pack。它只支持手动触发，默认只打印 dry-run 发布计划。
+生成 live-enable evidence 模板：
 
-先使用生产 CSV 表头模板 [`examples/low_vol_dividend_quality/production_factor_snapshot.template.csv`](./examples/low_vol_dividend_quality/production_factor_snapshot.template.csv)，再按照 [`docs/hk_snapshot_publish_workflow.zh-CN.md`](./docs/hk_snapshot_publish_workflow.zh-CN.md) 操作。
+```bash
+hkeq-validate-live-enable-evidence \
+  --print-template \
+  --profile hk_low_vol_dividend_quality \
+  --platform longbridge \
+  --json
+```
 
-示例 dry-run 触发：
+## 安全发布
+
+Artifact 发布应先从 dry run 开始。只有确认 source CSV、GCS prefix、artifact contract 和 secret 边界后，才使用手动 GitHub workflow：
 
 ```bash
 gh workflow run publish-hk-snapshot-artifacts.yml \
@@ -118,131 +106,35 @@ gh workflow run publish-hk-snapshot-artifacts.yml \
   -f execute_publish=false
 ```
 
-该 workflow 不会创建 production 数据、不会批准实盘、不会部署 Cloud Run，也不会下单。
+这个 workflow 不会创建 production 数据，不会批准实盘，不会部署 Cloud Run，也不会提交券商订单。
 
-如果还没有 CSV，优先设置 `input_source_mode=public_yfinance_staging`；workflow 会用默认 seed universe 和 public yfinance 数据生成一份不依赖券商历史行情权限的 CSV。LongBridge OpenAPI 仍保留为 `input_source_mode=longbridge_openapi_staging`，适用于账号已开通对应 market-data entitlement 的情况。通过 artifact validation 并发布到稳定 GCS 路径后，`allow_research_defaults=false` 的生成 CSV 可以作为平台接线用的 runtime artifact evidence。最终实盘下单批准仍需要回测、券商 dry-run、通知、rollout 和人工审批 evidence。
+## 仓库结构
 
-## Promotion 与 evidence 工具
+- `src/`：snapshot builder、artifact contract、validation policy 和证据工具。
+- `tests/`：单元测试、契约测试和回归测试。
+- `docs/`：artifact contract、promotion runbook 和 evidence guide。
+- `.github/workflows/`：手动和定时 artifact / audit workflow。
+- `scripts/`：本地 builder、研究回测、readiness 检查和证据辅助工具。
+- `examples/`：样例输入文件和生产 CSV 模板。
 
-修改平台配置前，先用只读工具查看 promotion 状态：
+## 延伸文档
 
-```bash
-python scripts/print_first_snapshot_promotion_plan.py --json
-python scripts/print_snapshot_promotion_matrix.py --json
-python scripts/print_snapshot_readiness.py --profile hk_low_vol_dividend_quality --json
-PYTHONPATH=src python scripts/build_first_snapshot_live_enablement_packages.py --json
-PYTHONPATH=src python scripts/build_first_snapshot_evidence_bundles.py --json
-```
+- [`docs/artifact_contract.md`](docs/artifact_contract.md)
+- [`docs/hk_snapshot_publish_workflow.zh-CN.md`](docs/hk_snapshot_publish_workflow.zh-CN.md)
+- [`docs/first_snapshot_promotion_runbook.zh-CN.md`](docs/first_snapshot_promotion_runbook.zh-CN.md)
+- [`docs/first_snapshot_evidence_tools.zh-CN.md`](docs/first_snapshot_evidence_tools.zh-CN.md)
+- [`docs/low_vol_dividend_artifact_evidence.zh-CN.md`](docs/low_vol_dividend_artifact_evidence.zh-CN.md)
+- [`docs/low_vol_dividend_backtest_evidence.zh-CN.md`](docs/low_vol_dividend_backtest_evidence.zh-CN.md)
+- [`docs/low_vol_dividend_live_enablement_gate.zh-CN.md`](docs/low_vol_dividend_live_enablement_gate.zh-CN.md)
+- [`docs/research/hk_snapshot_strategy_candidates.md`](docs/research/hk_snapshot_strategy_candidates.md)
 
-校验 snapshot artifact pack：
+## 安全和贡献说明
 
-```bash
-hkeq-validate-snapshot-artifact-pack \
-  --artifact-dir data/output/low_vol_dividend_quality \
-  --profile hk_low_vol_dividend_quality \
-  --json
-```
+- 不要提交私人输入数据、券商凭据、签名 URL、token、Cookie、账户标识或私人订单数据。
+- 除非是明确设计为公开的 example，否则不要把生成 artifact 放进 Git。
+- 优先提供可复现命令，并显式指定输出目录。
+- 没有通过生产数据、回测、dry-run 证据、中英文通知、上线控制和人工审批前，不要把研究 artifact 提升为 live 使用。
 
-生成并校验 live-enable evidence：
+## 许可证
 
-```bash
-hkeq-validate-live-enable-evidence \
-  --print-template \
-  --profile hk_low_vol_dividend_quality \
-  --json > snapshot-live-enable-evidence.json
-
-hkeq-validate-live-enable-evidence \
-  --evidence-file snapshot-live-enable-evidence.json \
-  --json
-```
-
-Validator 要求稳定 evidence URI、不能带 token/password/signature 等 secret-like query 参数、point-in-time 数据证明、样本外回测、港股成本/滑点/lot-size/容量检查、dry-run order-preview provenance、双语通知证据、上线控制和人工审批引用。
-
-active 和 deferred quality/yield snapshot 候选可以继续使用共用 evidence 草稿命令。Deferred profile 在真实 point-in-time walk-forward 证据通过 30% 回撤门槛前，不进入默认 live-enable 队列：
-
-```bash
-PYTHONPATH=src python scripts/draft_first_snapshot_production_source_audit.py \
-  --profile hk_shareholder_yield_quality \
-  --factor-snapshot examples/shareholder_yield_quality/factor_snapshot.sample.csv \
-  --source-name operator-prod-source \
-  --json
-
-PYTHONPATH=src python scripts/draft_first_snapshot_backtest_evidence.py \
-  --profile hk_shareholder_yield_quality \
-  --summary walk_forward_summary.json \
-  --json
-```
-
-这些 draft 命令会保持所有 evidence `status: pending`，不会批准实盘交易。
-
-## 研究用 proxy 周期回测
-
-在投入完整生产数据源证据前，可以先用 research-only proxy 回测对 snapshot scaffold 做长、中、短周期比较：
-
-```bash
-PYTHONPATH=src python scripts/research_hk_snapshot_proxy_cycle_backtest.py \
-  --start 2016-01-01 \
-  --end 2026-06-03 \
-  --output-dir data/output/research_snapshot_proxy_backtest
-```
-
-该命令优先下载公开 Yahoo chart 价格；只有显式指定 synthetic 或公开价格拉取失败时才回退到确定性模拟价格。缺失的 fundamentals、buyback、FCF、南向资金、政策、估值和事件字段都是确定性 proxy 模拟，因此输出只用于研究收口，不属于 live-enable 证据。30% 最大回撤门槛会分别应用到长、中、短三个周期。
-
-## 月度 AI 审计
-
-定时 workflow [`monthly_snapshot_audit.yml`](./.github/workflows/monthly_snapshot_audit.yml) 会创建月度 GitHub issue，并以 `monthly_snapshot_audit` 任务派发到 `QuantStrategyLab/CodexAuditBridge`。
-这和已有 snapshot 仓库的月度 review 架构保持一致，同时避免把 AI provider key 放在本源仓库。
-
-该 workflow 只生成 `data/output/monthly_snapshot_audit` 下的审计包：
-
-- `ai_review_input.md`：发送给 AI 审计的 issue 正文
-- `job_summary.md`：GitHub Actions summary
-- `monthly_snapshot_audit_issue.json`：issue metadata 和 artifact name
-
-它不会发布 artifact、不会部署 Cloud Run、不会修改券商配置，也不会下单。
-默认月度审计范围只包含 `hk_low_vol_dividend_quality`；未入选或 deferred 的 snapshot scaffold 继续保持 research-only / deprioritized，除非后续补齐已验证证据并明确重新打开。
-
-本地手动生成审计包：
-
-```bash
-python scripts/write_monthly_snapshot_audit_issue.py --as-of-month 2026-06
-```
-
-手动触发 workflow：
-
-```bash
-gh workflow run monthly_snapshot_audit.yml --repo QuantStrategyLab/HkEquitySnapshotPipelines
-```
-
-源仓库配置：
-
-- `SELFHOSTED_CODEX_REVIEW_REPOSITORY` 默认是 `QuantStrategyLab/CodexAuditBridge`。
-- `SELFHOSTED_CODEX_REVIEW_MODE` 默认是 `review_and_fix`。
-- `SELFHOSTED_CODEX_REVIEW_PROVIDER` 默认是 `auto`。
-- `SELFHOSTED_CODEX_REVIEW_AUTO_MERGE` 默认是 `false`。
-- 跨仓 dispatch 需要 `CROSS_REPO_GITHUB_APP_ID` + `CROSS_REPO_GITHUB_APP_PRIVATE_KEY`，或具备作用域的 `CODEX_AUDIT_DISPATCH_TOKEN`。
-- `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` 应配置在 `CodexAuditBridge`，不要放在本源仓库。
-
-## 本地 smoke 命令
-
-```bash
-python -m pytest -q
-```
-
-## 文档
-
-- [`docs/artifact_contract.md`](./docs/artifact_contract.md)：snapshot artifact schema 和 manifest contract。
-- [`docs/hk_snapshot_publish_workflow.zh-CN.md`](./docs/hk_snapshot_publish_workflow.zh-CN.md)：港股 snapshot artifact 手动构建、校验和可选 GCS 发布 workflow。
-- [`docs/first_snapshot_promotion_runbook.md`](./docs/first_snapshot_promotion_runbook.md)：当前 active 港股 snapshot 候选的 promotion runbook。
-- [`docs/first_snapshot_evidence_tools.zh-CN.md`](./docs/first_snapshot_evidence_tools.zh-CN.md)：active/deferred quality-yield 候选共用的 evidence package、bundle、source-audit 和 backtest draft 工具。
-- [`docs/low_vol_dividend_live_enablement_package.zh-CN.md`](./docs/low_vol_dividend_live_enablement_package.zh-CN.md)：`hk_low_vol_dividend_quality` 首个候选 evidence package。
-- [`docs/low_vol_dividend_evidence_bundle.zh-CN.md`](./docs/low_vol_dividend_evidence_bundle.zh-CN.md)：`hk_low_vol_dividend_quality` 的生产数据源和 walk-forward 回测证据模板。
-- [`docs/low_vol_dividend_production_source_audit.zh-CN.md`](./docs/low_vol_dividend_production_source_audit.zh-CN.md)：`hk_low_vol_dividend_quality` 的生产数据源审计草稿工具。
-- [`docs/low_vol_dividend_backtest_evidence.zh-CN.md`](./docs/low_vol_dividend_backtest_evidence.zh-CN.md)：`hk_low_vol_dividend_quality` 的 walk-forward 回测证据草稿工具。
-- [`docs/research/hk_snapshot_strategy_candidates.md`](./docs/research/hk_snapshot_strategy_candidates.md)：snapshot 策略研究队列、候选排序和门槛依据。
-
-## 相关仓库
-
-- [`../HkEquityStrategies`](../HkEquityStrategies)：非 snapshot 港股 runtime 策略。
-- [`../QuantPlatformKit`](../QuantPlatformKit)：共享策略 contract 与 component loader。
-- `InteractiveBrokersPlatform` / `LongBridgePlatform`：券商 runtime、部署、订单路由和通知归属。
+详见 [LICENSE](LICENSE)。
