@@ -586,7 +586,7 @@ def main(argv: list[str] | None = None) -> int:
     import json
     import os
     import sys
-    from contextlib import redirect_stdout
+    from contextlib import contextmanager, redirect_stdout
 
     args = build_parser().parse_args(argv)
     as_of = _parse_date(args.as_of, default=datetime.now(timezone.utc).date())
@@ -608,9 +608,25 @@ def main(argv: list[str] | None = None) -> int:
             allow_research_defaults=args.allow_research_defaults,
         )
 
+    @contextmanager
+    def _redirect_stdout_to_stderr():
+        # Some LongBridge SDK diagnostics are written directly to stdout, bypassing Python print.
+        # Redirect both Python sys.stdout and the underlying file descriptor while building payloads.
+        sys.stdout.flush()
+        sys.stderr.flush()
+        original_stdout_fd = os.dup(sys.stdout.fileno())
+        try:
+            os.dup2(sys.stderr.fileno(), sys.stdout.fileno())
+            with redirect_stdout(sys.stderr):
+                yield
+        finally:
+            sys.stdout.flush()
+            sys.stderr.flush()
+            os.dup2(original_stdout_fd, sys.stdout.fileno())
+            os.close(original_stdout_fd)
+
     if args.json:
-        # Some LongBridge SDK diagnostics are printed to stdout. Keep --json stdout machine-readable.
-        with redirect_stdout(sys.stderr):
+        with _redirect_stdout_to_stderr():
             payload = _build_payload()
     else:
         payload = _build_payload()
