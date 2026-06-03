@@ -62,8 +62,9 @@ gh workflow run publish-hk-snapshot-artifacts.yml \
 - `longport-app-secret-hk`
 - `longport_token_hk`
 
-如果你的 secret 名称不同，可以在 workflow 输入里覆盖：
+默认从 `longbridgequant` GCP 项目读取这些 secret，并复用 LongBridgePlatform 的 Workload Identity Federation 命名约定。如果 secret 所在项目或 secret 名称不同，可以在 workflow 输入里覆盖：
 
+- `longbridge_secret_project_id`
 - `longbridge_app_key_secret_name`
 - `longbridge_app_secret_secret_name`
 - `longbridge_access_token_secret_name`
