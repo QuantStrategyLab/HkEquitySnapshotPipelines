@@ -129,6 +129,7 @@ Generate and validate live-enable evidence:
 hkeq-validate-live-enable-evidence \
   --print-template \
   --profile hk_low_vol_dividend_quality \
+  --platform longbridge \
   --json > snapshot-live-enable-evidence.json
 
 hkeq-validate-live-enable-evidence \
@@ -137,6 +138,92 @@ hkeq-validate-live-enable-evidence \
 ```
 
 The validators require stable evidence URIs, no secret-like query parameters, point-in-time data proof, out-of-sample backtests, HK cost/slippage/lot-size/capacity checks, dry-run order-preview provenance, bilingual notification evidence, rollout controls, and operator approval references.
+
+Audit the final live-enable gates after production artifact and platform evidence are available:
+
+```bash
+hkeq-audit-low-vol-dividend-live-enable \
+  --artifact-dir data/output/low_vol_dividend_quality \
+  --longbridge-evidence-file evidence/longbridge_live_enablement_evidence.json \
+  --ibkr-evidence-file evidence/ibkr_live_enablement_evidence.json \
+  --json
+```
+
+Draft artifact-pack evidence after publishing a production artifact release:
+
+```bash
+hkeq-draft-low-vol-dividend-artifact-evidence \
+  --artifact-dir data/output/low_vol_dividend_quality \
+  --artifact-release-id hk-low-vol-dividend-quality-20260603-001 \
+  --published-snapshot-uri gs://.../hk_low_vol_dividend_quality_factor_snapshot_latest.csv \
+  --published-manifest-uri gs://.../hk_low_vol_dividend_quality_factor_snapshot_latest.csv.manifest.json \
+  --published-ranking-uri gs://.../hk_low_vol_dividend_quality_ranking_latest.csv \
+  --published-release-summary-uri gs://.../release_status_summary.json \
+  --evidence-uri gs://.../artifact_pack_validation.json \
+  --evidence-generated-at 2026-06-03
+```
+
+Draft platform dry-run evidence from a runtime report:
+
+```bash
+hkeq-draft-low-vol-dividend-platform-evidence \
+  --platform longbridge \
+  --runtime-report runtime-report.json \
+  --runtime-report-uri gs://.../runtime-report.json \
+  --evidence-generated-at 2026-06-03
+```
+
+Draft operator-controlled broker, rebalance, rollout, approval, and strategy-policy evidence:
+
+```bash
+hkeq-draft-low-vol-dividend-operator-evidence \
+  --platform longbridge \
+  --evidence-generated-at 2026-06-03 \
+  --broker-evidence-uri gs://.../longbridge/broker-permissions.json \
+  --rebalance-evidence-uri gs://.../longbridge/rebalance-window.json \
+  --rollout-evidence-uri gs://.../longbridge/rollout-plan.json \
+  --approval-reference operator-approval://hk-low-vol-dividend-quality/20260603 \
+  --strategy-policy-evidence-uri gs://.../policy/quality-yield-policy-evidence.json \
+  --output-dir evidence/operator \
+  --json
+```
+
+Add the relevant `--confirm-*` flags only after the referenced evidence packs have been reviewed; otherwise the sections remain `pending`.
+
+Assemble section-level evidence into the final platform evidence pack:
+
+```bash
+hkeq-assemble-low-vol-dividend-live-enable-evidence \
+  --platform longbridge \
+  --validation-as-of 2026-06-03 \
+  --production-source-audit-file evidence/production_source_audit.json \
+  --artifact-pack-validation-file evidence/artifact_pack_validation.json \
+  --walk-forward-backtest-file evidence/walk_forward_backtest.json \
+  --platform-dry-run-file evidence/longbridge_platform_dry_run.json \
+  --broker-permission-file evidence/longbridge_broker_permissions.json \
+  --rebalance-window-file evidence/longbridge_rebalance_window.json \
+  --runtime-rollout-file evidence/longbridge_rollout_plan.json \
+  --risk-approval-file evidence/risk_approval.json \
+  --strategy-policy-evidence-file evidence/quality_yield_strategy_policy.json \
+  --output-dir evidence/assembled \
+  --json
+```
+
+The assembler writes the final evidence JSON, validation JSON, and a compact summary. It does not live-enable trading unless the final validator returns `live_enablement_allowed=true`.
+
+Run the convention-based end-to-end live-enable gate:
+
+```bash
+hkeq-run-low-vol-dividend-live-enable-gate \
+  --evidence-dir evidence/low_vol_dividend_quality \
+  --artifact-dir data/output/low_vol_dividend_quality \
+  --validation-as-of 2026-06-03 \
+  --output-dir data/output/low_vol_dividend_live_enablement_gate \
+  --json
+```
+
+Use `--fail-on-blocked` in CI/release gates. The gate remains blocked until both platform evidence packs and the final audit return `live_enablement_allowed=true`.
+The gate summary includes `external_evidence_blockers` and `next_evidence_commands` so operators can see which production source, artifact, backtest, platform dry-run, or approval evidence is still missing.
 
 For the active and deferred quality/yield snapshot candidates, use the shared evidence draft commands. Deferred profiles should stay out of the default live-enable queue until real point-in-time walk-forward evidence passes the 30% drawdown gate:
 
@@ -216,6 +303,12 @@ python -m pytest -q
 - [`docs/first_snapshot_evidence_tools.md`](./docs/first_snapshot_evidence_tools.md): shared evidence package, bundle, source-audit, and backtest draft tools for active/deferred quality-yield candidates.
 - [`docs/low_vol_dividend_live_enablement_package.md`](./docs/low_vol_dividend_live_enablement_package.md): first-candidate evidence package for `hk_low_vol_dividend_quality`.
 - [`docs/low_vol_dividend_evidence_bundle.md`](./docs/low_vol_dividend_evidence_bundle.md): production source and walk-forward evidence templates for `hk_low_vol_dividend_quality`.
+- [`docs/low_vol_dividend_live_enablement_audit.md`](./docs/low_vol_dividend_live_enablement_audit.md): final artifact + platform evidence audit for `hk_low_vol_dividend_quality`.
+- [`docs/low_vol_dividend_artifact_evidence.md`](./docs/low_vol_dividend_artifact_evidence.md): artifact-pack validation result to live-enable artifact evidence draft tool.
+- [`docs/low_vol_dividend_platform_evidence.md`](./docs/low_vol_dividend_platform_evidence.md): LongBridge/IBKR dry-run runtime report to platform evidence draft tool.
+- [`docs/low_vol_dividend_evidence_assembler.md`](./docs/low_vol_dividend_evidence_assembler.md): assemble section-level evidence drafts into final LongBridge/IBKR live-enable evidence packs.
+- [`docs/low_vol_dividend_operator_evidence.md`](./docs/low_vol_dividend_operator_evidence.md): draft broker permission, rebalance, rollout, risk approval, and strategy-policy evidence sections.
+- [`docs/low_vol_dividend_live_enablement_gate.md`](./docs/low_vol_dividend_live_enablement_gate.md): convention-based end-to-end evidence gate runner for the final true live-enable audit.
 - [`docs/low_vol_dividend_production_source_audit.md`](./docs/low_vol_dividend_production_source_audit.md): production source audit draft tool for `hk_low_vol_dividend_quality`.
 - [`docs/low_vol_dividend_backtest_evidence.md`](./docs/low_vol_dividend_backtest_evidence.md): walk-forward backtest evidence draft tool for `hk_low_vol_dividend_quality`.
 - [`docs/research/hk_snapshot_strategy_candidates.md`](./docs/research/hk_snapshot_strategy_candidates.md): snapshot strategy research queue, curated candidates, and gating rationale.

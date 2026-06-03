@@ -150,7 +150,7 @@ def _evidence(**overrides):
             "artifact_release_id": "hk-low-vol-dividend-quality-20260601T160000Z",
             "contract_version": "hk_low_vol_dividend_quality.factor_snapshot.v1",
             "snapshot_sha256": "a" * 64,
-            "row_count": 12,
+            "row_count": 50,
             "published_snapshot_uri": "gs://qsl-hk-artifacts/snapshot/hk-low-vol-dividend-quality/20260601/hk_low_vol_dividend_quality_factor_snapshot_latest.csv",
             "published_manifest_uri": "gs://qsl-hk-artifacts/snapshot/hk-low-vol-dividend-quality/20260601/hk_low_vol_dividend_quality_factor_snapshot_latest.csv.manifest.json",
             "published_ranking_uri": "gs://qsl-hk-artifacts/snapshot/hk-low-vol-dividend-quality/20260601/hk_low_vol_dividend_quality_ranking_latest.csv",
@@ -1049,6 +1049,15 @@ def test_validate_live_enablement_evidence_rejects_mutable_artifact_release_id()
 
     assert result["live_enablement_allowed"] is False
     assert any("artifact_pack_validation.artifact_release_id must be immutable" in error for error in result["errors"])
+
+
+def test_validate_live_enablement_evidence_rejects_sample_sized_artifact_pack():
+    payload = _evidence(artifact_pack_validation={**_evidence()["artifact_pack_validation"], "row_count": 6})
+
+    result = validate_live_enablement_evidence(payload)
+
+    assert result["live_enablement_allowed"] is False
+    assert any("artifact_pack_validation.row_count must be >= 20" in error for error in result["errors"])
 
 
 def test_validate_live_enablement_evidence_rejects_unstable_published_artifact_uri():

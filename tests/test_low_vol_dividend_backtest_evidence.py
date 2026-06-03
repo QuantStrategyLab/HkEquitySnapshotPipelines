@@ -131,6 +131,8 @@ def test_low_vol_dividend_backtest_evidence_cli_json(tmp_path):
             str(summary_path),
             "--evidence-generated-at",
             "2026-06-03",
+            "--output-dir",
+            str(tmp_path / "out"),
             "--json",
         ],
         check=True,
@@ -142,3 +144,6 @@ def test_low_vol_dividend_backtest_evidence_cli_json(tmp_path):
     assert payload["profile"] == "hk_low_vol_dividend_quality"
     assert payload["walk_forward_backtest_draft"]["status"] == "pending"
     assert payload["walk_forward_backtest_draft"]["benchmark_symbol"] == "02800"
+    assert Path(payload["draft_path"]).exists()
+    assert Path(payload["summary_path"]).exists()
+    assert Path(payload["draft_path"]).name == "walk_forward_backtest.draft.json"
