@@ -1,11 +1,5 @@
 # HK Equity Snapshot Artifact Contract
 
-## 中文摘要
-
-- 当前 package contract 只保留 `hk_low_vol_dividend_quality_snapshot`。
-- 其他 snapshot scaffold 已从 active contract / package entrypoint 中剔除，只在 `docs/research/hk_snapshot_strategy_candidates.md` 保留拒绝原因。
-- Snapshot artifact 只能证明数据包格式正确，不能单独证明可以实盘；live-enable 仍需要 point-in-time 回测、平台 dry-run、通知日志、rollout 和人工审批证据。
-
 ## Active profile
 
 ### `hk_low_vol_dividend_quality_snapshot`
