@@ -88,7 +88,9 @@ LongBridge 模式会从 Google Secret Manager 读取以下 secret，默认名称
 
 在 `github_secrets` 模式下，只要 `universe_path` / `factor_snapshot_path` 不使用 `gs://`，并且不设置 `execute_publish=true` 上传 GCS，LongBridge 输入生成不需要 GCP auth。
 
-注意：`allow_research_defaults=false` 的生成 CSV 通过 artifact validation 并发布到稳定 GCS 路径后，可以像美股 snapshot publish flow 一样作为平台接线用的 runtime artifact evidence。但它本身不等于最终实盘下单批准；最终批准仍需要回测、券商 dry-run、通知、rollout 和人工审批 evidence。`allow_research_defaults=true` 仍然只能作为 research smoke。
+注意：`allow_research_defaults=false` 的生成 CSV 通过 artifact validation 并发布到稳定 GCS 路径后，可以像美股 snapshot publish flow 一样作为平台接线用的 runtime artifact evidence。
+
+它仍不等于最终实盘下单批准。最终批准还需要回测、券商 dry-run、通知、rollout 和人工审批 evidence。`allow_research_defaults=true` 仍然只能作为 research smoke。
 
 ## GCP Workload Identity 前置条件
 
