@@ -7,6 +7,8 @@ from pathlib import Path
 import pytest
 
 from hk_equity_snapshot_pipelines.input_sources import (
+    DEFAULT_REMOTE_COPY_TIMEOUT_SECONDS,
+    _default_https_copy,
     resolve_hk_snapshot_inputs,
     resolve_input_source,
     source_needs_gcloud,
@@ -66,6 +68,36 @@ def test_resolve_input_source_copies_https_uri_with_fake_copy(tmp_path):
 
     assert resolved == tmp_path / "resolved" / "factor_snapshot.csv"
     assert resolved.exists()
+
+
+def test_default_https_copy_uses_timeout_and_streams_response(monkeypatch, tmp_path):
+    calls: list[tuple[str, float]] = []
+
+    class FakeResponse:
+        def __init__(self) -> None:
+            self._payload = b"symbol,sector\n00001,Financials\n"
+
+        def __enter__(self) -> "FakeResponse":
+            return self
+
+        def __exit__(self, *args: object) -> None:
+            return None
+
+        def read(self, size: int = -1) -> bytes:
+            payload, self._payload = self._payload, b""
+            return payload
+
+    def fake_urlopen(request, *, timeout: float):
+        calls.append((request.full_url, timeout))
+        return FakeResponse()
+
+    monkeypatch.setattr("hk_equity_snapshot_pipelines.input_sources.urlopen", fake_urlopen)
+    target = tmp_path / "factor_snapshot.csv"
+
+    _default_https_copy("https://example.com/factor_snapshot.csv", target)
+
+    assert target.read_text(encoding="utf-8") == "symbol,sector\n00001,Financials\n"
+    assert calls == [("https://example.com/factor_snapshot.csv", DEFAULT_REMOTE_COPY_TIMEOUT_SECONDS)]
 
 
 def test_resolve_input_source_rejects_secret_like_remote_uri(tmp_path):
