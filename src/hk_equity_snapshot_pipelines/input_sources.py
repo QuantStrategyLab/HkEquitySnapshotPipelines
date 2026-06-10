@@ -1,17 +1,19 @@
 from __future__ import annotations
 
 import argparse
+import shutil
 import shlex
 import subprocess
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urlparse
-from urllib.request import urlretrieve
+from urllib.request import Request, urlopen
 
 from .evidence_uri_policy import SENSITIVE_EVIDENCE_URI_MARKERS
 
 SUPPORTED_SNAPSHOT_SUFFIXES = frozenset({".csv"})
+DEFAULT_REMOTE_COPY_TIMEOUT_SECONDS = 60
 
 CopyFn = Callable[[str, Path], None]
 
@@ -47,7 +49,9 @@ def _default_gcs_copy(source: str, target: Path) -> None:
 
 
 def _default_https_copy(source: str, target: Path) -> None:
-    urlretrieve(source, target)  # noqa: S310 - operator-supplied HTTPS data source URL.
+    request = Request(source, headers={"User-Agent": "hk-equity-snapshot-pipelines"})
+    with urlopen(request, timeout=DEFAULT_REMOTE_COPY_TIMEOUT_SECONDS) as response, target.open("wb") as output:  # noqa: S310 - operator-supplied HTTPS data source URL.
+        shutil.copyfileobj(response, output)
 
 
 def _source_suffix(source: str, *, allowed_suffixes: frozenset[str], default_suffix: str) -> str:
