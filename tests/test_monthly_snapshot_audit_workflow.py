@@ -20,12 +20,14 @@ def test_monthly_snapshot_audit_workflow_dispatches_codex_bridge():
     assert "write_monthly_snapshot_audit_issue.py" in workflow
     assert "monthly_snapshot_audit_issue.json" in workflow
     assert "QuantStrategyLab/CodexAuditBridge" in workflow
-    assert "selfhosted_monthly_review.yml" in workflow
-    assert "/actions/workflows/selfhosted_monthly_review.yml/dispatches" in workflow
+    assert "CODEX_AUDIT_BRIDGE_REF" in workflow
+    assert '"ref": os.environ["CODEX_AUDIT_BRIDGE_REF"]' in workflow
+    assert "codex_audit.yml" in workflow
+    assert "/actions/workflows/codex_audit.yml/dispatches" in workflow
     assert '"task": "monthly_snapshot_audit"' in workflow
     assert "CODEX_AUDIT_DISPATCH_TOKEN" in workflow
-    assert "SELFHOSTED_CODEX_REVIEW_PROVIDER || 'auto'" in workflow
-    assert "SELFHOSTED_CODEX_REVIEW_MODE || 'review_and_fix'" in workflow
+    assert "CODEX_AUDIT_PROVIDER || 'auto'" in workflow
+    assert "CODEX_AUDIT_MODE || 'review_and_fix'" in workflow
 
 
 def test_monthly_snapshot_audit_workflow_stays_source_safe():
