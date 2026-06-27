@@ -26,16 +26,19 @@ Snapshot artifacts are not sufficient for live trading by themselves. The live-e
 - `close_hkd`
 - `adv20_hkd`
 - `market_cap_hkd`
-- `dividend_yield`
-- `dividend_stability`
+- `dividend_yield_net`
+- `dividend_stability_3y`
+- `earnings_positive`
 - `payout_ratio`
-- `realized_vol_252`
+- `realized_vol_126`
 - `beta_252`
 - `maxdd_252`
+- `mom_6m`
+- `mom_12_1`
 - `sma200_gap`
 - `suspension_days_63`
 
-Optional columns include `as_of`, `snapshot_date`, `eligible`, `southbound_eligible`, `lot_size`, `corporate_action_flag`, `forecast_dividend_yield`, `earnings_positive`, `free_cash_flow_yield`, and related quality/yield controls used by the retained strategy helper.
+Optional columns include `as_of`, `snapshot_date`, `eligible`, `lot_size`, `pe_ratio`, `free_cash_flow_yield`, `realized_vol_252`, `corporate_action_flag`, and related quality/yield controls used by the retained strategy helper.
 
 ## Runtime mapping
 
