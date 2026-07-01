@@ -37,6 +37,8 @@ def test_build_monthly_snapshot_audit_issue_scopes_codex_review():
     assert "research-only / deprioritized" in body
     assert "no publish, no deployment, no broker orders" not in body.lower()
     assert "deploy Cloud Run, or place broker orders" in body
+    assert "python scripts/print_snapshot_readiness.py --profile hk_low_vol_dividend_quality_snapshot --platform longbridge --json" in body
+    assert "python scripts/print_snapshot_readiness.py --profile hk_low_vol_dividend_quality_snapshot --platform ibkr --json" in body
     assert "hkeq-validate-live-enable-evidence" in body
 
 
