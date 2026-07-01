@@ -12,10 +12,7 @@ concurrency:
 jobs:
   monthly-snapshot-audit:
     if: github.ref_name != 'logs'
-    runs-on:
-      - self-hosted
-      - Linux
-      - X64
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
       actions: write
