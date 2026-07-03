@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
   "pandas>=2.0",
-  "hk-equity-strategies @ git+https://github.com/QuantStrategyLab/HkEquityStrategies.git@00dd0e5b62a6fa65bd9262e15c083468e8b8c191",
+  "hk-equity-strategies @ git+https://github.com/QuantStrategyLab/HkEquityStrategies.git@dbbefb688cd144837aa59581b1930a14c11411ad",
 ]
 
 [project.optional-dependencies]
