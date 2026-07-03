@@ -108,7 +108,7 @@ This workflow does not create production data, approve live trading, deploy Clou
 
 ## Monthly AI audit
 
-The scheduled [`monthly_snapshot_audit.yml`](.github/workflows/monthly_snapshot_audit.yml) workflow creates a monthly GitHub issue and dispatches review work to `QuantStrategyLab/CodexAuditBridge`.
+The scheduled [`monthly_snapshot_audit.yml`](.github/workflows/monthly_snapshot_audit.yml) workflow creates a monthly GitHub issue and dispatches review work to `QuantStrategyLab/AIAuditBridge`.
 
 It only writes an audit package under `data/output/monthly_snapshot_audit`; it does not publish artifacts, deploy Cloud Run, change broker configuration, or place orders.
 

@@ -19,7 +19,7 @@ def test_monthly_snapshot_audit_workflow_dispatches_codex_bridge():
     assert "actions/create-github-app-token@v3" in workflow
     assert "write_monthly_snapshot_audit_issue.py" in workflow
     assert "monthly_snapshot_audit_issue.json" in workflow
-    assert "QuantStrategyLab/CodexAuditBridge" in workflow
+    assert "QuantStrategyLab/AIAuditBridge" in workflow
     assert "CODEX_AUDIT_BRIDGE_REF" in workflow
     assert '"ref": os.environ["CODEX_AUDIT_BRIDGE_REF"]' in workflow
     assert "codex_audit.yml" in workflow
