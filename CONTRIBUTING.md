@@ -38,7 +38,10 @@ Run the lightweight whitespace check for every change and the repository test co
 ```bash
 git diff --check
 python -m pip install -e '.[test]'
+python -m pip check
+ruff check .
 python -m pytest -q
+python -m build
 ```
 
 For documentation-only changes, at minimum review Markdown links, headings, and bilingual consistency before opening the pull request.
