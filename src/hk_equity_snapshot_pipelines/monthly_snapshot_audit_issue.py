@@ -13,7 +13,7 @@ from .snapshot_promotion_matrix import build_snapshot_promotion_matrix
 
 DEFAULT_SOURCE_REPO = "QuantStrategyLab/HkEquitySnapshotPipelines"
 DEFAULT_SOURCE_REF = "main"
-DEFAULT_CODEX_AUDIT_REPOSITORY = "QuantStrategyLab/CodexAuditBridge"
+DEFAULT_CODEX_AUDIT_REPOSITORY = "QuantStrategyLab/AIAuditBridge"
 MONTHLY_SNAPSHOT_AUDIT_TASK = "monthly_snapshot_audit"
 MONTHLY_SNAPSHOT_AUDIT_BUNDLE_VERSION = "hk_snapshot_monthly_audit_bundle.v1"
 DEFAULT_OUTPUT_DIR = Path("data/output/monthly_snapshot_audit")

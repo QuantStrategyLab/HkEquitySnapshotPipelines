@@ -108,7 +108,7 @@ gh workflow run publish-hk-snapshot-artifacts.yml \
 
 ## 月度 AI 审计
 
-定时 workflow [`monthly_snapshot_audit.yml`](.github/workflows/monthly_snapshot_audit.yml) 会创建月度 GitHub issue，并把 review 工作派发到 `QuantStrategyLab/CodexAuditBridge`。
+定时 workflow [`monthly_snapshot_audit.yml`](.github/workflows/monthly_snapshot_audit.yml) 会创建月度 GitHub issue，并把 review 工作派发到 `QuantStrategyLab/AIAuditBridge`。
 
 它只会在 `data/output/monthly_snapshot_audit` 下生成审计包，不会发布 artifact、部署 Cloud Run、修改券商配置或下单。
 
