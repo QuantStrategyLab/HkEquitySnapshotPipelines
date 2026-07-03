@@ -25,7 +25,7 @@ def test_build_monthly_snapshot_audit_issue_scopes_codex_review():
     assert payload["issue_title"] == "HK Snapshot Monthly Audit: 2026-06"
     assert payload["codex_task"] == MONTHLY_SNAPSHOT_AUDIT_TASK
     assert "QuantStrategyLab/HkEquitySnapshotPipelines" in body
-    assert "CodexAuditBridge" in body
+    assert "AIAuditBridge" in body
     assert "monthly_snapshot_audit" in body
     assert "hk_low_vol_dividend_quality_snapshot" in body
     assert "hk_shareholder_yield_quality" in body

@@ -83,7 +83,7 @@ def build_monthly_snapshot_audit_issue(
             f"# {title}",
             "",
             "This issue is the monthly AI audit input for HK snapshot-backed strategy scaffolds.",
-            "It is intended for `CodexAuditBridge` and does not publish artifacts, deploy Cloud Run, or place broker orders.",
+            "It is intended for `AIAuditBridge` and does not publish artifacts, deploy Cloud Run, or place broker orders.",
             "",
             "## Routing",
             "",
@@ -224,7 +224,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--codex-audit-repository",
         default=DEFAULT_CODEX_AUDIT_REPOSITORY,
-        help="Repository that owns the CodexAuditBridge workflow.",
+        help="Repository that owns the AIAuditBridge workflow.",
     )
     args = parser.parse_args(argv)
     payload = write_monthly_snapshot_audit_issue(
