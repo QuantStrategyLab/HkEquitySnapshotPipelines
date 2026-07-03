@@ -114,7 +114,7 @@ def build_first_snapshot_evidence_bundle(
             "Attach immutable gs://, s3://, or https:// evidence URIs without secret-like query parameters.",
             "Run survivorship-safe walk-forward backtests with at least three OOS folds and max drawdown <= 30%.",
             "Run LongBridge and IBKR dry-run order previews before any runtime promotion.",
-            "Submit the completed evidence through CodexAuditBridge monthly audit before live-enable approval.",
+            "Submit the completed evidence through AIAuditBridge monthly audit before live-enable approval.",
         ],
         "stop_conditions": [
             "sample_artifacts_or_synthetic_data_used_as_evidence",
