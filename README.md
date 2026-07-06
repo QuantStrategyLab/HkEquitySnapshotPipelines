@@ -1,5 +1,14 @@
 # HkEquitySnapshotPipelines
 
+
+## QSL architecture role
+
+- **Layer**: `pipeline`.
+- **Responsibility**: Hong Kong equity snapshot and evidence pipeline.
+- **Owns**: HK snapshot artifacts, manifests, readiness reports.
+- **Consumes**: HkEquityStrategies metadata and upstream market inputs.
+- **Must not**: place broker orders or infer live suitability from sample builds.
+
 [Chinese README](README.zh-CN.md)
 
 > Investing involves risk. This project does not provide investment advice and is for education, research, and engineering review only.
