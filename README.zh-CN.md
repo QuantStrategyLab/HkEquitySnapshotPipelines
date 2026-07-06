@@ -1,5 +1,14 @@
 # HkEquitySnapshotPipelines
 
+
+## QSL 架构角色
+
+- **层级**：`快照/证据流水线`。
+- **职责**：港股快照与证据流水线。
+- **事实源/归属**：HK snapshot artifacts、manifests、readiness reports。
+- **消费对象**：HkEquityStrategies 元数据和上游市场输入。
+- **禁止事项**：下券商订单或从样例构建推断 live suitability。
+
 [English README](README.md)
 
 > 投资有风险。本项目不构成投资建议，仅用于学习、研究和工程审阅。
