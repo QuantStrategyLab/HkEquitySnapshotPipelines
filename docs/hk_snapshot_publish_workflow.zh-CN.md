@@ -88,6 +88,8 @@ LongBridge 模式会从 Google Secret Manager 读取以下 secret，默认名称
 
 在 `github_secrets` 模式下，只要 `universe_path` / `factor_snapshot_path` 不使用 `gs://`，并且不设置 `execute_publish=true` 上传 GCS，LongBridge 输入生成不需要 GCP auth。
 
+GitHub 中的 LongBridge 凭据只注入 factor snapshot 生成这一个步骤，而且只有同时选择 `input_source_mode=longbridge_openapi_staging` 与 `longbridge_credentials_mode=github_secrets` 时才会填入。checkout、依赖安装、公开数据生成、artifact 校验、上传与摘要步骤都不会收到这些券商凭据。仍优先推荐 Secret Manager 模式。
+
 注意：`allow_research_defaults=false` 的生成 CSV 通过 artifact validation 并发布到稳定 GCS 路径后，可以像美股 snapshot publish flow 一样作为平台接线用的 runtime artifact evidence。
 
 它仍不等于最终实盘下单批准。最终批准还需要回测、券商 dry-run、通知、rollout 和人工审批 evidence。`allow_research_defaults=true` 仍然只能作为 research smoke。
