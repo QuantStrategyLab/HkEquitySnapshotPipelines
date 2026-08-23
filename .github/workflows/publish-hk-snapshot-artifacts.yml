@@ -129,13 +129,10 @@ jobs:
       LONGBRIDGE_APP_SECRET_SECRET_NAME: ${{ inputs.longbridge_app_secret_secret_name }}
       LONGBRIDGE_ACCESS_TOKEN_SECRET_NAME: ${{ inputs.longbridge_access_token_secret_name }}
       LONGBRIDGE_SECRET_PROJECT_ID: ${{ inputs.longbridge_secret_project_id || vars.LONGBRIDGE_SECRET_PROJECT_ID || vars.GCP_PROJECT_ID || 'longbridgequant' }}
-      LONG_BRIDGE_APP_KEY_FROM_GITHUB_SECRET: ${{ secrets.LONGBRIDGE_APP_KEY_HK || secrets.LONG_BRIDGE_APP_KEY_HK }}
-      LONG_BRIDGE_APP_SECRET_FROM_GITHUB_SECRET: ${{ secrets.LONGBRIDGE_APP_SECRET_HK || secrets.LONG_BRIDGE_APP_SECRET_HK }}
-      LONG_BRIDGE_ACCESS_TOKEN_FROM_GITHUB_SECRET: ${{ secrets.LONGBRIDGE_ACCESS_TOKEN_HK || secrets.LONG_BRIDGE_ACCESS_TOKEN_HK || secrets.LONGPORT_ACCESS_TOKEN_HK }}
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
       - name: Verify main CI succeeded before publish
         if: github.event_name == 'workflow_dispatch' && inputs.execute_publish == true
@@ -144,7 +141,7 @@ jobs:
         run: bash .github/scripts/verify_main_ci_success.sh
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.11'
 
@@ -185,20 +182,24 @@ jobs:
 
       - name: Authenticate to Google Cloud
         if: steps.gcp-auth-check.outputs.needed == 'true'
-        uses: google-github-actions/auth@v3
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
         with:
           workload_identity_provider: ${{ env.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ env.GCP_WORKLOAD_IDENTITY_SERVICE_ACCOUNT }}
 
       - name: Set up gcloud
         if: steps.gcp-auth-check.outputs.needed == 'true'
-        uses: google-github-actions/setup-gcloud@v3
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3
         with:
           project_id: ${{ env.GCP_PROJECT_ID }}
           version: '>= 416.0.0'
 
       - name: Resolve or generate factor snapshot CSV
         id: factor-snapshot
+        env:
+          LONG_BRIDGE_APP_KEY_FROM_GITHUB_SECRET: ${{ inputs.input_source_mode == 'longbridge_openapi_staging' && inputs.longbridge_credentials_mode == 'github_secrets' && (secrets.LONGBRIDGE_APP_KEY_HK || secrets.LONG_BRIDGE_APP_KEY_HK) || '' }}
+          LONG_BRIDGE_APP_SECRET_FROM_GITHUB_SECRET: ${{ inputs.input_source_mode == 'longbridge_openapi_staging' && inputs.longbridge_credentials_mode == 'github_secrets' && (secrets.LONGBRIDGE_APP_SECRET_HK || secrets.LONG_BRIDGE_APP_SECRET_HK) || '' }}
+          LONG_BRIDGE_ACCESS_TOKEN_FROM_GITHUB_SECRET: ${{ inputs.input_source_mode == 'longbridge_openapi_staging' && inputs.longbridge_credentials_mode == 'github_secrets' && (secrets.LONGBRIDGE_ACCESS_TOKEN_HK || secrets.LONG_BRIDGE_ACCESS_TOKEN_HK || secrets.LONGPORT_ACCESS_TOKEN_HK) || '' }}
         run: |
           set -euo pipefail
           SOURCE_INPUT_SUMMARY_PATH=""
@@ -387,7 +388,7 @@ jobs:
           python scripts/publish_hk_snapshot_artifacts.py "${args[@]}"
 
       - name: Upload generated artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: ${{ steps.build.outputs.artifact_name }}
           path: ${{ steps.build.outputs.artifact_dir }}
@@ -396,7 +397,7 @@ jobs:
 
       - name: Upload generated input snapshot
         if: inputs.input_source_mode == 'longbridge_openapi_staging' || inputs.input_source_mode == 'public_yfinance_staging'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: hk-equity-generated-input-${{ github.run_id }}
           path: data/input/generated/${{ inputs.profile }}

@@ -88,6 +88,8 @@ If the GCP Workload Identity binding is not ready yet, set `longbridge_credentia
 
 In `github_secrets` mode, LongBridge input generation does not require GCP auth unless `universe_path` / `factor_snapshot_path` uses `gs://` or `execute_publish=true` uploads to GCS.
 
+GitHub-hosted LongBridge credentials are scoped to the single factor-snapshot generation step and are only populated when both `input_source_mode=longbridge_openapi_staging` and `longbridge_credentials_mode=github_secrets`. Checkout, dependency installation, public-data generation, artifact validation, upload, and summary steps do not receive those broker credentials. Secret Manager remains the preferred mode.
+
 Important: generated CSVs with `allow_research_defaults=false` can be runtime artifact inputs after artifact validation and stable GCS publishing, similar to the US snapshot publish flow. They are not final live order approval by themselves; that still requires backtest, broker dry-run, notification, rollout, and operator approval evidence. `allow_research_defaults=true` remains research smoke only.
 
 ## GCP Workload Identity prerequisites
