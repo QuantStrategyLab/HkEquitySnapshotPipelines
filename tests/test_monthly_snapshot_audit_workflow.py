@@ -13,10 +13,10 @@ def test_monthly_snapshot_audit_workflow_dispatches_codex_bridge():
     assert "actions: write" in workflow
     assert "contents: read" in workflow
     assert "issues: write" in workflow
-    assert "actions/checkout@v6" in workflow
-    assert "actions/setup-python@v6" in workflow
-    assert "actions/upload-artifact@v7" in workflow
-    assert "actions/create-github-app-token@v3" in workflow
+    assert "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6" in workflow
+    assert "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6" in workflow
+    assert "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7" in workflow
+    assert "actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3" in workflow
     assert "write_monthly_snapshot_audit_issue.py" in workflow
     assert "monthly_snapshot_audit_issue.json" in workflow
     assert "QuantStrategyLab/AIAuditBridge" in workflow

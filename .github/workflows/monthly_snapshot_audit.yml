@@ -31,11 +31,11 @@ jobs:
     steps:
       - name: Checkout
         if: env.MONTHLY_SNAPSHOT_AUDIT_ENABLED != 'false'
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
       - name: Set Up Python
         if: env.MONTHLY_SNAPSHOT_AUDIT_ENABLED != 'false'
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.11"
 
@@ -72,7 +72,7 @@ jobs:
 
       - name: Upload Monthly Snapshot Audit Artifact
         if: env.MONTHLY_SNAPSHOT_AUDIT_ENABLED != 'false'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: ${{ steps.monthly_audit.outputs.artifact_name }}
           path: data/output/monthly_snapshot_audit
@@ -168,7 +168,7 @@ jobs:
         id: codex_review_app_token
         if: steps.codex_review_app_credentials.outputs.available == 'true'
         continue-on-error: true
-        uses: actions/create-github-app-token@v3
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
         with:
           app-id: ${{ vars.CROSS_REPO_GITHUB_APP_ID }}
           private-key: ${{ secrets.CROSS_REPO_GITHUB_APP_PRIVATE_KEY }}
