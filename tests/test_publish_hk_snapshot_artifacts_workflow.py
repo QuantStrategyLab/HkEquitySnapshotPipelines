@@ -40,6 +40,23 @@ def test_publish_workflow_scopes_github_broker_secrets_to_generation_step():
     assert "inputs.longbridge_credentials_mode == 'github_secrets'" in generation_step
 
 
+def test_publish_workflow_masks_broker_credentials_before_generation():
+    workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
+    generation_step = workflow[
+        workflow.index("      - name: Resolve or generate factor snapshot CSV") :
+        workflow.index("      - name: Build and validate HK snapshot artifacts")
+    ]
+
+    mask_position = generation_step.index('echo "::add-mask::${LONG_BRIDGE_APP_KEY}"')
+    generator_position = generation_step.index(
+        "python scripts/build_low_vol_dividend_longbridge_factor_snapshot.py"
+    )
+
+    assert mask_position < generator_position
+    assert 'echo "::add-mask::${LONG_BRIDGE_APP_SECRET}"' in generation_step
+    assert 'echo "::add-mask::${LONG_BRIDGE_ACCESS_TOKEN}"' in generation_step
+
+
 def test_publish_workflow_remote_actions_are_pinned_to_full_commit_shas():
     workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
     action_lines = [line.strip() for line in workflow.splitlines() if "uses:" in line]

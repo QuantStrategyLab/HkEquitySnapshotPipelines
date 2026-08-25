@@ -294,6 +294,12 @@ jobs:
                   ;;
               esac
 
+              # Register broker credentials with the Actions masker before any
+              # downstream command can include them in diagnostic output.
+              echo "::add-mask::${LONG_BRIDGE_APP_KEY}"
+              echo "::add-mask::${LONG_BRIDGE_APP_SECRET}"
+              echo "::add-mask::${LONG_BRIDGE_ACCESS_TOKEN}"
+
               generated_dir="data/input/generated/${PROFILE}"
               mkdir -p "${generated_dir}"
               generated_path="${generated_dir}/factor_snapshot.longbridge_staging.csv"
