@@ -14,6 +14,22 @@ Current supported profile:
 
 The workflow is manual-only. There is no schedule until a production HK data-source refresh is implemented and audited.
 
+## Published artifact health
+
+`HK Snapshot Artifact Health` runs on weekdays and can also be dispatched manually. It uses the repository's workload identity only to read the currently configured staged snapshot and manifest, then verifies the profile/contract/source identity, SHA-256 digest, and `snapshot_as_of` freshness. The 40-day budget follows the monthly snapshot-review cadence.
+
+This is not a publisher: it does not generate source data, upload or delete GCS objects, deploy a runtime, change a strategy lifecycle, or submit an order. A failed check creates/updates a parked-evidence issue; refreshes must still come from a reviewed `Publish HK Snapshot Artifacts` run.
+
+For a local read-only check after `gcloud auth application-default login` or an equivalent workload identity setup:
+
+```bash
+hkeq-check-published-snapshot-health \
+  --profile hk_low_vol_dividend_quality_snapshot \
+  --snapshot-uri gs://<bucket>/strategy-artifacts/hk_equity/hk_low_vol_dividend_quality_snapshot_staging/hk_low_vol_dividend_quality_snapshot_factor_snapshot_latest.csv \
+  --manifest-uri gs://<bucket>/strategy-artifacts/hk_equity/hk_low_vol_dividend_quality_snapshot_staging/hk_low_vol_dividend_quality_snapshot_factor_snapshot_latest.csv.manifest.json \
+  --max-age-days 40
+```
+
 ## Required input CSV
 
 Use [`../examples/low_vol_dividend_quality/production_factor_snapshot.template.csv`](../examples/low_vol_dividend_quality/production_factor_snapshot.template.csv) as the header template.

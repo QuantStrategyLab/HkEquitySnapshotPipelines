@@ -111,7 +111,7 @@ jobs:
           with open("data/output/monthly_snapshot_audit/ai_review_input.md", "r", encoding="utf-8") as handle:
               issue_body = handle.read()
 
-          def request_json(method: str, url: str, payload: dict | None = None) -> dict:
+          def request_json(method: str, url: str, payload: dict | None = None) -> object:
               data = None
               if payload is not None:
                   data = json.dumps(payload).encode("utf-8")
@@ -135,16 +135,31 @@ jobs:
                   },
               )
 
-          issue = request_json(
-              "POST",
-              f"{api_base}/issues",
-              {
-                  "title": metadata["issue_title"],
-                  "labels": [label_name],
-                  "body": issue_body,
-              },
+          existing_issues = request_json(
+              "GET",
+              f"{api_base}/issues?state=open&labels={label_path}&per_page=100",
           )
-          print(f"Created issue #{issue['number']}: {issue['html_url']}")
+          issue = next(
+              (
+                  candidate
+                  for candidate in existing_issues
+                  if isinstance(candidate, dict) and candidate.get("title") == metadata["issue_title"]
+              ),
+              None,
+          ) if isinstance(existing_issues, list) else None
+          if issue is None:
+              issue = request_json(
+                  "POST",
+                  f"{api_base}/issues",
+                  {
+                      "title": metadata["issue_title"],
+                      "labels": [label_name],
+                      "body": issue_body,
+                  },
+              )
+              print(f"Created issue #{issue['number']}: {issue['html_url']}")
+          else:
+              print(f"Reused issue #{issue['number']}: {issue['html_url']}")
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
               print(f"issue_number={issue['number']}", file=output)
               print(f"issue_url={issue['html_url']}", file=output)
@@ -181,6 +196,7 @@ jobs:
         if: success() && env.MONTHLY_SNAPSHOT_AUDIT_ENABLED != 'false' && env.CODEX_AUDIT_ENABLED != 'false'
         env:
           APP_TOKEN: ${{ steps.codex_review_app_token.outputs.token }}
+          APP_TOKEN_CREATION_OUTCOME: ${{ steps.codex_review_app_token.outcome }}
           CODEX_AUDIT_DISPATCH_TOKEN: ${{ secrets.CODEX_AUDIT_DISPATCH_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_REF_NAME: ${{ github.ref_name }}
@@ -195,6 +211,8 @@ jobs:
           import json
           import os
           import re
+          import time
+          import urllib.error
           import urllib.request
 
           def dispatch(token: str, url: str, payload: dict) -> int:
@@ -216,7 +234,9 @@ jobs:
           token = os.environ.get("APP_TOKEN", "").strip() or os.environ.get("CODEX_AUDIT_DISPATCH_TOKEN", "").strip()
           if not token:
               raise RuntimeError(
-                  "Codex audit workflow dispatch requires either a GitHub App token or CODEX_AUDIT_DISPATCH_TOKEN"
+                  "Codex audit workflow dispatch requires either a GitHub App token or "
+                  "CODEX_AUDIT_DISPATCH_TOKEN; GitHub App token step outcome="
+                  f"{os.environ.get('APP_TOKEN_CREATION_OUTCOME', 'not_run')}"
               )
           target_repository = os.environ["TARGET_REPOSITORY"].strip()
           if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", target_repository):
@@ -239,13 +259,29 @@ jobs:
                   "auto_merge": str(os.environ["AUTO_MERGE"].strip().lower() == "true").lower(),
               },
           }
-          status = dispatch(
-              token,
-              f"https://api.github.com/repos/{target_repository}/actions/workflows/codex_audit.yml/dispatches",
-              payload,
+          dispatch_url = (
+              f"https://api.github.com/repos/{target_repository}/actions/workflows/codex_audit.yml/dispatches"
           )
-          if status not in (201, 204):
-              raise RuntimeError(f"Unexpected Codex dispatch status: {status}")
+          last_error: Exception | None = None
+          for attempt in range(1, 4):
+              try:
+                  status = dispatch(token, dispatch_url, payload)
+                  if status in (201, 204):
+                      break
+                  last_error = RuntimeError(f"Unexpected Codex dispatch status: {status}")
+              except urllib.error.HTTPError as exc:
+                  if 400 <= exc.code < 500:
+                      raise RuntimeError(f"Codex dispatch rejected with HTTP {exc.code}") from exc
+                  last_error = exc
+              except urllib.error.URLError as exc:
+                  last_error = exc
+              if attempt < 3:
+                  time.sleep(attempt)
+          else:
+              raise RuntimeError(
+                  "Codex audit dispatch failed after 3 attempts; "
+                  "the monthly issue was preserved for safe retry"
+              ) from last_error
           print(
               f"Dispatched AIAuditBridge HK snapshot review for issue #{os.environ['ISSUE_NUMBER']} "
               f"to {target_repository}"

@@ -26,6 +26,11 @@ def test_monthly_snapshot_audit_workflow_dispatches_codex_bridge():
     assert "/actions/workflows/codex_audit.yml/dispatches" in workflow
     assert '"task": "monthly_snapshot_audit"' in workflow
     assert "CODEX_AUDIT_DISPATCH_TOKEN" in workflow
+    assert "APP_TOKEN_CREATION_OUTCOME" in workflow
+    assert "Reused issue" in workflow
+    assert "existing_issues = request_json" in workflow
+    assert "for attempt in range(1, 4)" in workflow
+    assert "monthly issue was preserved for safe retry" in workflow
     assert "CODEX_AUDIT_PROVIDER || 'auto'" in workflow
     assert "CODEX_AUDIT_MODE || 'review_and_fix'" in workflow
 

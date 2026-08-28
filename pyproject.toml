@@ -44,6 +44,7 @@ hkeq-draft-first-snapshot-backtest-evidence = "hk_equity_snapshot_pipelines.firs
 hkeq-research-snapshot-proxy-cycle-backtest = "hk_equity_snapshot_pipelines.snapshot_proxy_backtest:main"
 hkeq-resolve-hk-snapshot-inputs = "hk_equity_snapshot_pipelines.input_sources:main"
 hkeq-publish-hk-snapshot-artifacts = "hk_equity_snapshot_pipelines.publish:main"
+hkeq-check-published-snapshot-health = "hk_equity_snapshot_pipelines.published_snapshot_health:main"
 hkeq-build-low-vol-dividend-longbridge-factor-snapshot = "hk_equity_snapshot_pipelines.low_vol_dividend_longbridge_snapshot:main"
 hkeq-build-low-vol-dividend-public-factor-snapshot = "hk_equity_snapshot_pipelines.low_vol_dividend_public_snapshot:main"
 
