@@ -4,6 +4,7 @@ import re
 
 WORKFLOWS = (
     Path(".github/workflows/monthly_snapshot_audit.yml"),
+    Path(".github/workflows/hk-snapshot-artifact-health.yml"),
     Path(".github/workflows/hide-codex-limit-comments.yml"),
 )
 FULL_SHA_ACTION = re.compile(r"uses:\s+[^\s@]+@[0-9a-f]{40}(?:\s+#\s+v\d+)?$")

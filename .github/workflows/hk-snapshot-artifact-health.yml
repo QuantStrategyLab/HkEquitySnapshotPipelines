@@ -1,0 +1,145 @@
+name: HK Snapshot Artifact Health
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_age_days:
+        description: Maximum allowed age from manifest snapshot_as_of.
+        required: true
+        default: "40"
+        type: string
+  schedule:
+    # A read-only check: it never regenerates or publishes market data.
+    - cron: "45 13 * * 1-5"
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+concurrency:
+  group: hk-snapshot-artifact-health
+  cancel-in-progress: false
+
+jobs:
+  verify-published-snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID || 'longbridgequant' }}
+      GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER || 'projects/252919773759/locations/global/workloadIdentityPools/github-actions/providers/github-main' }}
+      GCP_WORKLOAD_IDENTITY_SERVICE_ACCOUNT: ${{ vars.GCP_WORKLOAD_IDENTITY_SERVICE_ACCOUNT || 'longbridge-platform-deploy@longbridgequant.iam.gserviceaccount.com' }}
+      PROFILE: hk_low_vol_dividend_quality_snapshot
+      GCS_PREFIX: ${{ vars.SCHEDULED_HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_GCS_PREFIX || 'gs://qsl-runtime-logs-shared/strategy-artifacts/hk_equity/hk_low_vol_dividend_quality_snapshot_staging' }}
+      MAX_AGE_DAYS: ${{ inputs.max_age_days || '40' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.11"
+
+      - name: Install health-check dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Authenticate for read-only artifact verification
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          workload_identity_provider: ${{ env.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.GCP_WORKLOAD_IDENTITY_SERVICE_ACCOUNT }}
+
+      - name: Set up Google Cloud CLI
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          version: ">= 416.0.0"
+
+      - name: Verify object, manifest, digest, and freshness
+        id: verify
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          mkdir -p data/output/published_snapshot_health
+          prefix="${GCS_PREFIX%/}"
+          python -m hk_equity_snapshot_pipelines.published_snapshot_health \
+            --profile "${PROFILE}" \
+            --snapshot-uri "${prefix}/hk_low_vol_dividend_quality_snapshot_factor_snapshot_latest.csv" \
+            --manifest-uri "${prefix}/hk_low_vol_dividend_quality_snapshot_factor_snapshot_latest.csv.manifest.json" \
+            --max-age-days "${MAX_AGE_DAYS}" \
+            --output data/output/published_snapshot_health/receipt.json
+
+      - name: Summarize health receipt
+        if: always()
+        run: |
+          set -euo pipefail
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+
+          receipt_path = Path("data/output/published_snapshot_health/receipt.json")
+          print("## HK Snapshot Artifact Health")
+          print()
+          if not receipt_path.exists():
+              print("- receipt: `missing`")
+              raise SystemExit(0)
+          receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+          print(f"- status: `{receipt.get('status')}`")
+          print(f"- profile: `{receipt.get('profile')}`")
+          print(f"- snapshot age: `{receipt.get('age_days')}` days")
+          print("- boundary: read-only; no source generation, publication, deployment, or order submission")
+          PY
+
+      - name: Upload health receipt
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: hk-snapshot-artifact-health
+          path: data/output/published_snapshot_health/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Create or update parked-evidence issue
+        if: always() && steps.verify.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          gh label create hk-snapshot-artifact-health \
+            --description "Read-only HK snapshot artifact verification findings" \
+            --color d93f0b \
+            --force >/dev/null
+          body="$(mktemp)"
+          {
+            echo "## HK snapshot artifact evidence requires attention"
+            echo
+            echo "- Run: ${RUN_URL}"
+            echo "- This health gate is read-only. It did not generate data, publish an artifact, deploy a runtime, or submit an order."
+            echo "- Keep the profile parked until a verified publisher run refreshes the matching snapshot and manifest."
+            echo
+            echo '```json'
+            if [ -s data/output/published_snapshot_health/receipt.json ]; then
+              python -m json.tool data/output/published_snapshot_health/receipt.json
+            else
+              echo '{"status":"receipt_missing"}'
+            fi
+            echo '```'
+          } > "$body"
+          existing="$(gh issue list --state open --label hk-snapshot-artifact-health --json number --jq '.[0].number // ""')"
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body-file "$body"
+          else
+            gh issue create \
+              --title "HK snapshot artifact evidence requires attention" \
+              --label hk-snapshot-artifact-health \
+              --body-file "$body"
+          fi
+
+      - name: Fail when artifact evidence is invalid
+        if: steps.verify.outcome == 'failure'
+        run: exit 1

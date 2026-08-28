@@ -14,6 +14,22 @@
 
 该 workflow 只支持手动触发。在生产级港股数据源 refresh 完成并通过审计前，不启用定时发布。
 
+## 已发布制品健康检查
+
+`HK Snapshot Artifact Health` 会在工作日定时运行，也可以手动触发。它仅用仓库的 Workload Identity 读取当前 staging 快照与 manifest，并核验 profile / contract / source 身份、SHA-256 摘要和 `snapshot_as_of` 时效；40 天预算对应月度 snapshot review 节奏。
+
+它不是发布器：不会生成来源数据、上传或删除 GCS 对象、部署 runtime、修改策略生命周期或提交订单。失败只会创建或更新一个停车证据事项；刷新仍必须来自经过审阅的 `Publish HK Snapshot Artifacts` 运行。
+
+完成 `gcloud auth application-default login` 或等效的 Workload Identity 配置后，可在本地进行只读检查：
+
+```bash
+hkeq-check-published-snapshot-health \
+  --profile hk_low_vol_dividend_quality_snapshot \
+  --snapshot-uri gs://<bucket>/strategy-artifacts/hk_equity/hk_low_vol_dividend_quality_snapshot_staging/hk_low_vol_dividend_quality_snapshot_factor_snapshot_latest.csv \
+  --manifest-uri gs://<bucket>/strategy-artifacts/hk_equity/hk_low_vol_dividend_quality_snapshot_staging/hk_low_vol_dividend_quality_snapshot_factor_snapshot_latest.csv.manifest.json \
+  --max-age-days 40
+```
+
 ## 输入 CSV 要求
 
 使用 [`../examples/low_vol_dividend_quality/production_factor_snapshot.template.csv`](../examples/low_vol_dividend_quality/production_factor_snapshot.template.csv) 作为表头模板。
