@@ -6,10 +6,10 @@ resolution-markers = [
     "python_full_version >= '3.14' and sys_platform == 'emscripten'",
     "python_full_version >= '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'win32'",
-    "python_full_version < '3.12' and sys_platform == 'win32'",
     "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten'",
-    "python_full_version < '3.12' and sys_platform == 'emscripten'",
     "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version < '3.12' and sys_platform == 'win32'",
+    "python_full_version < '3.12' and sys_platform == 'emscripten'",
     "python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 
@@ -258,7 +258,7 @@ test = [
 
 [package.metadata]
 requires-dist = [
-    { name = "hk-equity-strategies", git = "https://github.com/QuantStrategyLab/HkEquityStrategies.git?rev=72008f44050b0dc7415334535dbe784793180159" },
+    { name = "hk-equity-strategies", git = "https://github.com/QuantStrategyLab/HkEquityStrategies.git?rev=ecd7bde9d1e295f2e92af8114335cae596f83ede" },
     { name = "longbridge", marker = "extra == 'longbridge'", specifier = ">=4.2,<5" },
     { name = "pandas", specifier = ">=2.0" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=8" },
@@ -269,7 +269,7 @@ provides-extras = ["test", "longbridge", "public-data"]
 [[package]]
 name = "hk-equity-strategies"
 version = "0.4.7"
-source = { git = "https://github.com/QuantStrategyLab/HkEquityStrategies.git?rev=72008f44050b0dc7415334535dbe784793180159#72008f44050b0dc7415334535dbe784793180159" }
+source = { git = "https://github.com/QuantStrategyLab/HkEquityStrategies.git?rev=ecd7bde9d1e295f2e92af8114335cae596f83ede#ecd7bde9d1e295f2e92af8114335cae596f83ede" }
 dependencies = [
     { name = "pandas" },
     { name = "quant-platform-kit" },
@@ -671,7 +671,7 @@ wheels = [
 [[package]]
 name = "quant-platform-kit"
 version = "0.10.0"
-source = { git = "https://github.com/QuantStrategyLab/QuantPlatformKit.git?rev=3acab1923a97b805b077c85c6c19657be0143bac#3acab1923a97b805b077c85c6c19657be0143bac" }
+source = { git = "https://github.com/QuantStrategyLab/QuantPlatformKit.git?rev=8fe855f3cf35f48354a4e6963e2b6b8bc6f4dc2a#8fe855f3cf35f48354a4e6963e2b6b8bc6f4dc2a" }
 
 [[package]]
 name = "requests"
