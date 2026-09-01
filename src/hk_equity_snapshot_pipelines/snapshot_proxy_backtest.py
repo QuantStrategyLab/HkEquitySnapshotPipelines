@@ -35,6 +35,12 @@ from .snapshot_promotion_matrix import FIRST_SNAPSHOT_PROMOTION_SCOPE, RESEARCH_
 
 PROXY_BACKTEST_VERSION = "hk_snapshot_proxy_cycle_backtest.v1"
 PROXY_RESEARCH_STATUS = "research_proxy_not_live_enablement_evidence"
+PARKED_RUN_STATUS = "PARKED"
+COMPLETED_RUN_STATUS = "COMPLETED"
+SOURCE_DOWNLOAD_FAILED_REASON = "SOURCE_DOWNLOAD_FAILED"
+SYNTHETIC_REQUIRES_RESEARCH_ONLY_REASON = "SYNTHETIC_REQUIRES_RESEARCH_ONLY"
+SYNTHETIC_RESEARCH_ONLY_REASON = "SYNTHETIC_RESEARCH_ONLY"
+PROXY_RESEARCH_ONLY_REASON = "PROXY_RESEARCH_ONLY"
 DEFAULT_BENCHMARK_SYMBOL = "2800.HK"
 DEFAULT_COST_BPS = 20.0
 DEFAULT_TOP_N = 5
@@ -65,6 +71,10 @@ DEFAULT_SYMBOLS: tuple[str, ...] = (
     "9988.HK",
     "9999.HK",
 )
+
+
+class IncompletePriceUniverseError(ValueError):
+    pass
 
 
 @dataclass(frozen=True)
@@ -254,11 +264,18 @@ def download_yahoo_price_history(
             frames.append(frame)
         except Exception as exc:  # pragma: no cover - live network errors vary
             failures[symbol] = str(exc)
+    if failures:
+        raise IncompletePriceUniverseError("Yahoo price history request is incomplete")
     if not frames:
         raise ValueError("No Yahoo price history could be downloaded or loaded from cache")
     prices = pd.concat(frames, ignore_index=True)
     meta = {
         "price_source": "yahoo_chart_public_api",
+        "source_kind": "real",
+        "fallback_used": False,
+        "research_only": False,
+        "promotion_eligible": False,
+        "reason_code": PROXY_RESEARCH_ONLY_REASON,
         "start": start,
         "end": end,
         "symbols_requested": list(selected_symbols),
@@ -299,6 +316,11 @@ def generate_synthetic_price_history(
             )
     return pd.DataFrame(rows), {
         "price_source": "deterministic_synthetic_price_history",
+        "source_kind": "synthetic",
+        "fallback_used": False,
+        "research_only": True,
+        "promotion_eligible": False,
+        "reason_code": SYNTHETIC_RESEARCH_ONLY_REASON,
         "start": start,
         "end": end,
         "symbols_requested": list(all_symbols),
@@ -581,6 +603,7 @@ def build_proxy_cycle_backtest(
             as_of = pd.Timestamp(close.index[position])
             feature_cache[as_of] = _feature_frame(close, as_of, benchmark_symbol)
     profile_rows: list[dict[str, Any]] = []
+    source_kind = str(price_meta.get("source_kind", "real"))
     for proxy_profile in profiles:
         backtest = run_profile_proxy_backtest(
             close,
@@ -620,15 +643,23 @@ def build_proxy_cycle_backtest(
     for index, row in enumerate(ranking, start=1):
         row["proxy_rank"] = index
         row["research_recommendation"] = (
-            "keep_first_wave_candidate"
+            "synthetic_research_only_not_promotion_eligible"
+            if source_kind == "synthetic"
+            else "keep_first_wave_candidate"
             if row["promotion_scope"] == FIRST_SNAPSHOT_PROMOTION_SCOPE and row["passes_all_cycle_drawdown_gate"]
             else "research_only_or_reject_pending_real_factor_history"
         )
     return {
         "backtest_version": PROXY_BACKTEST_VERSION,
+        "run_status": COMPLETED_RUN_STATUS,
+        "source_kind": source_kind,
+        "fallback_used": bool(price_meta.get("fallback_used", False)),
+        "research_only": True,
+        "promotion_eligible": False,
+        "reason_code": str(price_meta.get("reason_code", PROXY_RESEARCH_ONLY_REASON)),
         "research_status": PROXY_RESEARCH_STATUS,
         "data_boundary": (
-            "Price history can be real Yahoo chart data or deterministic synthetic fallback. Fundamental, buyback, "
+            "Price history can be real Yahoo chart data or deterministic synthetic research data. Fundamental, buyback, "
             "FCF, Southbound-flow, policy, valuation, and event fields are deterministic simulations where real "
             "point-in-time histories are unavailable. Results are for research triage only and are not live-enable evidence."
         ),
@@ -655,6 +686,18 @@ def build_proxy_cycle_backtest(
     }
 
 
+def _parked_payload(*, source_kind: str, reason_code: str) -> dict[str, Any]:
+    return {
+        "backtest_version": PROXY_BACKTEST_VERSION,
+        "run_status": PARKED_RUN_STATUS,
+        "source_kind": source_kind,
+        "fallback_used": False,
+        "research_only": True,
+        "promotion_eligible": False,
+        "reason_code": reason_code,
+    }
+
+
 def run_proxy_cycle_backtest(
     *,
     start: str = DEFAULT_START_DATE,
@@ -663,7 +706,8 @@ def run_proxy_cycle_backtest(
     benchmark_symbol: str = DEFAULT_BENCHMARK_SYMBOL,
     price_source: str = "yahoo",
     cache_dir: Path = DEFAULT_CACHE_DIR,
-    allow_synthetic_fallback: bool = True,
+    allow_synthetic_fallback: bool = False,
+    research_only: bool = False,
     refresh: bool = False,
     rebalance_frequency: str = "monthly",
     top_n: int = DEFAULT_TOP_N,
@@ -673,6 +717,11 @@ def run_proxy_cycle_backtest(
         raise ValueError("price_source must be yahoo or synthetic")
     price_meta: dict[str, Any]
     if price_source == "synthetic":
+        if not research_only:
+            return _parked_payload(
+                source_kind="synthetic",
+                reason_code=SYNTHETIC_REQUIRES_RESEARCH_ONLY_REASON,
+            )
         prices, price_meta = generate_synthetic_price_history(symbols=symbols, benchmark_symbol=benchmark_symbol, start=start, end=end)
     else:
         try:
@@ -684,16 +733,16 @@ def run_proxy_cycle_backtest(
                 cache_dir=cache_dir,
                 refresh=refresh,
             )
-        except Exception as exc:
-            if not allow_synthetic_fallback:
-                raise
-            prices, price_meta = generate_synthetic_price_history(
-                symbols=symbols,
-                benchmark_symbol=benchmark_symbol,
-                start=start,
-                end=end,
+        except IncompletePriceUniverseError:
+            return _parked_payload(
+                source_kind="unavailable",
+                reason_code=SOURCE_DOWNLOAD_FAILED_REASON,
             )
-            price_meta["fallback_reason"] = str(exc)
+        except Exception:
+            return _parked_payload(
+                source_kind="unavailable",
+                reason_code=SOURCE_DOWNLOAD_FAILED_REASON,
+            )
     return build_proxy_cycle_backtest(
         prices=prices,
         price_meta=price_meta,
@@ -754,7 +803,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--cache-dir", type=Path, default=DEFAULT_CACHE_DIR)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--refresh", action="store_true")
-    parser.add_argument("--no-synthetic-fallback", action="store_true")
+    parser.add_argument("--research-only", action="store_true", help="Required to use deterministic synthetic prices.")
+    parser.add_argument("--allow-synthetic-fallback", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument("--no-synthetic-fallback", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--rebalance-frequency", choices=("monthly", "weekly"), default="monthly")
     parser.add_argument("--top-n", type=int, default=DEFAULT_TOP_N)
     parser.add_argument("--cost-bps", type=float, default=DEFAULT_COST_BPS)
@@ -767,16 +818,17 @@ def main(argv: list[str] | None = None) -> int:
         benchmark_symbol=args.benchmark_symbol,
         price_source=args.price_source,
         cache_dir=args.cache_dir,
-        allow_synthetic_fallback=not args.no_synthetic_fallback,
+        allow_synthetic_fallback=args.allow_synthetic_fallback and not args.no_synthetic_fallback,
+        research_only=args.research_only,
         refresh=args.refresh,
         rebalance_frequency=args.rebalance_frequency,
         top_n=args.top_n,
         cost_bps=args.cost_bps,
     )
-    if not args.json:
+    if not args.json and payload["run_status"] != PARKED_RUN_STATUS:
         payload = {**payload, "output_paths": _write_outputs(args.output_dir, payload)}
     print(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True))
-    return 0
+    return 0 if payload["run_status"] != PARKED_RUN_STATUS else 2
 
 
 __all__ = [
