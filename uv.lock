@@ -258,7 +258,7 @@ test = [
 
 [package.metadata]
 requires-dist = [
-    { name = "hk-equity-strategies", git = "https://github.com/QuantStrategyLab/HkEquityStrategies.git?rev=b5254a6fce63f42060fa8df95b9ee3bcb2d18284" },
+    { name = "hk-equity-strategies", git = "https://github.com/QuantStrategyLab/HkEquityStrategies.git?rev=eb2d544ddd4351ad9e79586bc0ab9e516521eeda" },
     { name = "longbridge", marker = "extra == 'longbridge'", specifier = ">=4.2,<5" },
     { name = "pandas", specifier = ">=2.0" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=8" },
@@ -269,7 +269,7 @@ provides-extras = ["test", "longbridge", "public-data"]
 [[package]]
 name = "hk-equity-strategies"
 version = "0.4.7"
-source = { git = "https://github.com/QuantStrategyLab/HkEquityStrategies.git?rev=b5254a6fce63f42060fa8df95b9ee3bcb2d18284#b5254a6fce63f42060fa8df95b9ee3bcb2d18284" }
+source = { git = "https://github.com/QuantStrategyLab/HkEquityStrategies.git?rev=eb2d544ddd4351ad9e79586bc0ab9e516521eeda#eb2d544ddd4351ad9e79586bc0ab9e516521eeda" }
 dependencies = [
     { name = "pandas" },
     { name = "quant-platform-kit" },
@@ -671,7 +671,7 @@ wheels = [
 [[package]]
 name = "quant-platform-kit"
 version = "0.10.0"
-source = { git = "https://github.com/QuantStrategyLab/QuantPlatformKit.git?rev=3b74a445b370745fcb7bc380b4f37e9bf2f7cf56#3b74a445b370745fcb7bc380b4f37e9bf2f7cf56" }
+source = { git = "https://github.com/QuantStrategyLab/QuantPlatformKit.git?rev=ff70b162ac8e50e1ece617e570dab76b6740d41e#ff70b162ac8e50e1ece617e570dab76b6740d41e" }
 
 [[package]]
 name = "requests"
