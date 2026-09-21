@@ -15,7 +15,7 @@ dependencies = [
 
 [project.optional-dependencies]
 test = ["pytest>=8"]
-longbridge = ["longbridge>=4.2,<5"]
+longbridge = ["longbridge>=4.2,<6"]
 public-data = ["yfinance>=0.2.40"]
 
 [project.scripts]
