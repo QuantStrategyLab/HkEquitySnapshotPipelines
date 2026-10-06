@@ -1,14 +1,5 @@
 # HkEquitySnapshotPipelines
 
-
-## QSL architecture role
-
-- **Layer**: `pipeline`.
-- **Responsibility**: Hong Kong equity snapshot and evidence pipeline.
-- **Owns**: HK snapshot artifacts, manifests, readiness reports.
-- **Consumes**: HkEquityStrategies metadata and upstream market inputs.
-- **Must not**: place broker orders or infer live suitability from sample builds.
-
 [Chinese README](README.zh-CN.md)
 
 > Investing involves risk. This project does not provide investment advice and is for education, research, and engineering review only.
@@ -18,6 +9,14 @@
 `HkEquitySnapshotPipelines` is the Hong Kong equity snapshot and evidence pipeline for QuantStrategyLab. It builds feature-snapshot artifacts, manifests, ranking previews, readiness reports, and live-enable evidence templates for snapshot-backed HK strategy runtimes.
 
 This repository produces evidence and artifacts. It does not place broker orders, store broker credentials, deploy runtime services, or make a strategy live by itself.
+
+## QSL architecture role
+
+- **Layer**: `pipeline`.
+- **Responsibility**: Hong Kong equity snapshot and evidence pipeline.
+- **Owns**: HK snapshot artifacts, manifests, readiness reports.
+- **Consumes**: HkEquityStrategies metadata and upstream market inputs.
+- **Must not**: place broker orders or infer live suitability from sample builds.
 
 ## Strategy and evidence boundary
 

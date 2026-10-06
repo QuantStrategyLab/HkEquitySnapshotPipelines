@@ -1,14 +1,5 @@
 # HkEquitySnapshotPipelines
 
-
-## QSL 架构角色
-
-- **层级**：`快照/证据流水线`。
-- **职责**：港股快照与证据流水线。
-- **事实源/归属**：HK snapshot artifacts、manifests、readiness reports。
-- **消费对象**：HkEquityStrategies 元数据和上游市场输入。
-- **禁止事项**：下券商订单或从样例构建推断 live suitability。
-
 [English README](README.md)
 
 > 投资有风险。本项目不构成投资建议，仅用于学习、研究和工程审阅。
@@ -18,6 +9,14 @@
 `HkEquitySnapshotPipelines` 是 QuantStrategyLab 的港股 snapshot 与证据流水线，用于生成 snapshot-backed 港股策略 runtime 所需的 feature-snapshot artifact、manifest、ranking preview、readiness report 和 live-enable evidence 模板。
 
 本仓库产出证据和 artifact，不负责券商下单，不保存券商凭据，不部署 runtime 服务，也不会单独把某个策略变成 live。
+
+## QSL 架构角色
+
+- **层级**：`快照/证据流水线`。
+- **职责**：港股快照与证据流水线。
+- **事实源/归属**：HK snapshot artifacts、manifests、readiness reports。
+- **消费对象**：HkEquityStrategies 元数据和上游市场输入。
+- **禁止事项**：下券商订单或从样例构建推断 live suitability。
 
 ## 策略和证据边界
 
