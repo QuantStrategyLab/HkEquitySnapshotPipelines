@@ -134,6 +134,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
+      - name: Validate publish mode
+        run: |
+          set -euo pipefail
+          if [ "${EXECUTE_PUBLISH}" = "true" ]; then
+            if [ "${ALLOW_RESEARCH_DEFAULTS}" != "false" ]; then
+              echo "Research defaults cannot be published as runtime artifact evidence." >&2
+              exit 1
+            fi
+            case "${GCS_PREFIX:-}" in
+              gs://?*/*) ;;
+              *) echo "execute_publish requires a gs:// bucket/prefix." >&2; exit 1 ;;
+            esac
+          fi
+
       - name: Verify main CI succeeded before publish
         if: github.event_name == 'workflow_dispatch' && inputs.execute_publish == true
         env:
@@ -387,6 +401,7 @@ jobs:
             --profile "${PROFILE}"
             --artifact-dir "${{ steps.build.outputs.artifact_dir }}"
             --gcs-prefix "${GCS_PREFIX}"
+            --preflight-report "${{ steps.build.outputs.artifact_dir }}/publish_preflight.json"
           )
           if [ "${EXECUTE_PUBLISH}" = "true" ]; then
             args+=(--execute)

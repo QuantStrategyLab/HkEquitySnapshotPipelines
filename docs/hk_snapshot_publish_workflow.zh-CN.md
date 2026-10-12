@@ -138,7 +138,11 @@ gcs_prefix=gs://<bucket>/strategy-artifacts/hk_equity/hk_low_vol_dividend_qualit
 execute_publish=false
 ```
 
-第一次运行保持 `execute_publish=false`。Workflow 会构建 artifact pack、执行校验、打印 GCS copy plan，并把生成文件作为 GitHub Actions artifact 上传。
+第一次运行保持 `execute_publish=false`。Workflow 会构建 artifact pack、执行校验、打印 GCS copy plan，并把生成文件作为 GitHub Actions artifact 上传。设置 `gcs_prefix` 时还会生成 `publish_preflight.json`，复用现有 artifact-pack 与 40 天 snapshot-health 验证器，在任何 GCS 写入前检查待上传文件的实际字节。
+
+预检拒绝身份或摘要不符、过期或未来日期、manifest / release 日期与 CSV 不符，以及标记为研究默认值的输入。`execute_publish=true` 必须提供 GCS bucket/prefix，并保持 `allow_research_defaults=false`。研究 smoke 仍可在不设置 GCS 目标时打包，但不能成为 runtime artifact evidence。
+
+预检通过只证明打包与时效；不认证来源 lineage、不补齐缺失覆盖率、不批准交易，也不启用 runtime。发布前仍须审查实际来源日期、请求与失败 symbol，以及生成的 `source_input_summary.json`。
 
 确认生成文件没问题后，再用 `execute_publish=true` 重新运行并上传到 GCS。发布计划包含：
 
@@ -182,10 +186,13 @@ hkeq-validate-snapshot-artifact-pack \
 python scripts/publish_hk_snapshot_artifacts.py \
   --profile hk_low_vol_dividend_quality_snapshot \
   --artifact-dir data/output/low_vol_dividend_quality \
-  --gcs-prefix gs://<bucket>/strategy-artifacts/hk_equity/hk_low_vol_dividend_quality_snapshot_staging
+  --gcs-prefix gs://<bucket>/strategy-artifacts/hk_equity/hk_low_vol_dividend_quality_snapshot_staging \
+  --preflight-report data/output/low_vol_dividend_quality/publish_preflight.json
 ```
 
 审查通过后再上传：
+
+`--execute` 会重新核验当前文件，不信任旧的 validation report。预检失败会在第一次上传前返回非零状态；仅重写 manifest 日期不能刷新旧 CSV。
 
 ```bash
 python scripts/publish_hk_snapshot_artifacts.py \
