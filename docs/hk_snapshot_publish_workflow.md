@@ -136,7 +136,11 @@ gcs_prefix=gs://<bucket>/strategy-artifacts/hk_equity/hk_low_vol_dividend_qualit
 execute_publish=false
 ```
 
-Keep `execute_publish=false` for the first run. The workflow will build the pack, validate it, print the GCS copy plan, and upload the generated files as a GitHub Actions artifact.
+Keep `execute_publish=false` for the first run. The workflow will build the pack, validate it, print the GCS copy plan, and upload the generated files as a GitHub Actions artifact. When `gcs_prefix` is set, `publish_preflight.json` also checks the exact local upload bytes with the existing artifact-pack and 40-day snapshot-health validators, before any GCS write.
+
+The preflight rejects invalid identities/digests, stale or future dates, manifest/release dates that disagree with the CSV, and inputs marked as research defaults. `execute_publish=true` requires a GCS bucket/prefix and `allow_research_defaults=false`. Research smoke packaging remains available without a GCS target; it is not runtime artifact evidence.
+
+A verified preflight receipt checks packaging and freshness. It does not attest source lineage, complete missing coverage, approve trading, or enable a runtime. Review actual source dates, requested/failed symbols, and the generated `source_input_summary.json` before publishing.
 
 After reviewing the generated files, re-run with `execute_publish=true` to upload to GCS. The publish plan includes:
 
@@ -180,10 +184,13 @@ Print the GCS publish plan:
 python scripts/publish_hk_snapshot_artifacts.py \
   --profile hk_low_vol_dividend_quality_snapshot \
   --artifact-dir data/output/low_vol_dividend_quality \
-  --gcs-prefix gs://<bucket>/strategy-artifacts/hk_equity/hk_low_vol_dividend_quality_snapshot_staging
+  --gcs-prefix gs://<bucket>/strategy-artifacts/hk_equity/hk_low_vol_dividend_quality_snapshot_staging \
+  --preflight-report data/output/low_vol_dividend_quality/publish_preflight.json
 ```
 
 Upload only after review:
+
+`--execute` repeats preflight against the current files even when an older validation report is present. A failed preflight returns nonzero before the first upload; rewriting only a manifest date cannot refresh an old CSV.
 
 ```bash
 python scripts/publish_hk_snapshot_artifacts.py \
