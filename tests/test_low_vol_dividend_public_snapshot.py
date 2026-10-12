@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 import pandas as pd
@@ -172,3 +172,47 @@ def test_public_cli_json_stdout_is_machine_readable(tmp_path, monkeypatch, capfd
     payload = json.loads(captured.out)
     assert payload["row_count"] == 2
     assert payload["source_name"] == "public_yfinance_staging"
+
+
+def test_public_summary_reports_latest_valid_close_date_instead_of_empty_last_row(tmp_path):
+    requested = date(2026, 6, 1)
+    valid_as_of = requested - timedelta(days=3)
+
+    def with_empty_latest_close(symbol: str, **_: object) -> pd.DataFrame:
+        frame = _price_frame(symbol)
+        frame.index = pd.date_range(end=valid_as_of, periods=len(frame), freq="B")
+        empty_latest = pd.DataFrame({"Close": [float("nan")], "Volume": [1000]}, index=[pd.Timestamp(requested)])
+        return pd.concat([frame, empty_latest])
+
+    provider = YahooFinanceHkProvider(download_fn=with_empty_latest_close, ticker_factory=FakeTicker)
+    payload = write_low_vol_dividend_public_factor_snapshot(
+        universe_path=_universe(tmp_path / "universe.csv"), output_path=tmp_path / "snapshot.csv",
+        provider=provider, as_of=requested, history_start=date(2025, 1, 1),
+    )
+
+    assert payload["row_count"] == 2
+    assert payload["requested_snapshot_as_of"] == "2026-06-01"
+    assert payload["benchmark_as_of"] == "2026-05-29"
+    assert payload["price_as_of"] == {"00700": "2026-05-29", "00005": "2026-05-29"}
+    assert payload["price_lag_days"] == {"00700": 3, "00005": 3}
+    snapshot = pd.read_csv(tmp_path / "snapshot.csv")
+    assert snapshot["as_of"].eq("2026-06-01").all()
+    assert snapshot["close_hkd"].tolist() == [55.95, 35.95]
+
+
+def test_public_summary_keeps_unusable_history_dates_unknown(tmp_path):
+    def unusable_dates(_symbol: str, **_: object) -> pd.DataFrame:
+        return pd.DataFrame({"Close": [10.0], "Volume": [1000]}, index=["not-a-date"])
+
+    provider = YahooFinanceHkProvider(download_fn=unusable_dates, ticker_factory=FakeTicker)
+    payload = write_low_vol_dividend_public_factor_snapshot(
+        universe_path=_universe(tmp_path / "universe.csv"), output_path=tmp_path / "snapshot.csv",
+        provider=provider, as_of=date(2026, 6, 1), history_start=date(2025, 1, 1),
+    )
+
+    assert payload["row_count"] == 0
+    assert payload["symbols_failed"] == 2
+    assert payload["benchmark_as_of"] is None
+    assert payload["price_as_of"] == {}
+    assert payload["price_lag_days"] == {}
+    assert payload["requested_snapshot_as_of"] == "2026-06-01"

@@ -18,6 +18,7 @@ from .low_vol_dividend_longbridge_snapshot import (
     _artifact_evidence_role,
     _live_enablement_evidence_status,
     _normalise_hk_symbol,
+    _prepare_history,
     build_low_vol_dividend_factor_snapshot_from_provider,
 )
 
@@ -160,6 +161,29 @@ class YahooFinanceHkProvider:
         return {"yfinance_info": info} if isinstance(info, dict) else {}
 
 
+class _SourceDateProvider:
+    """Record dates from the same history cleaning as the builder; return raw frames unchanged."""
+
+    def __init__(self, provider: MarketFundamentalProvider) -> None:
+        self.provider = provider
+        self.price_as_of: dict[str, date | None] = {}
+
+    def price_history(self, symbol: str, *, start: date, end: date) -> pd.DataFrame:
+        history = self.provider.price_history(symbol, start=start, end=end)
+        try:
+            cleaned = _prepare_history(history)
+            self.price_as_of[symbol] = pd.Timestamp(cleaned["date"].max()).date()
+        except ValueError:
+            self.price_as_of[symbol] = None
+        return history
+
+    def dividends(self, symbol: str) -> list[dict[str, Any]]:
+        return self.provider.dividends(symbol)
+
+    def valuation(self, symbol: str) -> dict[str, Any]:
+        return self.provider.valuation(symbol)
+
+
 def build_low_vol_dividend_public_factor_snapshot(
     *,
     universe_path: str | Path,
@@ -193,9 +217,10 @@ def write_low_vol_dividend_public_factor_snapshot(
     benchmark_symbol: str = DEFAULT_BENCHMARK_SYMBOL,
     allow_research_defaults: bool = False,
 ) -> dict[str, Any]:
+    source_dates = _SourceDateProvider(provider or YahooFinanceHkProvider())
     snapshot, diagnostics = build_low_vol_dividend_public_factor_snapshot(
         universe_path=universe_path,
-        provider=provider or YahooFinanceHkProvider(),
+        provider=source_dates,
         as_of=as_of,
         history_start=history_start,
         benchmark_symbol=benchmark_symbol,
@@ -204,6 +229,11 @@ def write_low_vol_dividend_public_factor_snapshot(
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     snapshot.to_csv(path, index=False)
+    price_dates = {
+        str(symbol): source_dates.price_as_of.get(_yfinance_hk_symbol(str(symbol)))
+        for symbol in snapshot.get("symbol", [])
+    }
+    benchmark_as_of = source_dates.price_as_of.get(_yfinance_hk_symbol(benchmark_symbol))
     return {
         "profile": "hk_low_vol_dividend_quality_snapshot",
         "output_path": str(path),
@@ -221,6 +251,10 @@ def write_low_vol_dividend_public_factor_snapshot(
             allow_research_defaults=diagnostics.allow_research_defaults
         ),
         "live_order_approval_status": FINAL_LIVE_ORDER_APPROVAL_STATUS,
+        "requested_snapshot_as_of": as_of.isoformat(),
+        "benchmark_as_of": benchmark_as_of.isoformat() if benchmark_as_of is not None else None,
+        "price_as_of": {symbol: value.isoformat() if value is not None else None for symbol, value in price_dates.items()},
+        "price_lag_days": {symbol: (as_of - value).days if value is not None else None for symbol, value in price_dates.items()},
     }
 
 
