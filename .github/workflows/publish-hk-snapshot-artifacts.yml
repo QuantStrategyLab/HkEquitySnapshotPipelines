@@ -409,7 +409,7 @@ jobs:
           python scripts/publish_hk_snapshot_artifacts.py "${args[@]}"
 
       - name: Upload generated artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: ${{ steps.build.outputs.artifact_name }}
           path: ${{ steps.build.outputs.artifact_dir }}
@@ -418,7 +418,7 @@ jobs:
 
       - name: Upload generated input snapshot
         if: inputs.input_source_mode == 'longbridge_openapi_staging' || inputs.input_source_mode == 'public_yfinance_staging'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: hk-equity-generated-input-${{ github.run_id }}
           path: data/input/generated/${{ inputs.profile }}
