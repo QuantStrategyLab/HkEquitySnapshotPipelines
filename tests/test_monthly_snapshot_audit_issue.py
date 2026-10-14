@@ -25,7 +25,7 @@ def test_build_monthly_snapshot_audit_issue_scopes_codex_review():
     assert payload["issue_title"] == "HK Snapshot Monthly Audit: 2026-06"
     assert payload["codex_task"] == MONTHLY_SNAPSHOT_AUDIT_TASK
     assert "QuantStrategyLab/HkEquitySnapshotPipelines" in body
-    assert "AIAuditBridge" in body
+    assert "does not publish artifacts" in body
     assert "monthly_snapshot_audit" in body
     assert "hk_low_vol_dividend_quality_snapshot" in body
     assert "hk_shareholder_yield_quality" in body
@@ -36,7 +36,7 @@ def test_build_monthly_snapshot_audit_issue_scopes_codex_review():
     assert "bilingual notification evidence" in body
     assert "research-only / deprioritized" in body
     assert "no publish, no deployment, no broker orders" not in body.lower()
-    assert "deploy Cloud Run, or place broker orders" in body
+    assert "dispatch retired AI review workflows" in body
     assert "python scripts/print_snapshot_readiness.py --profile hk_low_vol_dividend_quality_snapshot --platform longbridge --json" in body
     assert "python scripts/print_snapshot_readiness.py --profile hk_low_vol_dividend_quality_snapshot --platform ibkr --json" in body
     assert "hkeq-validate-live-enable-evidence" in body

@@ -15,18 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
-      actions: write
       contents: read
       issues: write
     env:
       MONTHLY_SNAPSHOT_AUDIT_ENABLED: ${{ vars.MONTHLY_SNAPSHOT_AUDIT_ENABLED || 'true' }}
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-      CODEX_AUDIT_ENABLED: ${{ vars.CODEX_AUDIT_ENABLED || 'true' }}
-      CODEX_AUDIT_BRIDGE_REPOSITORY: ${{ vars.CODEX_AUDIT_BRIDGE_REPOSITORY || 'QuantStrategyLab/AIAuditBridge' }}
-      CODEX_AUDIT_BRIDGE_REF: ${{ vars.CODEX_AUDIT_BRIDGE_REF || 'main' }}
-      CODEX_AUDIT_MODE: ${{ vars.CODEX_AUDIT_MODE || 'review_and_fix' }}
-      CODEX_AUDIT_PROVIDER: ${{ vars.CODEX_AUDIT_PROVIDER || 'auto' }}
-      CODEX_AUDIT_AUTO_MERGE: ${{ vars.CODEX_AUDIT_AUTO_MERGE || 'false' }}
 
     steps:
       - name: Checkout
@@ -51,13 +44,11 @@ jobs:
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_REF_NAME: ${{ github.ref_name }}
-          CODEX_AUDIT_REPOSITORY: ${{ env.CODEX_AUDIT_BRIDGE_REPOSITORY }}
         run: |
           set -euo pipefail
           python scripts/write_monthly_snapshot_audit_issue.py \
             --source-repo "${GITHUB_REPOSITORY}" \
             --source-ref "${GITHUB_REF_NAME}" \
-            --codex-audit-repository "${CODEX_AUDIT_REPOSITORY}"
           python - <<'PY' >> "$GITHUB_OUTPUT"
           import json
           with open("data/output/monthly_snapshot_audit/monthly_snapshot_audit_issue.json", "r", encoding="utf-8") as handle:
@@ -163,127 +154,4 @@ jobs:
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
               print(f"issue_number={issue['number']}", file=output)
               print(f"issue_url={issue['html_url']}", file=output)
-          PY
-
-      - name: Detect Codex Audit GitHub App Credentials
-        id: codex_review_app_credentials
-        if: success() && env.MONTHLY_SNAPSHOT_AUDIT_ENABLED != 'false' && env.CODEX_AUDIT_ENABLED != 'false'
-        env:
-          APP_ID: ${{ vars.CROSS_REPO_GITHUB_APP_ID }}
-          APP_PRIVATE_KEY: ${{ secrets.CROSS_REPO_GITHUB_APP_PRIVATE_KEY }}
-        run: |
-          set -euo pipefail
-          if [ -n "${APP_ID:-}" ] && [ -n "${APP_PRIVATE_KEY:-}" ]; then
-            echo "available=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "available=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Create GitHub App Token For Codex Audit
-        id: codex_review_app_token
-        if: steps.codex_review_app_credentials.outputs.available == 'true'
-        continue-on-error: true
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
-        with:
-          app-id: ${{ vars.CROSS_REPO_GITHUB_APP_ID }}
-          private-key: ${{ secrets.CROSS_REPO_GITHUB_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-          repositories: |
-            AIAuditBridge
-          permission-actions: write
-
-      - name: Trigger Monthly Snapshot Review Automation
-        if: success() && env.MONTHLY_SNAPSHOT_AUDIT_ENABLED != 'false' && env.CODEX_AUDIT_ENABLED != 'false'
-        env:
-          APP_TOKEN: ${{ steps.codex_review_app_token.outputs.token }}
-          APP_TOKEN_CREATION_OUTCOME: ${{ steps.codex_review_app_token.outcome }}
-          CODEX_AUDIT_DISPATCH_TOKEN: ${{ secrets.CODEX_AUDIT_DISPATCH_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_REF_NAME: ${{ github.ref_name }}
-          ISSUE_NUMBER: ${{ steps.audit_issue.outputs.issue_number }}
-          TARGET_REPOSITORY: ${{ env.CODEX_AUDIT_BRIDGE_REPOSITORY }}
-          REVIEW_MODE: ${{ env.CODEX_AUDIT_MODE }}
-          REVIEW_PROVIDER: ${{ env.CODEX_AUDIT_PROVIDER }}
-          AUTO_MERGE: ${{ env.CODEX_AUDIT_AUTO_MERGE }}
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          import json
-          import os
-          import re
-          import time
-          import urllib.error
-          import urllib.request
-
-          def dispatch(token: str, url: str, payload: dict) -> int:
-              request = urllib.request.Request(
-                  url,
-                  data=json.dumps(payload).encode("utf-8"),
-                  method="POST",
-                  headers={
-                      "Authorization": f"Bearer {token}",
-                      "Accept": "application/vnd.github+json",
-                      "Content-Type": "application/json",
-                      "X-GitHub-Api-Version": "2022-11-28",
-                      "User-Agent": "hk-equity-snapshot-monthly-audit",
-                  },
-              )
-              with urllib.request.urlopen(request) as response:
-                  return response.status
-
-          token = os.environ.get("APP_TOKEN", "").strip() or os.environ.get("CODEX_AUDIT_DISPATCH_TOKEN", "").strip()
-          if not token:
-              raise RuntimeError(
-                  "Codex audit workflow dispatch requires either a GitHub App token or "
-                  "CODEX_AUDIT_DISPATCH_TOKEN; GitHub App token step outcome="
-                  f"{os.environ.get('APP_TOKEN_CREATION_OUTCOME', 'not_run')}"
-              )
-          target_repository = os.environ["TARGET_REPOSITORY"].strip()
-          if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", target_repository):
-              raise RuntimeError(f"Invalid Codex audit repository: {target_repository!r}")
-          mode = os.environ["REVIEW_MODE"].strip() or "review_and_fix"
-          if mode not in {"review_only", "review_and_fix"}:
-              raise RuntimeError(f"Unsupported Codex audit mode: {mode}")
-          provider = os.environ["REVIEW_PROVIDER"].strip() or "codex"
-          if provider not in {"api", "anthropic", "codex", "openai", "auto"}:
-              raise RuntimeError(f"Unsupported Codex audit provider: {provider}")
-          payload = {
-              "ref": os.environ["CODEX_AUDIT_BRIDGE_REF"],
-              "inputs": {
-                  "source_repo": os.environ["GITHUB_REPOSITORY"],
-                  "source_ref": os.environ["GITHUB_REF_NAME"],
-                  "issue_number": os.environ["ISSUE_NUMBER"],
-                  "mode": mode,
-                  "provider": provider,
-                  "task": "monthly_snapshot_audit",
-                  "auto_merge": str(os.environ["AUTO_MERGE"].strip().lower() == "true").lower(),
-              },
-          }
-          dispatch_url = (
-              f"https://api.github.com/repos/{target_repository}/actions/workflows/codex_audit.yml/dispatches"
-          )
-          last_error: Exception | None = None
-          for attempt in range(1, 4):
-              try:
-                  status = dispatch(token, dispatch_url, payload)
-                  if status in (201, 204):
-                      break
-                  last_error = RuntimeError(f"Unexpected Codex dispatch status: {status}")
-              except urllib.error.HTTPError as exc:
-                  if 400 <= exc.code < 500:
-                      raise RuntimeError(f"Codex dispatch rejected with HTTP {exc.code}") from exc
-                  last_error = exc
-              except urllib.error.URLError as exc:
-                  last_error = exc
-              if attempt < 3:
-                  time.sleep(attempt)
-          else:
-              raise RuntimeError(
-                  "Codex audit dispatch failed after 3 attempts; "
-                  "the monthly issue was preserved for safe retry"
-              ) from last_error
-          print(
-              f"Dispatched AIAuditBridge HK snapshot review for issue #{os.environ['ISSUE_NUMBER']} "
-              f"to {target_repository}"
-          )
           PY

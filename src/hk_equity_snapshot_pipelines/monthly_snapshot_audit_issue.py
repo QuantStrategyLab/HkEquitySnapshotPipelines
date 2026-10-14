@@ -13,7 +13,6 @@ from .snapshot_promotion_matrix import build_snapshot_promotion_matrix
 
 DEFAULT_SOURCE_REPO = "QuantStrategyLab/HkEquitySnapshotPipelines"
 DEFAULT_SOURCE_REF = "main"
-DEFAULT_CODEX_AUDIT_REPOSITORY = "QuantStrategyLab/AIAuditBridge"
 MONTHLY_SNAPSHOT_AUDIT_TASK = "monthly_snapshot_audit"
 MONTHLY_SNAPSHOT_AUDIT_BUNDLE_VERSION = "hk_snapshot_monthly_audit_bundle.v1"
 DEFAULT_OUTPUT_DIR = Path("data/output/monthly_snapshot_audit")
@@ -70,7 +69,6 @@ def build_monthly_snapshot_audit_issue(
     as_of_month: str | None = None,
     source_repo: str = DEFAULT_SOURCE_REPO,
     source_ref: str = DEFAULT_SOURCE_REF,
-    codex_audit_repository: str = DEFAULT_CODEX_AUDIT_REPOSITORY,
 ) -> dict[str, Any]:
     month = normalize_as_of_month(as_of_month)
     plan = build_first_snapshot_promotion_plan()
@@ -82,15 +80,14 @@ def build_monthly_snapshot_audit_issue(
         [
             f"# {title}",
             "",
-            "This issue is the monthly AI audit input for HK snapshot-backed strategy scaffolds.",
-            "It is intended for `AIAuditBridge` and does not publish artifacts, deploy Cloud Run, or place broker orders.",
+            "This issue is the monthly audit input for HK snapshot-backed strategy scaffolds.",
+            "It is a human-readable audit briefing only and does not publish artifacts, deploy Cloud Run, place broker orders, or dispatch retired AI review workflows.",
             "",
             "## Routing",
             "",
             f"- Source repo: `{source_repo}`",
             f"- Source ref: `{source_ref}`",
-            f"- Codex audit repo: `{codex_audit_repository}`",
-            f"- Codex task: `{MONTHLY_SNAPSHOT_AUDIT_TASK}`",
+            f"- Audit task: `{MONTHLY_SNAPSHOT_AUDIT_TASK}`",
             f"- Bundle version: `{MONTHLY_SNAPSHOT_AUDIT_BUNDLE_VERSION}`",
             "",
             "## Active snapshot candidate",
@@ -140,7 +137,7 @@ def build_monthly_snapshot_audit_issue(
             f"- Active candidates: `{', '.join(plan['profiles_in_scope'])}`",
             f"- Live enablement without evidence: `{plan['live_enablement_allowed_without_evidence']}`",
             "",
-            "## Requested Codex output",
+            "## Requested human / AI review output",
             "",
             "Please provide a concise bilingual review covering release consistency, evidence gaps, downstream impact, "
             "and operator action items. Do not recommend production trading changes unless all evidence gates are present.",
@@ -152,7 +149,6 @@ def build_monthly_snapshot_audit_issue(
         "issue_title": title,
         "source_repo": source_repo,
         "source_ref": source_ref,
-        "codex_audit_repository": codex_audit_repository,
         "codex_task": MONTHLY_SNAPSHOT_AUDIT_TASK,
         "profiles_in_scope": plan["profiles_in_scope"],
         "excluded_from_scope": plan["excluded_from_scope"],
@@ -166,14 +162,12 @@ def write_monthly_snapshot_audit_issue(
     as_of_month: str | None = None,
     source_repo: str = DEFAULT_SOURCE_REPO,
     source_ref: str = DEFAULT_SOURCE_REF,
-    codex_audit_repository: str = DEFAULT_CODEX_AUDIT_REPOSITORY,
 ) -> dict[str, Any]:
     output_dir.mkdir(parents=True, exist_ok=True)
     payload = build_monthly_snapshot_audit_issue(
         as_of_month=as_of_month,
         source_repo=source_repo,
         source_ref=source_ref,
-        codex_audit_repository=codex_audit_repository,
     )
     body_path = output_dir / "ai_review_input.md"
     summary_path = output_dir / "job_summary.md"
@@ -185,8 +179,7 @@ def write_monthly_snapshot_audit_issue(
                 f"## {payload['issue_title']}",
                 "",
                 f"- Source repo: `{payload['source_repo']}`",
-                f"- Codex bridge: `{payload['codex_audit_repository']}`",
-                f"- Codex task: `{payload['codex_task']}`",
+                f"- Audit task: `{payload['codex_task']}`",
                 f"- Profiles in scope: `{', '.join(payload['profiles_in_scope'])}`",
                 "- Scope: audit issue generation only; no publish, no deployment, no broker orders.",
                 "",
@@ -221,25 +214,18 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT_DIR), help="Directory for the audit issue bundle.")
     parser.add_argument("--source-repo", default=DEFAULT_SOURCE_REPO, help="Source repository name.")
     parser.add_argument("--source-ref", default=DEFAULT_SOURCE_REF, help="Source branch or ref.")
-    parser.add_argument(
-        "--codex-audit-repository",
-        default=DEFAULT_CODEX_AUDIT_REPOSITORY,
-        help="Repository that owns the AIAuditBridge workflow.",
-    )
     args = parser.parse_args(argv)
     payload = write_monthly_snapshot_audit_issue(
         output_dir=Path(args.output_dir),
         as_of_month=args.as_of_month,
         source_repo=args.source_repo,
         source_ref=args.source_ref,
-        codex_audit_repository=args.codex_audit_repository,
     )
     print(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True))
     return 0
 
 
 __all__ = [
-    "DEFAULT_CODEX_AUDIT_REPOSITORY",
     "DEFAULT_OUTPUT_DIR",
     "DEFAULT_SOURCE_REF",
     "DEFAULT_SOURCE_REPO",
