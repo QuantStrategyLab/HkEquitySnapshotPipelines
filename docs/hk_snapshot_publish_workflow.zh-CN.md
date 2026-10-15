@@ -89,7 +89,7 @@ LongBridge 模式会从 Google Secret Manager 读取以下 secret，默认名称
 - `longport-app-secret-hk`
 - `longport_token_hk`
 
-默认 `longbridge_credentials_mode=secret_manager` 会从 `longbridgequant` GCP 项目读取这些 secret，并复用 LongBridgePlatform 的 Workload Identity Federation 命名约定。如果 secret 所在项目或 secret 名称不同，可以在 workflow 输入里覆盖：
+默认 `longbridge_credentials_mode=secret_manager` 会从 `longbridge_secret_project_id` 输入解析出的 GCP 项目读取这些 secret，找不到时依次回退到 `LONGBRIDGE_SECRET_PROJECT_ID`、`GCP_PROJECT_ID` 仓库变量，再回退到 workflow 内置默认值，并复用 LongBridgePlatform 的 Workload Identity Federation 命名约定。如果 secret 所在项目或 secret 名称不同，可以在 workflow 输入里覆盖：
 
 - `longbridge_secret_project_id`
 - `longbridge_app_key_secret_name`
