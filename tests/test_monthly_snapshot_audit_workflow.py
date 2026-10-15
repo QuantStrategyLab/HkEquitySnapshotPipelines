@@ -15,7 +15,7 @@ def test_monthly_snapshot_audit_workflow_keeps_issue_creation_without_bridge_dis
     assert "actions: write" not in workflow
     assert "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6" in workflow
     assert "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6" in workflow
-    assert "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7" in workflow
+    assert "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7" in workflow
     assert "write_monthly_snapshot_audit_issue.py" in workflow
     assert "monthly_snapshot_audit_issue.json" in workflow
     assert "Reused issue" in workflow
