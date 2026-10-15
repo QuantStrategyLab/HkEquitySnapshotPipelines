@@ -89,7 +89,7 @@ LongBridge mode reads these Google Secret Manager secrets by default, matching t
 - `longport-app-secret-hk`
 - `longport_token_hk`
 
-The default `longbridge_credentials_mode=secret_manager` reads these secrets from the `longbridgequant` GCP project and uses the same Workload Identity Federation naming convention as `LongBridgePlatform`. If your secret project or secret names differ, override these workflow inputs:
+The default `longbridge_credentials_mode=secret_manager` reads these secrets from the GCP project resolved from the `longbridge_secret_project_id` input, falling back to the `LONGBRIDGE_SECRET_PROJECT_ID` and `GCP_PROJECT_ID` repository variables, then the workflow's built-in default, and uses the same Workload Identity Federation naming convention as `LongBridgePlatform`. If your secret project or secret names differ, override these workflow inputs:
 
 - `longbridge_secret_project_id`
 - `longbridge_app_key_secret_name`
