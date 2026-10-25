@@ -142,6 +142,8 @@ gh workflow run publish-hk-snapshot-artifacts.yml \
 
 ## 安全和贡献说明
 
+- AI 助手与维护者遵循 [AGENTS.md](AGENTS.md)。
+
 - 不要提交私人输入数据、券商凭据、签名 URL、token、Cookie、账户标识或私人订单数据。
 - 除非是明确设计为公开的 example，否则不要把生成 artifact 放进 Git。
 - 优先提供可复现命令，并显式指定输出目录。
