@@ -142,6 +142,8 @@ It only writes an audit package under `data/output/monthly_snapshot_audit`; it d
 
 ## Safety and contribution notes
 
+- AI assistants and maintainers follow [AGENTS.md](AGENTS.md).
+
 - Do not commit private input data, broker credentials, signed URLs, tokens, cookies, account identifiers, or private order data.
 - Keep generated artifacts out of Git unless they are intentional public examples.
 - Prefer reproducible commands and explicit output directories.
