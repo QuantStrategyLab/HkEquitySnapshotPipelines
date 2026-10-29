@@ -1,6 +1,6 @@
 # 港股低波股息质量 Live-Enable 审计
 
-[English version](./low_vol_dividend_live_enablement_audit.md)
+[English version](./low-vol-dividend-live-enablement-audit.md)
 
 该工具是 `hk_low_vol_dividend_quality_snapshot` 进入真正 live-enable 前的最终机器校验入口。
 它合并检查三个独立 gate：

@@ -1,6 +1,6 @@
 # 港股低波红利 Live-Enable 证据包
 
-[English version](./low_vol_dividend_live_enablement_package.md)
+[English version](./low-vol-dividend-live-enablement-package.md)
 
 本文档定义 `hk_low_vol_dividend_quality_snapshot` 的首个 live-enable evidence package。
 它不会 live-enable 策略、不会部署 Cloud Run、不会发布生产 artifact，也不会下券商订单。
@@ -27,7 +27,7 @@ python scripts/build_low_vol_dividend_live_enablement_package.py --json
 生成文件位于 `data/output/low_vol_dividend_live_enablement_package`：
 
 - `low_vol_dividend_live_enablement_package.json`
-- `low_vol_dividend_live_enablement_package.md`
+- `low-vol-dividend-live-enablement-package.md`
 
 ## Evidence gates
 

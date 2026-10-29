@@ -1,6 +1,6 @@
 # 港股 Snapshot Artifact 发布 Workflow
 
-[English version](./hk_snapshot_publish_workflow.md)
+[English version](./hk-snapshot-publish-workflow.md)
 
 本文档说明：当运营侧已经准备好真实 factor snapshot CSV，或 workflow 从 public yfinance 数据、LongBridge OpenAPI 生成输入时，如何构建、校验并可选发布 active 港股 snapshot artifact pack。
 

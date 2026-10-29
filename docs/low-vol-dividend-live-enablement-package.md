@@ -1,6 +1,6 @@
 # HK Low-Vol Dividend Live-Enable Evidence Package
 
-[中文版本](./low_vol_dividend_live_enablement_package.zh-CN.md)
+[中文版本](./low-vol-dividend-live-enablement-package.zh-CN.md)
 
 This document defines the first live-enable evidence package for `hk_low_vol_dividend_quality_snapshot`.
 It does not live-enable the strategy, deploy Cloud Run, publish production artifacts, or place broker orders.
@@ -27,7 +27,7 @@ python scripts/build_low_vol_dividend_live_enablement_package.py --json
 The generated package writes:
 
 - `low_vol_dividend_live_enablement_package.json`
-- `low_vol_dividend_live_enablement_package.md`
+- `low-vol-dividend-live-enablement-package.md`
 
 under `data/output/low_vol_dividend_live_enablement_package`.
 

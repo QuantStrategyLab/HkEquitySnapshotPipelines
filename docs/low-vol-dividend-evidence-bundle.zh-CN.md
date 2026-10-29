@@ -1,6 +1,6 @@
 # 港股低波红利生产证据 Bundle
 
-[English version](./low_vol_dividend_evidence_bundle.md)
+[English version](./low-vol-dividend-evidence-bundle.md)
 
 该 bundle 是 `hk_low_vol_dividend_quality_snapshot` live-enable evidence package 之后的下一步。
 它为 operator 生成 production source audit、walk-forward backtest、quality/yield policy evidence 和平台 live-enable evidence 模板。

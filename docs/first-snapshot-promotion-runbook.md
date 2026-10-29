@@ -1,6 +1,6 @@
 # First HK Snapshot Promotion Runbook
 
-[Chinese version](./first_snapshot_promotion_runbook.zh-CN.md)
+[Chinese version](./first-snapshot-promotion-runbook.zh-CN.md)
 
 This runbook narrows HK snapshot promotion work to one retained evidence-gated candidate:
 

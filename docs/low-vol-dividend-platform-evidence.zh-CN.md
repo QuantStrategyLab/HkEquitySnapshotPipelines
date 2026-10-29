@@ -1,6 +1,6 @@
 # 港股低波股息质量平台 Evidence 草稿
 
-[English version](./low_vol_dividend_platform_evidence.md)
+[English version](./low-vol-dividend-platform-evidence.md)
 
 该工具把平台 dry-run runtime report 转成 `hk_low_vol_dividend_quality_snapshot` 的 `platform_dry_run_order_preview` evidence 草稿。
 支持 LongBridge 和 IBKR。

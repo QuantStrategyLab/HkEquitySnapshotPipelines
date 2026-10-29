@@ -32,7 +32,7 @@
 | --- | --- | --- | --- | --- |
 | `hk_low_vol_dividend_quality_snapshot` | HK Low-Vol Dividend Quality Snapshot | `factor_snapshot` | `hkeq-build-low-vol-dividend-quality-snapshot` | `architecture_scaffold` |
 
-之前 scaffold 出来的 snapshot 想法已经从 active contract 和 entrypoint 中移除，只在 [`docs/research/hk_snapshot_strategy_candidates.md`](docs/research/hk_snapshot_strategy_candidates.md) 里保留为被拒绝的研究记录。被移除的 profile 如果要重新加入，必须通过新的 research PR、point-in-time 数据、长/中/短周期回测和 live-enable 证据。
+之前 scaffold 出来的 snapshot 想法已经从 active contract 和 entrypoint 中移除，只在 [`docs/research/hk-snapshot-strategy-candidates.md`](docs/research/hk-snapshot-strategy-candidates.md) 里保留为被拒绝的研究记录。被移除的 profile 如果要重新加入，必须通过新的 research PR、point-in-time 数据、长/中/短周期回测和 live-enable 证据。
 
 ### 下游如何使用
 
@@ -131,14 +131,14 @@ gh workflow run publish-hk-snapshot-artifacts.yml \
 
 ## 延伸文档
 
-- [`docs/artifact_contract.md`](docs/artifact_contract.md)
-- [`docs/hk_snapshot_publish_workflow.zh-CN.md`](docs/hk_snapshot_publish_workflow.zh-CN.md)
-- [`docs/first_snapshot_promotion_runbook.zh-CN.md`](docs/first_snapshot_promotion_runbook.zh-CN.md)
-- [`docs/first_snapshot_evidence_tools.zh-CN.md`](docs/first_snapshot_evidence_tools.zh-CN.md)
-- [`docs/low_vol_dividend_artifact_evidence.zh-CN.md`](docs/low_vol_dividend_artifact_evidence.zh-CN.md)
-- [`docs/low_vol_dividend_backtest_evidence.zh-CN.md`](docs/low_vol_dividend_backtest_evidence.zh-CN.md)
-- [`docs/low_vol_dividend_live_enablement_gate.zh-CN.md`](docs/low_vol_dividend_live_enablement_gate.zh-CN.md)
-- [`docs/research/hk_snapshot_strategy_candidates.md`](docs/research/hk_snapshot_strategy_candidates.md)
+- [`docs/artifact-contract.md`](docs/artifact-contract.md)
+- [`docs/hk-snapshot-publish-workflow.zh-CN.md`](docs/hk-snapshot-publish-workflow.zh-CN.md)
+- [`docs/first-snapshot-promotion-runbook.zh-CN.md`](docs/first-snapshot-promotion-runbook.zh-CN.md)
+- [`docs/first-snapshot-evidence-tools.zh-CN.md`](docs/first-snapshot-evidence-tools.zh-CN.md)
+- [`docs/low-vol-dividend-artifact-evidence.zh-CN.md`](docs/low-vol-dividend-artifact-evidence.zh-CN.md)
+- [`docs/low-vol-dividend-backtest-evidence.zh-CN.md`](docs/low-vol-dividend-backtest-evidence.zh-CN.md)
+- [`docs/low-vol-dividend-live-enablement-gate.zh-CN.md`](docs/low-vol-dividend-live-enablement-gate.zh-CN.md)
+- [`docs/research/hk-snapshot-strategy-candidates.md`](docs/research/hk-snapshot-strategy-candidates.md)
 
 ## 安全和贡献说明
 

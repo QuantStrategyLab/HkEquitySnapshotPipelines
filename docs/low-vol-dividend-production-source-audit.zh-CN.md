@@ -1,6 +1,6 @@
 # 港股低波红利生产数据源审计草稿
 
-[English version](./low_vol_dividend_production_source_audit.md)
+[English version](./low-vol-dividend-production-source-audit.md)
 
 该工具用于启动 `hk_low_vol_dividend_quality_snapshot` 的真实 evidence 阶段。
 它会检查 operator 提供的 factor snapshot CSV 的本地 schema 质量，并生成 pending 状态的 production source audit 草稿。

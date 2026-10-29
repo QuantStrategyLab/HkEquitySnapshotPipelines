@@ -1,6 +1,6 @@
 # 港股低波股息质量 Artifact Evidence 草稿
 
-[English version](./low_vol_dividend_artifact_evidence.md)
+[English version](./low-vol-dividend-artifact-evidence.md)
 
 该工具把已通过本地校验的 `hk_low_vol_dividend_quality_snapshot` artifact 目录转换为 `artifact_pack_validation` evidence 草稿。
 它连接 `hkeq-validate-snapshot-artifact-pack` 和完整 live-enable evidence validator。

@@ -1,6 +1,6 @@
 # 港股低波股息质量 Evidence 组装工具
 
-[English version](./low_vol_dividend_evidence_assembler.md)
+[English version](./low-vol-dividend-evidence-assembler.md)
 
 该工具把 section 级 evidence 草稿组装成 `hk_low_vol_dividend_quality_snapshot` 按平台区分的 live-enable evidence pack。
 它是 operator 采集证据之后、执行最终 `hkeq-validate-live-enable-evidence` / `hkeq-audit-low-vol-dividend-live-enable` 之前的交接点。

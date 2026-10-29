@@ -1,6 +1,6 @@
 # 首批港股 Snapshot Promotion Runbook
 
-[English version](./first_snapshot_promotion_runbook.md)
+[English version](./first-snapshot-promotion-runbook.md)
 
 本 runbook 将港股 snapshot promotion 工作限定到 1 个保留的 evidence-gated 候选：
 
