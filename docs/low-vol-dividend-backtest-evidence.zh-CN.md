@@ -1,6 +1,6 @@
 # 港股低波红利 Walk-Forward 回测证据草稿
 
-[English version](./low_vol_dividend_backtest_evidence.md)
+[English version](./low-vol-dividend-backtest-evidence.md)
 
 该工具用于为 `hk_low_vol_dividend_quality_snapshot` 生成 `walk_forward_backtest` evidence 草稿。
 它接收 operator 提供的 walk-forward summary JSON，并在本地检查主要 live-enable 门槛。

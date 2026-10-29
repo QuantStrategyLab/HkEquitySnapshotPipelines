@@ -1,6 +1,6 @@
 # HK Low-Volatility Dividend Quality Artifact Evidence Draft
 
-[中文版本](./low_vol_dividend_artifact_evidence.zh-CN.md)
+[中文版本](./low-vol-dividend-artifact-evidence.zh-CN.md)
 
 This tool turns a validated `hk_low_vol_dividend_quality_snapshot` artifact directory into an `artifact_pack_validation` evidence draft.
 It is the bridge between `hkeq-validate-snapshot-artifact-pack` and the full live-enable evidence validator.

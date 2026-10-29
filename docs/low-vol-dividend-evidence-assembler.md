@@ -1,6 +1,6 @@
 # HK Low-Volatility Dividend Quality Evidence Assembler
 
-[中文版本](./low_vol_dividend_evidence_assembler.zh-CN.md)
+[中文版本](./low-vol-dividend-evidence-assembler.zh-CN.md)
 
 This tool assembles section-level evidence drafts into a platform-specific live-enable evidence pack for `hk_low_vol_dividend_quality_snapshot`.
 It is the handoff point between operator evidence collection and the final `hkeq-validate-live-enable-evidence` / `hkeq-audit-low-vol-dividend-live-enable` gates.

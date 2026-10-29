@@ -1,6 +1,6 @@
 # HK Low-Vol Dividend Production Source Audit Draft
 
-[中文版本](./low_vol_dividend_production_source_audit.zh-CN.md)
+[中文版本](./low-vol-dividend-production-source-audit.zh-CN.md)
 
 This tool starts the real-evidence phase for `hk_low_vol_dividend_quality_snapshot`.
 It checks an operator-supplied factor snapshot CSV for local schema quality and creates a pending production source audit draft.

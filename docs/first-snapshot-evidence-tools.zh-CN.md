@@ -1,16 +1,16 @@
-# First HK Snapshot Evidence Tools
+# 首个港股 Snapshot Evidence 工具
 
-[Chinese version](./first_snapshot_evidence_tools.zh-CN.md)
+[English version](./first-snapshot-evidence-tools.md)
 
-The shared first-snapshot evidence tools now support only the retained candidate:
+共用 first-snapshot evidence 工具现在只支持保留候选：
 
 1. `hk_low_vol_dividend_quality_snapshot`
 
-Removed snapshot scaffolds are not supported by these commands. Reopen a removed profile only through a new research PR and fresh long / medium / short backtests.
+已剔除的 snapshot scaffold 不再由这些命令支持。若要重新打开，必须通过新的 research PR，并补齐 long / medium / short 回测。
 
-## Commands
+## 命令
 
-Build the live-enable package template:
+生成 live-enable package 模板：
 
 ```bash
 PYTHONPATH=src python scripts/build_first_snapshot_live_enablement_packages.py \
@@ -19,7 +19,7 @@ PYTHONPATH=src python scripts/build_first_snapshot_live_enablement_packages.py \
   --json
 ```
 
-Build the evidence bundle template:
+生成 evidence bundle 模板：
 
 ```bash
 PYTHONPATH=src python scripts/build_first_snapshot_evidence_bundles.py \
@@ -27,7 +27,7 @@ PYTHONPATH=src python scripts/build_first_snapshot_evidence_bundles.py \
   --json
 ```
 
-Draft production-source audit evidence from an operator-reviewed factor snapshot:
+基于运营侧复核过的 factor snapshot 生成 production-source audit 草稿：
 
 ```bash
 PYTHONPATH=src python scripts/draft_first_snapshot_production_source_audit.py \
@@ -38,7 +38,7 @@ PYTHONPATH=src python scripts/draft_first_snapshot_production_source_audit.py \
   --json
 ```
 
-Draft walk-forward backtest evidence from a summary JSON:
+基于 walk-forward summary JSON 生成回测证据草稿：
 
 ```bash
 PYTHONPATH=src python scripts/draft_first_snapshot_backtest_evidence.py \
@@ -48,4 +48,4 @@ PYTHONPATH=src python scripts/draft_first_snapshot_backtest_evidence.py \
   --json
 ```
 
-The generated drafts stay `pending`; they do not approve live trading.
+生成的草稿仍是 `pending`，不会批准实盘交易。

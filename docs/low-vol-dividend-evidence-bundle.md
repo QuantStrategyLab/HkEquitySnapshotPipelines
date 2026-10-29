@@ -1,6 +1,6 @@
 # HK Low-Vol Dividend Production Evidence Bundle
 
-[中文版本](./low_vol_dividend_evidence_bundle.zh-CN.md)
+[中文版本](./low-vol-dividend-evidence-bundle.zh-CN.md)
 
 This bundle is the next step after the live-enable evidence package for `hk_low_vol_dividend_quality_snapshot`.
 It creates operator-facing templates for production source audit, walk-forward backtest, quality/yield policy evidence, and platform live-enable evidence.

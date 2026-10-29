@@ -32,7 +32,7 @@ Only one snapshot profile remains in the active contract surface:
 | --- | --- | --- | --- | --- |
 | `hk_low_vol_dividend_quality_snapshot` | HK Low-Vol Dividend Quality Snapshot | `factor_snapshot` | `hkeq-build-low-vol-dividend-quality-snapshot` | `architecture_scaffold` |
 
-Previously scaffolded snapshot ideas were removed from active contracts and entrypoints. They remain as rejected research notes in [`docs/research/hk_snapshot_strategy_candidates.md`](docs/research/hk_snapshot_strategy_candidates.md). A removed profile must return through a new research PR with point-in-time data, long/medium/short backtests, and live-enable evidence before becoming an active contract again.
+Previously scaffolded snapshot ideas were removed from active contracts and entrypoints. They remain as rejected research notes in [`docs/research/hk-snapshot-strategy-candidates.md`](docs/research/hk-snapshot-strategy-candidates.md). A removed profile must return through a new research PR with point-in-time data, long/medium/short backtests, and live-enable evidence before becoming an active contract again.
 
 ### Downstream use
 
@@ -131,14 +131,14 @@ It only writes an audit package under `data/output/monthly_snapshot_audit`; it d
 
 ## Useful docs
 
-- [`docs/artifact_contract.md`](docs/artifact_contract.md)
-- [`docs/hk_snapshot_publish_workflow.md`](docs/hk_snapshot_publish_workflow.md)
-- [`docs/first_snapshot_promotion_runbook.md`](docs/first_snapshot_promotion_runbook.md)
-- [`docs/first_snapshot_evidence_tools.md`](docs/first_snapshot_evidence_tools.md)
-- [`docs/low_vol_dividend_artifact_evidence.md`](docs/low_vol_dividend_artifact_evidence.md)
-- [`docs/low_vol_dividend_backtest_evidence.md`](docs/low_vol_dividend_backtest_evidence.md)
-- [`docs/low_vol_dividend_live_enablement_gate.md`](docs/low_vol_dividend_live_enablement_gate.md)
-- [`docs/research/hk_snapshot_strategy_candidates.md`](docs/research/hk_snapshot_strategy_candidates.md)
+- [`docs/artifact-contract.md`](docs/artifact-contract.md)
+- [`docs/hk-snapshot-publish-workflow.md`](docs/hk-snapshot-publish-workflow.md)
+- [`docs/first-snapshot-promotion-runbook.md`](docs/first-snapshot-promotion-runbook.md)
+- [`docs/first-snapshot-evidence-tools.md`](docs/first-snapshot-evidence-tools.md)
+- [`docs/low-vol-dividend-artifact-evidence.md`](docs/low-vol-dividend-artifact-evidence.md)
+- [`docs/low-vol-dividend-backtest-evidence.md`](docs/low-vol-dividend-backtest-evidence.md)
+- [`docs/low-vol-dividend-live-enablement-gate.md`](docs/low-vol-dividend-live-enablement-gate.md)
+- [`docs/research/hk-snapshot-strategy-candidates.md`](docs/research/hk-snapshot-strategy-candidates.md)
 
 ## Safety and contribution notes
 

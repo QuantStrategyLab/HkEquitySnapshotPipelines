@@ -1,6 +1,6 @@
 # HK Low-Volatility Dividend Quality Platform Evidence Draft
 
-[中文版本](./low_vol_dividend_platform_evidence.zh-CN.md)
+[中文版本](./low-vol-dividend-platform-evidence.zh-CN.md)
 
 This tool turns a platform dry-run runtime report into a draft `platform_dry_run_order_preview` evidence section for `hk_low_vol_dividend_quality_snapshot`.
 It supports LongBridge and IBKR.

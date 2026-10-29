@@ -1,22 +1,22 @@
-# HK Low-Volatility Dividend Quality Live-Enable Gate Runner
+# 港股低波股息质量 Live-Enable Gate Runner
 
-[中文版本](./low_vol_dividend_live_enablement_gate.zh-CN.md)
+[English version](./low-vol-dividend-live-enablement-gate.md)
 
-This command runs the end-to-end evidence gate for `hk_low_vol_dividend_quality_snapshot`.
-It reads evidence files from a convention-based directory, assembles LongBridge and IBKR evidence packs, and runs the final live-enable audit.
+该命令用于运行 `hk_low_vol_dividend_quality_snapshot` 的端到端 evidence gate。
+它会从约定目录读取 evidence 文件，分别组装 LongBridge 和 IBKR evidence pack，然后运行最终 live-enable audit。
 
-The command does not deploy Cloud Run, place orders, publish artifacts, approve risk, or remove dry-run controls.
-It only performs local evidence assembly and validation.
+该命令不会部署 Cloud Run、不会下单、不会发布 artifact、不会批准风险，也不会移除 dry-run 控制。
+它只做本地 evidence 组装和校验。
 
-## Convention
+## 文件约定
 
-Default evidence directory:
+默认 evidence 目录：
 
 ```text
 evidence/low_vol_dividend_quality/
 ```
 
-Shared files:
+共享文件：
 
 ```text
 production_source_audit.draft.json
@@ -24,7 +24,7 @@ artifact_pack_validation.draft.json
 walk_forward_backtest.draft.json
 ```
 
-Platform files:
+平台文件：
 
 ```text
 longbridge_live_enablement_evidence.draft.json
@@ -42,9 +42,9 @@ ibkr_risk_approval.draft.json
 ibkr_strategy_policy_evidence.draft.json
 ```
 
-## Usage
+## 使用方式
 
-Preview evidence intake from one or more directories before copying anything:
+先从一个或多个目录预览 evidence intake，不复制任何文件：
 
 ```bash
 hkeq-intake-low-vol-dividend-live-enable-evidence \
@@ -55,7 +55,7 @@ hkeq-intake-low-vol-dividend-live-enable-evidence \
   --json
 ```
 
-Apply the intake only when the files are real operator/broker/backtest evidence and are named according to the convention above:
+只有当这些文件是真实的 operator / broker / backtest evidence，且文件名符合上面的约定时，再执行复制：
 
 ```bash
 hkeq-intake-low-vol-dividend-live-enable-evidence \
@@ -67,9 +67,9 @@ hkeq-intake-low-vol-dividend-live-enable-evidence \
   --json
 ```
 
-The intake command only copies convention-named files and then runs the same gate summary. It does not create missing evidence, approve risk, or mark pending sections as passed.
+intake 命令只会复制符合约定命名的文件，并随后运行同一个 gate summary。它不会创建缺失证据、不会批准风险，也不会把 pending section 标记成 passed。
 
-Run the gate:
+运行 gate：
 
 ```bash
 hkeq-run-low-vol-dividend-live-enable-gate \
@@ -80,7 +80,7 @@ hkeq-run-low-vol-dividend-live-enable-gate \
   --json
 ```
 
-For an operator-focused checklist before requesting live-enable, print the readiness report:
+在申请 live-enable 之前，可以打印面向 operator 的 readiness checklist：
 
 ```bash
 hkeq-print-low-vol-dividend-live-enable-readiness \
@@ -90,9 +90,9 @@ hkeq-print-low-vol-dividend-live-enable-readiness \
   --json
 ```
 
-The readiness report classifies each convention file as `present` or `missing`, shows per-platform validation status, and keeps `ready_to_request_live_enable=false` until the final gate allows live-enable.
+readiness report 会把每个约定文件标记为 `present` 或 `missing`，展示每个平台的 validation status，并且在最终 gate 允许前保持 `ready_to_request_live_enable=false`。
 
-Output files:
+输出文件：
 
 ```text
 data/output/low_vol_dividend_live_enablement_gate/assembled/longbridge_live_enablement_evidence.json
@@ -101,17 +101,17 @@ data/output/low_vol_dividend_live_enablement_gate/final_live_enablement_audit.js
 data/output/low_vol_dividend_live_enablement_gate/live_enablement_gate_summary.json
 ```
 
-The summary includes:
+summary 会包含：
 
-- `missing_files`: convention files that were not found;
-- `external_evidence_blockers`: the external dependency behind each missing file;
-- `next_evidence_commands`: suggested commands for generating the missing evidence drafts.
+- `missing_files`：未找到的约定 evidence 文件；
+- `external_evidence_blockers`：每个缺失文件背后的外部证据依赖；
+- `next_evidence_commands`：用于生成缺失 evidence 草稿的建议命令。
 
-## Exit behavior
+## 退出行为
 
-By default, the command returns zero even when the gate is blocked. This lets operators inspect missing evidence and validation errors.
+默认情况下，即使 gate blocked，命令也返回 0，方便 operator 查看缺失证据和 validation errors。
 
-Use `--fail-on-blocked` for CI or release gates:
+如果用于 CI 或 release gate，可以加 `--fail-on-blocked`：
 
 ```bash
 hkeq-run-low-vol-dividend-live-enable-gate \
@@ -121,13 +121,13 @@ hkeq-run-low-vol-dividend-live-enable-gate \
   --fail-on-blocked
 ```
 
-## Passing rule
+## 通过规则
 
-The gate passes only when:
+只有同时满足以下条件，gate 才会通过：
 
-- the local artifact directory passes `hkeq-validate-snapshot-artifact-pack` and has at least 20 snapshot rows;
-- LongBridge assembled evidence returns `live_enablement_allowed=true`;
-- IBKR assembled evidence returns `live_enablement_allowed=true`;
-- the final audit returns `live_enablement_allowed=true`.
+- 本地 artifact directory 通过 `hkeq-validate-snapshot-artifact-pack`，且 snapshot 至少包含 20 行；
+- LongBridge assembled evidence 返回 `live_enablement_allowed=true`；
+- IBKR assembled evidence 返回 `live_enablement_allowed=true`；
+- 最终 audit 返回 `live_enablement_allowed=true`。
 
-Until the final audit passes, the strategy must remain blocked from true live-enable.
+在最终 audit 通过前，该策略必须继续保持 blocked，不能真正 live-enable。
