@@ -26,7 +26,7 @@ def _complete_quality_yield_strategy_policy_evidence(**overrides):
         "policy_version": QUALITY_YIELD_LIVE_ENABLEMENT_POLICY_VERSION,
         **{field: True for field in required_bool_fields},
         "evidence_generated_at": "2026-05-10",
-        "evidence_uri": "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/strategy-policy.json",
+        "evidence_uri": "gs://synthetic-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/strategy-policy.json",
     }
     payload.update(overrides)
     return payload
@@ -44,13 +44,13 @@ def _evidence(**overrides):
             "source_coverage_start": "2018-01-01",
             "source_coverage_end": "2026-05-29",
             "production_source_uri": (
-                "gs://qsl-hk-prod-sources/factors/hk-low-vol-dividend-quality-snapshot/20260601/source.parquet"
+                "gs://synthetic-hk-prod-sources/factors/hk-low-vol-dividend-quality-snapshot/20260601/source.parquet"
             ),
             "source_quality_report_uri": (
-                "gs://qsl-hk-prod-sources/factors/hk-low-vol-dividend-quality-snapshot/20260601/source-quality.json"
+                "gs://synthetic-hk-prod-sources/factors/hk-low-vol-dividend-quality-snapshot/20260601/source-quality.json"
             ),
             "point_in_time_data_dictionary_uri": (
-                "gs://qsl-hk-prod-sources/factors/hk-low-vol-dividend-quality-snapshot/20260601/data-dictionary.json"
+                "gs://synthetic-hk-prod-sources/factors/hk-low-vol-dividend-quality-snapshot/20260601/data-dictionary.json"
             ),
             "point_in_time_asof": True,
             "adjusted_prices": True,
@@ -81,7 +81,7 @@ def _evidence(**overrides):
             "low_volatility_beta_drawdown_stress": True,
             "sector_concentration_caps": True,
             "evidence_generated_at": "2026-05-20",
-            "evidence_uri": "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/source-audit.json",
+            "evidence_uri": "gs://synthetic-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/source-audit.json",
         },
         "artifact_pack_validation": {
             "valid": True,
@@ -91,17 +91,17 @@ def _evidence(**overrides):
             "contract_version": "hk_low_vol_dividend_quality_snapshot.factor_snapshot.v1",
             "snapshot_sha256": "a" * 64,
             "row_count": 50,
-            "published_snapshot_uri": "gs://qsl-hk-artifacts/snapshot/hk-low-vol-dividend-quality-snapshot/20260601/hk_low_vol_dividend_quality_snapshot_factor_snapshot_latest.csv",
-            "published_manifest_uri": "gs://qsl-hk-artifacts/snapshot/hk-low-vol-dividend-quality-snapshot/20260601/hk_low_vol_dividend_quality_snapshot_factor_snapshot_latest.csv.manifest.json",
-            "published_ranking_uri": "gs://qsl-hk-artifacts/snapshot/hk-low-vol-dividend-quality-snapshot/20260601/hk_low_vol_dividend_quality_snapshot_ranking_latest.csv",
-            "published_release_summary_uri": "gs://qsl-hk-artifacts/snapshot/hk-low-vol-dividend-quality-snapshot/20260601/release_status_summary.json",
+            "published_snapshot_uri": "gs://synthetic-hk-artifacts/snapshot/hk-low-vol-dividend-quality-snapshot/20260601/hk_low_vol_dividend_quality_snapshot_factor_snapshot_latest.csv",
+            "published_manifest_uri": "gs://synthetic-hk-artifacts/snapshot/hk-low-vol-dividend-quality-snapshot/20260601/hk_low_vol_dividend_quality_snapshot_factor_snapshot_latest.csv.manifest.json",
+            "published_ranking_uri": "gs://synthetic-hk-artifacts/snapshot/hk-low-vol-dividend-quality-snapshot/20260601/hk_low_vol_dividend_quality_snapshot_ranking_latest.csv",
+            "published_release_summary_uri": "gs://synthetic-hk-artifacts/snapshot/hk-low-vol-dividend-quality-snapshot/20260601/release_status_summary.json",
             "immutable_release_id": True,
             "published_artifacts_not_sample": True,
             "manifest_snapshot_sha256_verified": True,
             "manifest_row_count_verified": True,
             "release_summary_ready": True,
             "evidence_generated_at": "2026-05-25",
-            "evidence_uri": "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/artifact-pack.json",
+            "evidence_uri": "gs://synthetic-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/artifact-pack.json",
         },
         "walk_forward_backtest": {
             "status": "passed",
@@ -137,7 +137,7 @@ def _evidence(**overrides):
             "benchmark_annual_return": 0.06,
             "strategy_excess_return": 0.06,
             "evidence_generated_at": "2026-04-15",
-            "evidence_uri": "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/backtest.json",
+            "evidence_uri": "gs://synthetic-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/backtest.json",
         },
         "platform_dry_run_order_preview": {
             "status": "passed",
@@ -156,21 +156,21 @@ def _evidence(**overrides):
             "notification_contains_order_preview_summary": True,
             "notification_redacts_sensitive_fields": True,
             "notification_delivery_log_uri": (
-                "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/notifications/"
+                "gs://synthetic-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/notifications/"
                 "20260602-dryrun.json"
             ),
             "dry_run_session_id": "hk-snapshot-low-vol-dividend-longbridge-20260602-dryrun-001",
             "raw_order_preview_uri": (
-                "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/order-preview/"
+                "gs://synthetic-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/order-preview/"
                 "raw-order-preview.json"
             ),
             "raw_order_preview_sha256": "b" * 64,
             "quote_snapshot_uri": (
-                "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/order-preview/quote-snapshot.json"
+                "gs://synthetic-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/order-preview/quote-snapshot.json"
             ),
             "quote_snapshot_sha256": "c" * 64,
             "fee_breakdown_uri": (
-                "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/order-preview/fee-breakdown.json"
+                "gs://synthetic-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/order-preview/fee-breakdown.json"
             ),
             "fee_breakdown_sha256": "d" * 64,
             "order_preview_artifact_not_sample": True,
@@ -188,7 +188,7 @@ def _evidence(**overrides):
             "market_session_routing_verified": True,
             "vcm_price_band_controls_verified": True,
             "evidence_generated_at": "2026-05-28",
-            "evidence_uri": "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/order-preview.json",
+            "evidence_uri": "gs://synthetic-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/order-preview.json",
         },
         "broker_permission_and_fee_verification": {
             "status": "passed",
@@ -198,14 +198,14 @@ def _evidence(**overrides):
             "fees_verified": True,
             "stamp_duty_or_exemption_verified": True,
             "evidence_generated_at": "2026-05-20",
-            "evidence_uri": "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/broker-fees.json",
+            "evidence_uri": "gs://synthetic-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/broker-fees.json",
         },
         "paper_or_dry_run_rebalance_window": {
             "status": "passed",
             "window_count": 3,
             "rebalance_or_event_window_covered": True,
             "evidence_generated_at": "2026-05-20",
-            "evidence_uri": "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/rebalance-windows.json",
+            "evidence_uri": "gs://synthetic-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/rebalance-windows.json",
         },
         "runtime_rollout_plan": {
             "status": "passed",
@@ -222,7 +222,7 @@ def _evidence(**overrides):
             "severe_weather_trading_runbook_ready": True,
             "vcm_cooling_off_handling_ready": True,
             "evidence_generated_at": "2026-05-20",
-            "evidence_uri": "gs://qsl-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/rollout-plan.json",
+            "evidence_uri": "gs://synthetic-hk-evidence/snapshot/hk-low-vol-dividend-quality-snapshot/rollout-plan.json",
         },
         "risk_approval": {
             "operator_approved": True,
