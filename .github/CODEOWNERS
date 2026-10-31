@@ -1,0 +1,6 @@
+
+
+# Risk-sensitive changes require the repository owner.
+/.github/CODEOWNERS @Pigbibi
+/.github/workflows/ @Pigbibi
+/src/hk_equity_snapshot_pipelines/rollout_risk_policy.py @Pigbibi
