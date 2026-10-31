@@ -68,6 +68,8 @@ Organization documentation rules are checked by `python scripts/check_style.py`,
 
 ## Do not
 
+- Only the owner, or a reviewer explicitly authorized by the owner, may apply the `owner-approved` label; coding agents must never apply it to their own PRs.
+
 - Do not turn a live-enable evidence template into a claim that a strategy was
   approved or deployed.
 - Do not delete the dated audit and evidence documents; they support promotion
