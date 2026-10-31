@@ -51,10 +51,10 @@ def test_build_low_vol_dividend_production_source_audit_draft_stays_pending():
     payload = build_low_vol_dividend_production_source_audit_draft(
         factor_snapshot_path=SAMPLE_SOURCE,
         source_name="operator-prod-source",
-        production_source_uri="gs://qsl-hk-prod-source/low-vol-dividend/source.csv",
-        source_quality_report_uri="gs://qsl-hk-prod-source/low-vol-dividend/quality.json",
-        point_in_time_data_dictionary_uri="gs://qsl-hk-prod-source/low-vol-dividend/dictionary.json",
-        evidence_uri="gs://qsl-hk-evidence/low-vol-dividend/source-audit.json",
+        production_source_uri="gs://synthetic-hk-prod-source/low-vol-dividend/source.csv",
+        source_quality_report_uri="gs://synthetic-hk-prod-source/low-vol-dividend/quality.json",
+        point_in_time_data_dictionary_uri="gs://synthetic-hk-prod-source/low-vol-dividend/dictionary.json",
+        evidence_uri="gs://synthetic-hk-evidence/low-vol-dividend/source-audit.json",
         evidence_generated_at="2026-06-03",
     )
     draft = payload["production_source_audit_draft"]

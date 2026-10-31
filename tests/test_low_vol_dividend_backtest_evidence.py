@@ -90,7 +90,7 @@ def test_analyze_low_vol_dividend_backtest_summary_rejects_bad_gates():
 def test_build_low_vol_dividend_backtest_evidence_draft_stays_pending():
     payload = build_low_vol_dividend_backtest_evidence_draft(
         summary=_summary(),
-        evidence_uri="gs://qsl-hk-evidence/low-vol-dividend/backtest.json",
+        evidence_uri="gs://synthetic-hk-evidence/low-vol-dividend/backtest.json",
         evidence_generated_at="2026-06-03",
     )
     draft = payload["walk_forward_backtest_draft"]
@@ -101,7 +101,7 @@ def test_build_low_vol_dividend_backtest_evidence_draft_stays_pending():
     assert draft["annual_return"] == 0.12
     assert draft["max_drawdown"] == -0.18
     assert round(draft["annual_return_to_max_drawdown_ratio"], 2) == 0.67
-    assert draft["evidence_uri"] == "gs://qsl-hk-evidence/low-vol-dividend/backtest.json"
+    assert draft["evidence_uri"] == "gs://synthetic-hk-evidence/low-vol-dividend/backtest.json"
     assert draft["local_backtest_summary_validation"]["local_backtest_summary_status"] == "passed_with_warnings"
 
 

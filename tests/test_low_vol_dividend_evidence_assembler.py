@@ -42,11 +42,11 @@ def _passing_evidence(platform: str = "longbridge") -> dict:
             "source_name": "operator-pit-factor-snapshot",
             "source_coverage_start": "2018-01-01",
             "source_coverage_end": "2026-01-01",
-            "production_source_uri": "gs://qsl-evidence/hk-low-vol/source/factors.csv",
-            "source_quality_report_uri": "gs://qsl-evidence/hk-low-vol/source/source-quality.json",
-            "point_in_time_data_dictionary_uri": "gs://qsl-evidence/hk-low-vol/source/pit-data-dictionary.json",
+            "production_source_uri": "gs://synthetic-evidence/hk-low-vol/source/factors.csv",
+            "source_quality_report_uri": "gs://synthetic-evidence/hk-low-vol/source/source-quality.json",
+            "point_in_time_data_dictionary_uri": "gs://synthetic-evidence/hk-low-vol/source/pit-data-dictionary.json",
             "evidence_generated_at": DATE,
-            "evidence_uri": "gs://qsl-evidence/hk-low-vol/source/source-audit.json",
+            "evidence_uri": "gs://synthetic-evidence/hk-low-vol/source/source-audit.json",
         }
     )
 
@@ -56,16 +56,16 @@ def _passing_evidence(platform: str = "longbridge") -> dict:
         {
             "valid": True,
             "validation_status": "passed",
-            "artifact_dir": "gs://qsl-evidence/hk-low-vol/artifacts/hk-low-vol-dividend-quality-snapshot-20260603-001",
+            "artifact_dir": "gs://synthetic-evidence/hk-low-vol/artifacts/hk-low-vol-dividend-quality-snapshot-20260603-001",
             "artifact_release_id": "hk-low-vol-dividend-quality-snapshot-20260603-001",
             "snapshot_sha256": HEX,
             "row_count": 50,
-            "published_snapshot_uri": "gs://qsl-evidence/hk-low-vol/artifacts/snapshot.csv",
-            "published_manifest_uri": "gs://qsl-evidence/hk-low-vol/artifacts/snapshot.csv.manifest.json",
-            "published_ranking_uri": "gs://qsl-evidence/hk-low-vol/artifacts/ranking.csv",
-            "published_release_summary_uri": "gs://qsl-evidence/hk-low-vol/artifacts/release-summary.json",
+            "published_snapshot_uri": "gs://synthetic-evidence/hk-low-vol/artifacts/snapshot.csv",
+            "published_manifest_uri": "gs://synthetic-evidence/hk-low-vol/artifacts/snapshot.csv.manifest.json",
+            "published_ranking_uri": "gs://synthetic-evidence/hk-low-vol/artifacts/ranking.csv",
+            "published_release_summary_uri": "gs://synthetic-evidence/hk-low-vol/artifacts/release-summary.json",
             "evidence_generated_at": DATE,
-            "evidence_uri": "gs://qsl-evidence/hk-low-vol/artifacts/artifact-validation.json",
+            "evidence_uri": "gs://synthetic-evidence/hk-low-vol/artifacts/artifact-validation.json",
         }
     )
 
@@ -87,7 +87,7 @@ def _passing_evidence(platform: str = "longbridge") -> dict:
             "benchmark_annual_return": 0.06,
             "strategy_excess_return": 0.06,
             "evidence_generated_at": DATE,
-            "evidence_uri": "gs://qsl-evidence/hk-low-vol/backtests/walk-forward.json",
+            "evidence_uri": "gs://synthetic-evidence/hk-low-vol/backtests/walk-forward.json",
         }
     )
 
@@ -100,20 +100,20 @@ def _passing_evidence(platform: str = "longbridge") -> dict:
             "fractional_share_errors": 0,
             "lot_size_errors": 0,
             "notification_correlation_id": f"{platform}-run-001",
-            "notification_delivery_log_uri": f"gs://qsl-evidence/hk-low-vol/{platform}/notification-log.json",
+            "notification_delivery_log_uri": f"gs://synthetic-evidence/hk-low-vol/{platform}/notification-log.json",
             "dry_run_session_id": f"{platform}-run-001",
-            "raw_order_preview_uri": f"gs://qsl-evidence/hk-low-vol/{platform}/runtime-report.json",
+            "raw_order_preview_uri": f"gs://synthetic-evidence/hk-low-vol/{platform}/runtime-report.json",
             "raw_order_preview_sha256": HEX,
-            "quote_snapshot_uri": f"gs://qsl-evidence/hk-low-vol/{platform}/quotes.json",
+            "quote_snapshot_uri": f"gs://synthetic-evidence/hk-low-vol/{platform}/quotes.json",
             "quote_snapshot_sha256": HEX,
-            "fee_breakdown_uri": f"gs://qsl-evidence/hk-low-vol/{platform}/fees.json",
+            "fee_breakdown_uri": f"gs://synthetic-evidence/hk-low-vol/{platform}/fees.json",
             "fee_breakdown_sha256": HEX,
             "adv_window_trading_days": 20,
             "median_daily_turnover_hkd": 50_000_000,
             "max_single_order_adv_fraction": 0.01,
             "rebalance_adv_fraction": 0.05,
             "evidence_generated_at": DATE,
-            "evidence_uri": f"gs://qsl-evidence/hk-low-vol/{platform}/platform-dry-run.json",
+            "evidence_uri": f"gs://synthetic-evidence/hk-low-vol/{platform}/platform-dry-run.json",
         }
     )
 
@@ -123,7 +123,7 @@ def _passing_evidence(platform: str = "longbridge") -> dict:
         {
             "status": "passed",
             "evidence_generated_at": DATE,
-            "evidence_uri": f"gs://qsl-evidence/hk-low-vol/{platform}/broker-permissions.json",
+            "evidence_uri": f"gs://synthetic-evidence/hk-low-vol/{platform}/broker-permissions.json",
         }
     )
 
@@ -134,7 +134,7 @@ def _passing_evidence(platform: str = "longbridge") -> dict:
             "status": "passed",
             "window_count": 3,
             "evidence_generated_at": DATE,
-            "evidence_uri": f"gs://qsl-evidence/hk-low-vol/{platform}/rebalance-window.json",
+            "evidence_uri": f"gs://synthetic-evidence/hk-low-vol/{platform}/rebalance-window.json",
         }
     )
 
@@ -149,7 +149,7 @@ def _passing_evidence(platform: str = "longbridge") -> dict:
             "cumulative_drawdown_tripwire": 0.04,
             "observation_trading_days_before_scale_up": 20,
             "evidence_generated_at": DATE,
-            "evidence_uri": f"gs://qsl-evidence/hk-low-vol/{platform}/rollout-plan.json",
+            "evidence_uri": f"gs://synthetic-evidence/hk-low-vol/{platform}/rollout-plan.json",
         }
     )
 
@@ -168,7 +168,7 @@ def _passing_evidence(platform: str = "longbridge") -> dict:
         {
             "status": "passed",
             "evidence_generated_at": DATE,
-            "evidence_uri": "gs://qsl-evidence/hk-low-vol/policy/quality-yield-policy-evidence.json",
+            "evidence_uri": "gs://synthetic-evidence/hk-low-vol/policy/quality-yield-policy-evidence.json",
         }
     )
     return evidence

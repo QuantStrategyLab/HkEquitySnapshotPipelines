@@ -280,7 +280,7 @@ def test_first_snapshot_backtest_evidence_draft_stays_pending():
     payload = build_first_snapshot_backtest_evidence_draft(
         profile=PROFILE,
         summary=_summary(),
-        evidence_uri=f"gs://qsl-hk-evidence/{PROFILE}/backtest.json",
+        evidence_uri=f"gs://synthetic-hk-evidence/{PROFILE}/backtest.json",
         evidence_generated_at="2026-06-03",
     )
     draft = payload["walk_forward_backtest_draft"]
