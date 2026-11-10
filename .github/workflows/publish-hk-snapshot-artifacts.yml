@@ -152,7 +152,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch' && inputs.execute_publish == true
         env:
           GH_TOKEN: ${{ github.token }}
-        run: bash .github/scripts/verify_main_ci_success.sh
+        uses: QuantStrategyLab/.github/actions/verify-main-ci@f0c00df157149cb29a41b615d2502af07eb233ea
 
       - name: Set up Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
