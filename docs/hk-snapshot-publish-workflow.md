@@ -1,5 +1,7 @@
 # HK Snapshot Publish Workflow
 
+Production publication checks the latest main-branch CI run with the [organization prepublication check](https://github.com/QuantStrategyLab/.github/blob/main/docs/deployment-workflows.md#check-ci-before-artifact-publication). The workflow keeps its market-specific validation and publish plan.
+
 [中文版本](./hk-snapshot-publish-workflow.zh-CN.md)
 
 This runbook explains how to build, validate, and optionally publish the active HK snapshot artifact pack when an operator has prepared a real factor snapshot CSV, or when the workflow generates one from public yfinance data or LongBridge OpenAPI. The resulting reports are background evidence for artifact or content health, not AiGateway online service health, and they are not sufficient by themselves to approve live trading or automatic publish decisions.
