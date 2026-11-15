@@ -87,7 +87,7 @@ on:
       longbridge_access_token_secret_name:
         description: Secret Manager secret name for LongBridge access token in staging mode.
         required: false
-        default: longport_token_hk
+        default: longport-token-hk
         type: string
       longbridge_secret_project_id:
         description: GCP project that stores LongBridge HK Secret Manager secrets.

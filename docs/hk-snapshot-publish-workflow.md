@@ -89,7 +89,7 @@ LongBridge mode reads these Google Secret Manager secrets by default, matching t
 
 - `longport-app-key-hk`
 - `longport-app-secret-hk`
-- `longport_token_hk`
+- `longport-token-hk`
 
 The default `longbridge_credentials_mode=secret_manager` reads these secrets from the GCP project resolved from the `longbridge_secret_project_id` input, falling back to the `LONGBRIDGE_SECRET_PROJECT_ID` and `GCP_PROJECT_ID` repository variables, then the workflow's built-in default, and uses the same Workload Identity Federation naming convention as `LongBridgePlatform`. If your secret project or secret names differ, override these workflow inputs:
 
@@ -122,7 +122,7 @@ Set these repository variables after the GCP binding is created:
 
 The service account needs:
 
-- Secret Manager access to the LongBridge HK secrets in `longbridge_secret_project_id` (`longport-app-key-hk`, `longport-app-secret-hk`, `longport_token_hk` by default).
+- Secret Manager access to the LongBridge HK secrets in `longbridge_secret_project_id` (`longport-app-key-hk`, `longport-app-secret-hk`, `longport-token-hk` by default).
 - GCS write access to `gcs_prefix` only when `execute_publish=true`.
 
 A workflow smoke test with `input_source_mode=factor_snapshot_csv`, a repository-local sample CSV, and no `gcs_prefix` does not require GCP auth. It proves workflow packaging only; it is not runtime artifact evidence.

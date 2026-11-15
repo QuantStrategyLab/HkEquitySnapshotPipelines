@@ -87,7 +87,7 @@ LongBridge 模式会从 Google Secret Manager 读取以下 secret，默认名称
 
 - `longport-app-key-hk`
 - `longport-app-secret-hk`
-- `longport_token_hk`
+- `longport-token-hk`
 
 默认 `longbridge_credentials_mode=secret_manager` 会从 `longbridge_secret_project_id` 输入解析出的 GCP 项目读取这些 secret，找不到时依次回退到 `LONGBRIDGE_SECRET_PROJECT_ID`、`GCP_PROJECT_ID` 仓库变量，再回退到 workflow 内置默认值，并复用 LongBridgePlatform 的 Workload Identity Federation 命名约定。如果 secret 所在项目或 secret 名称不同，可以在 workflow 输入里覆盖：
 
@@ -122,7 +122,7 @@ GCP 绑定完成后，设置以下 repository variables：
 
 该 service account 需要：
 
-- 能读取 `longbridge_secret_project_id` 中的 LongBridge HK secrets（默认 `longport-app-key-hk`、`longport-app-secret-hk`、`longport_token_hk`）。
+- 能读取 `longbridge_secret_project_id` 中的 LongBridge HK secrets（默认 `longport-app-key-hk`、`longport-app-secret-hk`、`longport-token-hk`）。
 - 仅在 `execute_publish=true` 时，需要对 `gcs_prefix` 有 GCS 写权限。
 
 使用 `input_source_mode=factor_snapshot_csv`、仓库内 sample CSV 且不设置 `gcs_prefix` 的 workflow smoke test 不需要 GCP auth。它只能证明 workflow 打包路径可用，不能作为 runtime artifact evidence。
