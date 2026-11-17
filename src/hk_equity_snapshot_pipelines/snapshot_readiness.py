@@ -4,47 +4,19 @@ import argparse
 import json
 from typing import Any
 
-from .artifact_provenance_policy import build_artifact_provenance_policy
-from .baseline_rotation_live_enablement_policy import (
-    BASELINE_ROTATION_PROFILES,
-    build_baseline_rotation_live_enablement_policy,
-)
 from .contracts import (
     HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_PROFILE,
     SnapshotProfileContract,
     get_profile_contract,
     list_profile_contracts,
 )
-from .dry_run_order_preview_policy import build_dry_run_order_preview_policy
-from .evidence_freshness_policy import build_evidence_freshness_policy
-from .evidence_uri_policy import build_evidence_uri_policy
-from .factor_mix_live_enablement_policy import (
-    FACTOR_MIX_STOCK_SELECTION_PROFILES,
-    build_factor_mix_live_enablement_policy,
-)
-from .live_enablement_policy import (
-    build_execution_capacity_policy,
+from .notification_audit_policy import SNAPSHOT_DRY_RUN_NOTIFICATION_EVENT_TYPE
+from .policy_catalog import (
+    build_all_strategy_family_policies,
     build_live_enablement_thresholds,
-    build_production_source_audit_policy,
-)
-from .momentum_live_enablement_policy import MOMENTUM_STOCK_SELECTION_PROFILES, build_momentum_live_enablement_policy
-from .notification_audit_policy import SNAPSHOT_DRY_RUN_NOTIFICATION_EVENT_TYPE, build_notification_audit_policy
-from .policy_value_live_enablement_policy import (
-    POLICY_VALUE_STOCK_SELECTION_PROFILES,
-    build_policy_value_live_enablement_policy,
-)
-from .quality_yield_live_enablement_policy import (
-    QUALITY_YIELD_STOCK_SELECTION_PROFILES,
-    build_quality_yield_live_enablement_policy,
-)
-from .quality_growth_live_enablement_policy import (
-    QUALITY_GROWTH_STOCK_SELECTION_PROFILES,
-    build_quality_growth_live_enablement_policy,
-)
-from .rollout_risk_policy import build_rollout_risk_policy
-from .special_situation_live_enablement_policy import (
-    SPECIAL_SITUATION_STOCK_SELECTION_PROFILES,
-    build_special_situation_live_enablement_policy,
+    build_shared_evidence_policies,
+    build_strategy_family_policy,
+    find_strategy_family_for_profile,
 )
 
 SUPPORTED_SNAPSHOT_PLATFORMS = frozenset({"ibkr", "longbridge"})
@@ -250,14 +222,10 @@ def build_snapshot_readiness(profile: str, *, platform_id: str) -> dict[str, Any
             "template_command": _live_enablement_evidence_template_command(contract, platform=platform),
         },
         "live_enablement_thresholds": build_live_enablement_thresholds(contract.profile),
-        "production_source_audit_policy": build_production_source_audit_policy(contract.profile),
-        "artifact_provenance_policy": build_artifact_provenance_policy(),
-        "evidence_uri_policy": build_evidence_uri_policy(),
-        "evidence_freshness_policy": build_evidence_freshness_policy(),
-        "execution_capacity_policy": build_execution_capacity_policy(contract.profile),
-        "dry_run_order_preview_policy": build_dry_run_order_preview_policy(),
-        "rollout_risk_policy": build_rollout_risk_policy(),
-        "notification_audit_policy": build_notification_audit_policy(SNAPSHOT_DRY_RUN_NOTIFICATION_EVENT_TYPE),
+        **build_shared_evidence_policies(
+            contract.profile,
+            expected_notification_event_type=SNAPSHOT_DRY_RUN_NOTIFICATION_EVENT_TYPE,
+        ),
         "neutral_gcs_prefix_hint": contract.neutral_gcs_prefix_hint,
         "platform_env_template": platform_env,
         "live_enablement_requirements": list(SNAPSHOT_LIVE_ENABLEMENT_REQUIREMENTS),
@@ -273,20 +241,9 @@ def build_snapshot_readiness(profile: str, *, platform_id: str) -> dict[str, Any
             ]
         ),
     }
-    if contract.profile in BASELINE_ROTATION_PROFILES:
-        payload["baseline_rotation_live_enablement_policy"] = build_baseline_rotation_live_enablement_policy()
-    if contract.profile in QUALITY_YIELD_STOCK_SELECTION_PROFILES:
-        payload["quality_yield_live_enablement_policy"] = build_quality_yield_live_enablement_policy()
-    if contract.profile in QUALITY_GROWTH_STOCK_SELECTION_PROFILES:
-        payload["quality_growth_live_enablement_policy"] = build_quality_growth_live_enablement_policy()
-    if contract.profile in FACTOR_MIX_STOCK_SELECTION_PROFILES:
-        payload["factor_mix_live_enablement_policy"] = build_factor_mix_live_enablement_policy()
-    if contract.profile in MOMENTUM_STOCK_SELECTION_PROFILES:
-        payload["momentum_live_enablement_policy"] = build_momentum_live_enablement_policy()
-    if contract.profile in POLICY_VALUE_STOCK_SELECTION_PROFILES:
-        payload["policy_value_live_enablement_policy"] = build_policy_value_live_enablement_policy()
-    if contract.profile in SPECIAL_SITUATION_STOCK_SELECTION_PROFILES:
-        payload["special_situation_live_enablement_policy"] = build_special_situation_live_enablement_policy()
+    family_spec = find_strategy_family_for_profile(contract.profile)
+    if family_spec is not None:
+        payload[family_spec.section_key] = build_strategy_family_policy(family_spec.key)
     return payload
 
 
@@ -316,20 +273,15 @@ def build_snapshot_readiness_matrix(*, platform_id: str) -> dict[str, Any]:
         "recommended_live_enablement_sequence": first_snapshot_candidates,
         "research_only_scaffold_sequence": research_only_scaffolds,
         "profiles": profiles,
-        "evidence_uri_policy": build_evidence_uri_policy(),
-        "artifact_provenance_policy": build_artifact_provenance_policy(),
-        "evidence_freshness_policy": build_evidence_freshness_policy(),
-        "execution_capacity_policy": build_execution_capacity_policy(""),
-        "dry_run_order_preview_policy": build_dry_run_order_preview_policy(),
-        "rollout_risk_policy": build_rollout_risk_policy(),
-        "notification_audit_policy": build_notification_audit_policy(SNAPSHOT_DRY_RUN_NOTIFICATION_EVENT_TYPE),
-        "baseline_rotation_live_enablement_policy": build_baseline_rotation_live_enablement_policy(),
-        "quality_yield_live_enablement_policy": build_quality_yield_live_enablement_policy(),
-        "quality_growth_live_enablement_policy": build_quality_growth_live_enablement_policy(),
-        "factor_mix_live_enablement_policy": build_factor_mix_live_enablement_policy(),
-        "momentum_live_enablement_policy": build_momentum_live_enablement_policy(),
-        "policy_value_live_enablement_policy": build_policy_value_live_enablement_policy(),
-        "special_situation_live_enablement_policy": build_special_situation_live_enablement_policy(),
+        **{
+            k: v
+            for k, v in build_shared_evidence_policies(
+                "",
+                expected_notification_event_type=SNAPSHOT_DRY_RUN_NOTIFICATION_EVENT_TYPE,
+            ).items()
+            if k != "production_source_audit_policy"
+        },
+        **build_all_strategy_family_policies(),
         "required_evidence_categories": [
             "production_snapshot_source_audit",
             "production_source_uri_and_quality_report_provenance",

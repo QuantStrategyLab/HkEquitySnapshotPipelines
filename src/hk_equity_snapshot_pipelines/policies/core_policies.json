@@ -1,0 +1,250 @@
+{
+  "artifact_provenance": {
+    "required": true,
+    "min_production_artifact_row_count": 20,
+    "sha256_hex_length": 64,
+    "required_fields": [
+      "artifact_release_id",
+      "contract_version",
+      "snapshot_sha256",
+      "row_count",
+      "published_snapshot_uri",
+      "published_manifest_uri",
+      "published_ranking_uri",
+      "published_release_summary_uri"
+    ],
+    "required_boolean_fields": [
+      "immutable_release_id",
+      "published_artifacts_not_sample",
+      "manifest_snapshot_sha256_verified",
+      "manifest_row_count_verified",
+      "release_summary_ready"
+    ],
+    "required_uri_fields": [
+      "published_snapshot_uri",
+      "published_manifest_uri",
+      "published_ranking_uri",
+      "published_release_summary_uri"
+    ],
+    "source_reference_urls": [
+      "https://www.sfc.hk/en/faqs/intermediaries/supervision/Use-of-External-Electronic-Data-Storage/Use-of-External-Electronic-Data-Storage",
+      "https://www.hkex.com.hk/products/securities/exchange-traded-products/overview?sc_lang=en",
+      "https://www.hkex.com.hk/-/media/HKEX-Market/Products/Securities/Exchange-Traded-Products/Launch/HKEX_ETF-Handbook.pdf"
+    ],
+    "description": "Snapshot live enablement must prove immutable artifact release identity, stable published snapshot/manifest/ranking/summary URIs, contract version, row count, and snapshot sha256 before platform runtime can consume artifacts."
+  },
+  "backtest_validation": {
+    "required": true,
+    "policy_version": "hk_backtest_validation_policy.v1",
+    "scope": "all_hk_snapshot_and_runtime_strategy_profiles",
+    "live_enablement_allowed_without_policy_evidence": false,
+    "max_allowed_drawdown": 0.3,
+    "min_return_to_drawdown_ratio": 0.5,
+    "min_required_oos_fold_count": 3,
+    "max_single_period_return_contribution": 0.6,
+    "required_controls": [
+      "point_in_time_inputs_only",
+      "signal_timestamp_before_trade_timestamp",
+      "reporting_date_asof_lag_enforced",
+      "no_survivorship_bias_or_future_constituent_universe",
+      "out_of_sample_walk_forward_min_three_years",
+      "train_validation_test_or_walk_forward_split_documented",
+      "parameter_grid_pre_registered_and_small",
+      "no_full_sample_parameter_selection",
+      "rolling_oos_fold_drawdown_controls",
+      "parameter_sensitivity_and_holdout_stability_controls",
+      "multiple_period_robustness_checked",
+      "regime_stress_and_liquidity_shock_controls",
+      "benchmark_period_cost_and_slippage_aligned",
+      "fee_slippage_spread_stress_sensitivity_controls",
+      "net_return_after_costs_controls",
+      "data_vendor_reconciliation_and_missingness_controls",
+      "hk_fee_stamp_duty_or_etf_exemption_lot_size_and_suspension_model",
+      "corporate_action_delisting_and_stale_price_controls",
+      "tail_loss_time_underwater_and_recovery_controls",
+      "portfolio_correlation_and_aggregate_risk_budget_controls"
+    ],
+    "required_risk_constraints": [
+      "max_drawdown_at_or_below_30_percent",
+      "each_oos_fold_max_drawdown_at_or_below_30_percent",
+      "positive_strategy_excess_return_vs_profile_benchmark",
+      "annualized_turnover_within_profile_threshold",
+      "single_name_sector_and_theme_concentration_limits",
+      "factor_exposure_crowding_and_loss_concentration_limits",
+      "cash_leverage_short_borrow_and_margin_constraints",
+      "adv_capacity_spread_board_lot_and_odd_lot_limits",
+      "suspension_stale_quote_vcm_cas_and_market_session_controls",
+      "hk_fee_levy_stamp_duty_or_etf_exemption_slippage_model",
+      "fee_slippage_spread_sensitivity_stays_profitable",
+      "annual_return_to_max_drawdown_ratio_at_or_above_50_percent",
+      "minimum_three_independent_oos_folds",
+      "single_period_return_contribution_at_or_below_60_percent",
+      "worst_month_or_worst_rebalance_loss_within_profile_threshold",
+      "time_underwater_and_drawdown_recovery_within_profile_threshold",
+      "cross_strategy_correlation_and_aggregate_drawdown_budget_limits",
+      "drawdown_tripwire_kill_switch_and_staged_rollout_limits"
+    ],
+    "required_metrics": [
+      "period_start",
+      "period_end",
+      "annual_return",
+      "benchmark_annual_return",
+      "strategy_excess_return",
+      "max_drawdown",
+      "annualized_turnover",
+      "trade_count_or_rebalance_count",
+      "median_daily_turnover_or_capacity_usage",
+      "oos_fold_count",
+      "rolling_oos_fold_max_drawdown",
+      "max_single_period_return_contribution",
+      "net_annual_return_after_costs",
+      "worst_month_or_worst_rebalance_loss",
+      "max_time_underwater_days",
+      "fee_slippage_stress_excess_return",
+      "annual_return_to_max_drawdown_ratio",
+      "correlation_to_existing_live_hk_profiles",
+      "parameter_sensitivity_summary",
+      "capacity_at_target_aum"
+    ],
+    "reject_criteria": [
+      "using_current_constituents_for_historical_universe",
+      "using_future_financials_estimates_or_index_changes_before_effective_timestamp",
+      "signal_uses_next_close_or_post_trade_data",
+      "choosing_parameters_by_best_full_sample_total_return",
+      "missing_transaction_cost_slippage_lot_size_or_suspension_model",
+      "single_period_only_backtest_without_walk_forward_or_robustness_checks",
+      "sample_artifact_or_synthetic_data_used_as_live_enablement_evidence",
+      "gross_return_only_backtest_without_net_cost_validation",
+      "rolling_or_oos_fold_drawdown_above_30_percent",
+      "insufficient_parameter_sensitivity_or_holdout_stability",
+      "fee_slippage_spread_stress_turns_excess_return_non_positive",
+      "annual_return_to_max_drawdown_ratio_below_50_percent",
+      "fewer_than_three_independent_oos_folds",
+      "single_period_return_contribution_above_60_percent",
+      "time_underwater_or_worst_rebalance_loss_exceeds_profile_limit",
+      "high_correlation_to_existing_live_profiles_without_aggregate_risk_budget",
+      "hidden_leverage_or_short_exposure_without_borrow_margin_and_tick_rule_controls",
+      "unmodeled_corporate_actions_suspensions_delistings_or_stale_prices"
+    ],
+    "description": "Every HK strategy must provide out-of-sample or walk-forward backtest evidence before live enablement, and max drawdown must be <= 30% unless a stricter per-profile threshold applies. Evidence must prove point-in-time inputs, no look-ahead or survivorship bias, pre-registered and small parameter searches, at least three independent OOS folds, per-fold drawdown <= 30%, single-period return contribution <= 60%, net-of-cost returns, HK cost/slippage/lot-size/suspension handling, corporate-action / stale-price handling, benchmark alignment, annual-return-to-drawdown ratio, leverage/shorting feasibility, capacity, fee/slippage stress, tail loss and time-under-water recovery, cross-strategy correlation, aggregate risk budget, regime stress, and robustness across multiple periods."
+  },
+  "dry_run_order_preview": {
+    "required": true,
+    "policy_version": "hk_dry_run_order_preview_provenance.v1",
+    "required_fields": [
+      "dry_run_session_id"
+    ],
+    "required_uri_fields": [
+      "raw_order_preview_uri",
+      "quote_snapshot_uri",
+      "fee_breakdown_uri"
+    ],
+    "required_sha256_fields": [
+      "raw_order_preview_sha256",
+      "quote_snapshot_sha256",
+      "fee_breakdown_sha256"
+    ],
+    "required_boolean_fields": [
+      "order_preview_artifact_not_sample",
+      "order_preview_redacts_sensitive_fields",
+      "quote_snapshot_covers_all_symbols",
+      "fee_breakdown_reconciled_to_broker_preview",
+      "order_preview_reconciled_to_strategy_decision"
+    ],
+    "source_reference_urls": [
+      "https://www.hkex.com.hk/Services/Trading/Securities/Overview/Trading-Mechanism?sc_lang=en",
+      "https://www.hkex.com.hk/Services/Rules-and-Forms-and-Fees/Fees/Securities-%28Hong-Kong%29/Trading/Transaction?sc_lang=en",
+      "https://www.hkex.com.hk/Global/Exchange/FAQ/Securities-Market/Trading/VCM?sc_lang=en",
+      "https://apps.sfc.hk/edistributionWeb/api/circular/list-content/circular/intermediaries/supervision/doc?lang=EN&refNo=16EC67"
+    ],
+    "description": "Dry-run order previews must preserve raw preview, quote snapshot, fee breakdown, and sha256 provenance before live enablement."
+  },
+  "evidence_freshness": {
+    "required": true,
+    "required_field": "evidence_generated_at",
+    "max_allowed_age_days_by_section": {
+      "production_snapshot_source_audit": 30,
+      "artifact_pack_validation": 14,
+      "walk_forward_backtest": 90,
+      "platform_dry_run_order_preview": 14,
+      "broker_permission_and_fee_verification": 30,
+      "paper_or_dry_run_rebalance_window": 30,
+      "runtime_rollout_plan": 30
+    }
+  },
+  "evidence_uri": {
+    "required": true,
+    "allowed_schemes": [
+      "gs",
+      "https",
+      "s3"
+    ],
+    "rejected_query_markers": [
+      "access_token=",
+      "api_key=",
+      "auth=",
+      "jwt=",
+      "password=",
+      "secret=",
+      "signature=",
+      "token=",
+      "x-amz-signature=",
+      "x-goog-signature="
+    ],
+    "description": "Evidence sections must point to stable audit artifacts and must not embed secrets."
+  },
+  "notification_audit": {
+    "required": true,
+    "schema_version": "hk_live_enablement_notification.v1",
+    "default_event_type": "hk_snapshot_live_enablement_dry_run",
+    "supported_event_types": [
+      "hk_snapshot_live_enablement_dry_run"
+    ],
+    "required_fields": [
+      "notification_schema_version",
+      "notification_event_type",
+      "notification_correlation_id",
+      "notification_delivery_log_uri"
+    ],
+    "required_boolean_fields": [
+      "notification_locale_en",
+      "notification_locale_zh_hans",
+      "notification_contains_profile",
+      "notification_contains_platform",
+      "notification_contains_validation_status",
+      "notification_contains_order_preview_summary",
+      "notification_redacts_sensitive_fields"
+    ],
+    "required_uri_fields": [
+      "notification_delivery_log_uri"
+    ],
+    "source_reference_urls": [
+      "https://www.sfc.hk/en/faqs/intermediaries/supervision/Use-of-External-Electronic-Data-Storage/Use-of-External-Electronic-Data-Storage",
+      "https://www.hkex.com.hk/Services/Trading-hours-and-Severe-Weather-Arrangements?sc_lang=en"
+    ],
+    "description": "HK snapshot live-enable notifications must be bilingual, schema-versioned, correlated to the evidence pack, secret-safe, and backed by a stable delivery log URI."
+  },
+  "rollout_risk": {
+    "required": true,
+    "max_initial_capital_fraction": 0.25,
+    "max_per_symbol_capital_fraction": 0.15,
+    "max_intraday_drawdown_tripwire": 0.03,
+    "max_cumulative_drawdown_tripwire": 0.05,
+    "min_observation_trading_days_before_scale_up": 20,
+    "required_boolean_fields": [
+      "staged_rollout_plan_ready",
+      "kill_switch_ready",
+      "rollback_plan_ready",
+      "post_deploy_monitoring_ready",
+      "operator_notification_ready",
+      "severe_weather_trading_runbook_ready",
+      "vcm_cooling_off_handling_ready"
+    ],
+    "source_reference_urls": [
+      "https://www.hkex.com.hk/Services/Trading-hours-and-Severe-Weather-Arrangements/Severe-Weather-Arrangements/Overview?sc_lang=en",
+      "https://www.hkex.com.hk/Services/Trading/Securities/Overview/Trading-Mechanism?sc_lang=en",
+      "https://www.sfc.hk/en/Published-resources/Consultations/sfc-proposes-to-enhance-the-regulatory-framework-for-electronic-trading"
+    ],
+    "description": "HK snapshot live enablement must start with a capped rollout, explicit tripwires, operator notifications, SWT/VCM runbooks, and rollback controls before dry-run is removed or capital is scaled."
+  }
+}

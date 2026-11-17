@@ -13,83 +13,53 @@ from .artifact_provenance_policy import (
     MIN_PRODUCTION_ARTIFACT_ROW_COUNT,
     REQUIRED_ARTIFACT_PROVENANCE_BOOLEAN_FIELDS,
     REQUIRED_ARTIFACT_PROVENANCE_FIELDS,
-    build_artifact_provenance_policy,
 )
-from .baseline_rotation_live_enablement_policy import (
-    BASELINE_ROTATION_PROFILES,
-    build_baseline_rotation_live_enablement_policy,
-)
-from .evidence_freshness_policy import (
-    EVIDENCE_GENERATED_AT_FIELD,
-    MAX_ALLOWED_EVIDENCE_AGE_DAYS_BY_SECTION,
-    build_evidence_freshness_policy,
-)
+from .contracts import get_profile_contract
 from .dry_run_order_preview_policy import (
     REQUIRED_DRY_RUN_ORDER_PREVIEW_BOOLEAN_FIELDS,
     REQUIRED_DRY_RUN_ORDER_PREVIEW_FIELDS,
     REQUIRED_DRY_RUN_ORDER_PREVIEW_SHA256_FIELDS,
     REQUIRED_DRY_RUN_ORDER_PREVIEW_URI_FIELDS,
-    build_dry_run_order_preview_policy,
 )
-from .evidence_uri_policy import (
-    ALLOWED_EVIDENCE_URI_SCHEMES,
-    SENSITIVE_EVIDENCE_URI_MARKERS,
-    build_evidence_uri_policy,
+from .evidence_freshness_policy import (
+    EVIDENCE_GENERATED_AT_FIELD,
+    MAX_ALLOWED_EVIDENCE_AGE_DAYS_BY_SECTION,
 )
-from .factor_mix_live_enablement_policy import (
-    FACTOR_MIX_STOCK_SELECTION_PROFILES,
-    build_factor_mix_live_enablement_policy,
-)
-from .contracts import get_profile_contract
+from .evidence_uri_policy import ALLOWED_EVIDENCE_URI_SCHEMES, SENSITIVE_EVIDENCE_URI_MARKERS
 from .live_enablement_policy import (
     MAX_ALLOWED_BACKTEST_DRAWDOWN,
     MAX_SINGLE_PERIOD_RETURN_CONTRIBUTION,
     MIN_REQUIRED_OOS_FOLD_COUNT,
     MIN_REQUIRED_WALK_FORWARD_YEARS,
     MIN_RETURN_TO_DRAWDOWN_RATIO,
+    PRODUCTION_SOURCE_AUDIT_REQUIRED_FIELDS,
+    PRODUCTION_SOURCE_AUDIT_URI_FIELDS,
     REQUIRED_BACKTEST_BIAS_CONTROL_FIELDS,
     REQUIRED_BACKTEST_COST_MODEL_FIELDS,
     REQUIRED_EXECUTION_CAPACITY_FIELDS,
-    PRODUCTION_SOURCE_AUDIT_REQUIRED_FIELDS,
-    PRODUCTION_SOURCE_AUDIT_URI_FIELDS,
-    build_execution_capacity_policy,
-    build_live_enablement_thresholds,
-    build_production_source_audit_policy,
-    get_max_allowed_annualized_turnover,
-    get_min_median_daily_turnover_hkd,
-    get_min_required_rebalance_windows,
-    get_required_benchmark_symbol,
-    get_required_production_source_audit_fields,
-)
-from .momentum_live_enablement_policy import (
-    MOMENTUM_STOCK_SELECTION_PROFILES,
-    build_momentum_live_enablement_policy,
 )
 from .notification_audit_policy import (
     NOTIFICATION_SCHEMA_VERSION,
     REQUIRED_NOTIFICATION_AUDIT_BOOLEAN_FIELDS,
     REQUIRED_NOTIFICATION_AUDIT_FIELDS,
     SNAPSHOT_DRY_RUN_NOTIFICATION_EVENT_TYPE,
-    build_notification_audit_policy,
 )
-from .policy_value_live_enablement_policy import (
-    POLICY_VALUE_STOCK_SELECTION_PROFILES,
-    build_policy_value_live_enablement_policy,
+from .policy_catalog import (
+    build_all_strategy_family_policies,
+    build_execution_capacity_policy,
+    build_live_enablement_thresholds,
+    build_rollout_risk_policy,
+    build_shared_evidence_policies,
+    build_strategy_family_policy,
+    find_strategy_family_for_profile,
+    get_max_allowed_annualized_turnover,
+    get_min_median_daily_turnover_hkd,
+    get_min_required_rebalance_windows,
+    get_required_benchmark_symbol,
+    get_required_production_source_audit_fields,
 )
-from .quality_yield_live_enablement_policy import (
-    QUALITY_YIELD_STOCK_SELECTION_PROFILES,
-    build_quality_yield_live_enablement_policy,
-)
-from .quality_growth_live_enablement_policy import (
-    QUALITY_GROWTH_STOCK_SELECTION_PROFILES,
-    build_quality_growth_live_enablement_policy,
-)
-from .rollout_risk_policy import REQUIRED_ROLLOUT_RISK_FIELDS, build_rollout_risk_policy
+from .rollout_risk_policy import REQUIRED_ROLLOUT_RISK_FIELDS
 from .snapshot_readiness import SUPPORTED_SNAPSHOT_PLATFORMS
-from .special_situation_live_enablement_policy import (
-    SPECIAL_SITUATION_STOCK_SELECTION_PROFILES,
-    build_special_situation_live_enablement_policy,
-)
 
 EVIDENCE_TYPE = "hk_snapshot_live_enablement"
 REQUIRED_SECTIONS: tuple[str, ...] = (
@@ -156,29 +126,13 @@ def _require_evidence_freshness(
     *,
     validation_as_of: datetime,
 ) -> None:
-    max_allowed_age_days = MAX_ALLOWED_EVIDENCE_AGE_DAYS_BY_SECTION[section_name]
-    raw_generated_at = section.get(EVIDENCE_GENERATED_AT_FIELD)
-    if raw_generated_at is None or not str(raw_generated_at).strip():
-        errors.append(f"{section_name}.{EVIDENCE_GENERATED_AT_FIELD} is required")
-        return
-    generated_at = _parse_iso_date(raw_generated_at)
-    if generated_at is None:
-        errors.append(f"{section_name}.{EVIDENCE_GENERATED_AT_FIELD} must be an ISO date")
-        return
-    generated_date = generated_at.date()
-    validation_date = validation_as_of.date()
-    if generated_date > validation_date:
-        errors.append(
-            f"{section_name}.{EVIDENCE_GENERATED_AT_FIELD} must not be after validation_as_of: "
-            f"got {generated_date.isoformat()}, validation_as_of={validation_date.isoformat()}"
-        )
-        return
-    age_days = (validation_date - generated_date).days
-    if age_days > max_allowed_age_days:
-        errors.append(
-            f"{section_name}.{EVIDENCE_GENERATED_AT_FIELD} is stale: "
-            f"age_days={age_days}, max_allowed_age_days={max_allowed_age_days}"
-        )
+    _require_evidence_freshness_max_age(
+        errors,
+        section_name,
+        section,
+        validation_as_of=validation_as_of,
+        max_allowed_age_days=MAX_ALLOWED_EVIDENCE_AGE_DAYS_BY_SECTION[section_name],
+    )
 
 
 def _require_evidence_freshness_max_age(
@@ -220,17 +174,7 @@ def _add_missing_bool_errors(errors: list[str], section_name: str, section: Mapp
 
 
 def _require_evidence_uri(errors: list[str], section_name: str, section: Mapping[str, Any]) -> None:
-    raw_uri = str(section.get("evidence_uri", "")).strip()
-    if not raw_uri:
-        errors.append(f"{section_name}.evidence_uri is required")
-        return
-    parsed_uri = urlparse(raw_uri)
-    if parsed_uri.scheme.lower() not in ALLOWED_EVIDENCE_URI_SCHEMES or not parsed_uri.netloc or not parsed_uri.path:
-        allowed = ", ".join(f"{scheme}://" for scheme in ALLOWED_EVIDENCE_URI_SCHEMES)
-        errors.append(f"{section_name}.evidence_uri must be a stable URI using one of: {allowed}")
-    lowered_uri = raw_uri.lower()
-    if any(marker in lowered_uri for marker in SENSITIVE_EVIDENCE_URI_MARKERS):
-        errors.append(f"{section_name}.evidence_uri must not contain secret-like query parameters")
+    _require_stable_uri_field(errors, section_name, section, "evidence_uri")
 
 
 def _require_stable_uri_field(errors: list[str], section_name: str, section: Mapping[str, Any], field: str) -> None:
@@ -641,14 +585,10 @@ def build_live_enablement_evidence_template(profile: str, *, platform: str) -> d
         "min_required_rebalance_windows": get_min_required_rebalance_windows(contract.profile),
         "required_benchmark_symbol": get_required_benchmark_symbol(contract.profile),
         "live_enablement_thresholds": build_live_enablement_thresholds(contract.profile),
-        "production_source_audit_policy": build_production_source_audit_policy(contract.profile),
-        "artifact_provenance_policy": build_artifact_provenance_policy(),
-        "evidence_uri_policy": build_evidence_uri_policy(),
-        "evidence_freshness_policy": build_evidence_freshness_policy(),
-        "execution_capacity_policy": build_execution_capacity_policy(contract.profile),
-        "dry_run_order_preview_policy": build_dry_run_order_preview_policy(),
-        "rollout_risk_policy": build_rollout_risk_policy(),
-        "notification_audit_policy": build_notification_audit_policy(SNAPSHOT_DRY_RUN_NOTIFICATION_EVENT_TYPE),
+        **build_shared_evidence_policies(
+            contract.profile,
+            expected_notification_event_type=SNAPSHOT_DRY_RUN_NOTIFICATION_EVENT_TYPE,
+        ),
         "production_snapshot_source_audit": {
             "status": "pending",
             "source_name": "",
@@ -805,36 +745,11 @@ def build_live_enablement_evidence_template(profile: str, *, platform: str) -> d
             "approval_reference": "",
         },
     }
-    if contract.profile in BASELINE_ROTATION_PROFILES:
-        baseline_rotation_policy = build_baseline_rotation_live_enablement_policy()
-        payload["baseline_rotation_live_enablement_policy"] = baseline_rotation_policy
-        payload[STRATEGY_POLICY_EVIDENCE_SECTION] = _build_strategy_policy_evidence_template(
-            baseline_rotation_policy
-        )
-    if contract.profile in QUALITY_YIELD_STOCK_SELECTION_PROFILES:
-        quality_yield_policy = build_quality_yield_live_enablement_policy()
-        payload["quality_yield_live_enablement_policy"] = quality_yield_policy
-        payload[STRATEGY_POLICY_EVIDENCE_SECTION] = _build_strategy_policy_evidence_template(quality_yield_policy)
-    if contract.profile in QUALITY_GROWTH_STOCK_SELECTION_PROFILES:
-        quality_growth_policy = build_quality_growth_live_enablement_policy()
-        payload["quality_growth_live_enablement_policy"] = quality_growth_policy
-        payload[STRATEGY_POLICY_EVIDENCE_SECTION] = _build_strategy_policy_evidence_template(quality_growth_policy)
-    if contract.profile in FACTOR_MIX_STOCK_SELECTION_PROFILES:
-        factor_mix_policy = build_factor_mix_live_enablement_policy()
-        payload["factor_mix_live_enablement_policy"] = factor_mix_policy
-        payload[STRATEGY_POLICY_EVIDENCE_SECTION] = _build_strategy_policy_evidence_template(factor_mix_policy)
-    if contract.profile in MOMENTUM_STOCK_SELECTION_PROFILES:
-        momentum_policy = build_momentum_live_enablement_policy()
-        payload["momentum_live_enablement_policy"] = momentum_policy
-        payload[STRATEGY_POLICY_EVIDENCE_SECTION] = _build_strategy_policy_evidence_template(momentum_policy)
-    if contract.profile in POLICY_VALUE_STOCK_SELECTION_PROFILES:
-        policy_value_policy = build_policy_value_live_enablement_policy()
-        payload["policy_value_live_enablement_policy"] = policy_value_policy
-        payload[STRATEGY_POLICY_EVIDENCE_SECTION] = _build_strategy_policy_evidence_template(policy_value_policy)
-    if contract.profile in SPECIAL_SITUATION_STOCK_SELECTION_PROFILES:
-        special_situation_policy = build_special_situation_live_enablement_policy()
-        payload["special_situation_live_enablement_policy"] = special_situation_policy
-        payload[STRATEGY_POLICY_EVIDENCE_SECTION] = _build_strategy_policy_evidence_template(special_situation_policy)
+    family_spec = find_strategy_family_for_profile(contract.profile)
+    if family_spec is not None:
+        family_policy = build_strategy_family_policy(family_spec.key)
+        payload[family_spec.section_key] = family_policy
+        payload[STRATEGY_POLICY_EVIDENCE_SECTION] = _build_strategy_policy_evidence_template(family_policy)
     return payload
 
 
@@ -861,6 +776,7 @@ def validate_live_enablement_evidence(evidence: Mapping[str, Any], *, validation
     for section in missing_sections:
         errors.append(f"missing required evidence section: {section}")
 
+    family_spec = find_strategy_family_for_profile(profile)
     if not missing_sections:
         for section_name in MAX_ALLOWED_EVIDENCE_AGE_DAYS_BY_SECTION:
             _require_evidence_freshness(
@@ -877,61 +793,13 @@ def validate_live_enablement_evidence(evidence: Mapping[str, Any], *, validation
         _validate_rebalance_window(errors, evidence, profile=profile)
         _validate_runtime_rollout_plan(errors, evidence)
         _validate_risk_approval(errors, evidence)
-        if profile in BASELINE_ROTATION_PROFILES:
+        if family_spec is not None:
             _validate_strategy_policy_evidence(
                 errors,
                 evidence,
                 validation_as_of=resolved_validation_as_of,
-                policy=build_baseline_rotation_live_enablement_policy(),
-                profile_family_label="baseline-rotation",
-            )
-        if profile in QUALITY_YIELD_STOCK_SELECTION_PROFILES:
-            _validate_strategy_policy_evidence(
-                errors,
-                evidence,
-                validation_as_of=resolved_validation_as_of,
-                policy=build_quality_yield_live_enablement_policy(),
-                profile_family_label="quality/yield",
-            )
-        if profile in QUALITY_GROWTH_STOCK_SELECTION_PROFILES:
-            _validate_strategy_policy_evidence(
-                errors,
-                evidence,
-                validation_as_of=resolved_validation_as_of,
-                policy=build_quality_growth_live_enablement_policy(),
-                profile_family_label="quality-growth",
-            )
-        if profile in FACTOR_MIX_STOCK_SELECTION_PROFILES:
-            _validate_strategy_policy_evidence(
-                errors,
-                evidence,
-                validation_as_of=resolved_validation_as_of,
-                policy=build_factor_mix_live_enablement_policy(),
-                profile_family_label="factor-mix",
-            )
-        if profile in MOMENTUM_STOCK_SELECTION_PROFILES:
-            _validate_strategy_policy_evidence(
-                errors,
-                evidence,
-                validation_as_of=resolved_validation_as_of,
-                policy=build_momentum_live_enablement_policy(),
-                profile_family_label="momentum",
-            )
-        if profile in POLICY_VALUE_STOCK_SELECTION_PROFILES:
-            _validate_strategy_policy_evidence(
-                errors,
-                evidence,
-                validation_as_of=resolved_validation_as_of,
-                policy=build_policy_value_live_enablement_policy(),
-                profile_family_label="policy-value",
-            )
-        if profile in SPECIAL_SITUATION_STOCK_SELECTION_PROFILES:
-            _validate_strategy_policy_evidence(
-                errors,
-                evidence,
-                validation_as_of=resolved_validation_as_of,
-                policy=build_special_situation_live_enablement_policy(),
-                profile_family_label="special-situation",
+                policy=build_strategy_family_policy(family_spec.key),
+                profile_family_label=family_spec.family_label,
             )
 
     result = {
@@ -946,32 +814,16 @@ def validate_live_enablement_evidence(evidence: Mapping[str, Any], *, validation
         "min_required_rebalance_windows": get_min_required_rebalance_windows(profile),
         "required_benchmark_symbol": get_required_benchmark_symbol(profile),
         "required_sections": list(REQUIRED_SECTIONS),
-        "production_source_audit_policy": build_production_source_audit_policy(profile),
-        "artifact_provenance_policy": build_artifact_provenance_policy(),
-        "evidence_uri_policy": build_evidence_uri_policy(),
-        "evidence_freshness_policy": build_evidence_freshness_policy(),
-        "execution_capacity_policy": build_execution_capacity_policy(profile),
-        "dry_run_order_preview_policy": build_dry_run_order_preview_policy(),
-        "rollout_risk_policy": build_rollout_risk_policy(),
-        "notification_audit_policy": build_notification_audit_policy(SNAPSHOT_DRY_RUN_NOTIFICATION_EVENT_TYPE),
+        **build_shared_evidence_policies(
+            profile,
+            expected_notification_event_type=SNAPSHOT_DRY_RUN_NOTIFICATION_EVENT_TYPE,
+        ),
         "errors": errors,
         "warnings": warnings,
         "live_enablement_thresholds": build_live_enablement_thresholds(profile),
     }
-    if profile in BASELINE_ROTATION_PROFILES:
-        result["baseline_rotation_live_enablement_policy"] = build_baseline_rotation_live_enablement_policy()
-    if profile in QUALITY_YIELD_STOCK_SELECTION_PROFILES:
-        result["quality_yield_live_enablement_policy"] = build_quality_yield_live_enablement_policy()
-    if profile in QUALITY_GROWTH_STOCK_SELECTION_PROFILES:
-        result["quality_growth_live_enablement_policy"] = build_quality_growth_live_enablement_policy()
-    if profile in FACTOR_MIX_STOCK_SELECTION_PROFILES:
-        result["factor_mix_live_enablement_policy"] = build_factor_mix_live_enablement_policy()
-    if profile in MOMENTUM_STOCK_SELECTION_PROFILES:
-        result["momentum_live_enablement_policy"] = build_momentum_live_enablement_policy()
-    if profile in POLICY_VALUE_STOCK_SELECTION_PROFILES:
-        result["policy_value_live_enablement_policy"] = build_policy_value_live_enablement_policy()
-    if profile in SPECIAL_SITUATION_STOCK_SELECTION_PROFILES:
-        result["special_situation_live_enablement_policy"] = build_special_situation_live_enablement_policy()
+    if family_spec is not None:
+        result[family_spec.section_key] = build_strategy_family_policy(family_spec.key)
     if not errors:
         result["validation_status"] = "passed"
         result["live_enablement_allowed"] = True
@@ -991,21 +843,11 @@ def validate_live_enablement_evidence_file(path: str | Path, *, validation_as_of
             "live_enablement_allowed": False,
             "max_allowed_backtest_drawdown": MAX_ALLOWED_BACKTEST_DRAWDOWN,
             "required_sections": list(REQUIRED_SECTIONS),
-            "production_source_audit_policy": build_production_source_audit_policy(""),
-            "artifact_provenance_policy": build_artifact_provenance_policy(),
-            "evidence_uri_policy": build_evidence_uri_policy(),
-            "evidence_freshness_policy": build_evidence_freshness_policy(),
-            "execution_capacity_policy": build_execution_capacity_policy(""),
-            "dry_run_order_preview_policy": build_dry_run_order_preview_policy(),
-            "rollout_risk_policy": build_rollout_risk_policy(),
-            "notification_audit_policy": build_notification_audit_policy(SNAPSHOT_DRY_RUN_NOTIFICATION_EVENT_TYPE),
-            "baseline_rotation_live_enablement_policy": build_baseline_rotation_live_enablement_policy(),
-            "quality_yield_live_enablement_policy": build_quality_yield_live_enablement_policy(),
-            "quality_growth_live_enablement_policy": build_quality_growth_live_enablement_policy(),
-            "factor_mix_live_enablement_policy": build_factor_mix_live_enablement_policy(),
-            "momentum_live_enablement_policy": build_momentum_live_enablement_policy(),
-            "policy_value_live_enablement_policy": build_policy_value_live_enablement_policy(),
-            "special_situation_live_enablement_policy": build_special_situation_live_enablement_policy(),
+            **build_shared_evidence_policies(
+                "",
+                expected_notification_event_type=SNAPSHOT_DRY_RUN_NOTIFICATION_EVENT_TYPE,
+            ),
+            **build_all_strategy_family_policies(),
             "errors": [*validation_as_of_errors, "evidence file must contain a JSON object"],
             "warnings": [],
         }
