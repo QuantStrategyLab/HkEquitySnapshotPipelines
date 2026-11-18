@@ -73,7 +73,7 @@ Organization documentation rules run in CI via `QuantStrategyLab/.github/.github
 
 ## Commits and pull requests
 
-- Use English Conventional Commits (`feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `perf`, `ci`) with headers <= 72 chars; fill `.github/PULL_REQUEST_TEMPLATE.md` sections (`AI assistance`, `What changed`, `How verified`, `Why`, `Risk`) and avoid `risk:low`/`risk:high` drift from touched paths.
+- Use English Conventional Commits (`feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `perf`, `ci`, `build`) with headers <= 72 chars; fill `.github/PULL_REQUEST_TEMPLATE.md` sections (`AI assistance`, `What changed`, `How verified`, `Why`, `Risk`) and avoid `risk:low`/`risk:high` drift from touched paths.
 - R2 paths require green CI, `ai-review` on the exact head SHA, and one clearing label (`agent-approved` after checks pass, or `owner-approved` only on explicit owner confirmation; never add/remove `owner-approved` yourself).
 - Never push directly to `main`, force-push reviewed branches, lower branch protection, or use `gh pr merge --admin`; merge strictly through normal checks.
 ## Scope and authorization
