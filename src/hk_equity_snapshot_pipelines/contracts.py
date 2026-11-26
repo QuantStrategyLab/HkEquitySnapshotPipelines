@@ -52,7 +52,7 @@ _PROFILE_CONTRACTS = {
         ranking_filename="hk_low_vol_dividend_quality_snapshot_ranking_latest.csv",
         legacy_aliases=(),
         neutral_gcs_prefix_hint=(
-            "gs://qsl-runtime-logs-interactivebrokersquant/strategy-artifacts/hk_equity/"
+            "gs://<bucket>/strategy-artifacts/hk_equity/"
             "hk_low_vol_dividend_quality_snapshot"
         ),
         manifest_required_by_runtime=True,
