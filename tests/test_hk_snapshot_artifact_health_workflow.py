@@ -19,6 +19,8 @@ def test_hk_snapshot_artifact_health_workflow_is_read_only_and_scheduled():
     assert "publish-hk-snapshot-artifacts" not in workflow
     assert "no source generation, publication, deployment, or order submission" in workflow
     assert "Keep the profile parked" in workflow
+    assert "secrets.SCHEDULED_HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_GCS_PREFIX" in workflow
+    assert "vars.SCHEDULED_HK_LOW_VOL_DIVIDEND_QUALITY_SNAPSHOT_GCS_PREFIX" not in workflow
 
 
 def test_hk_snapshot_artifact_health_workflow_pins_remote_actions():
